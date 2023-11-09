@@ -1,0 +1,36 @@
+{
+  "name": "lemomemeutils",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts | npx pino-pretty",
+    "build": "tsc",
+    "start": "tsc && node ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirbodev/lemomemeutils.git"
+  },
+  "author": "Lemomeme Dev Team",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/kirbodev/lemomemeutils/issues"
+  },
+  "homepage": "https://github.com/kirbodev/lemomemeutils#readme",
+  "dependencies": {
+    "discord.js": "^14.13.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.9.0",
+    "@types/pino": "^7.0.5",
+    "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "@typescript-eslint/parser": "^6.10.0",
+    "eslint": "^8.53.0",
+    "pino": "^8.16.1",
+    "pino-pretty": "^10.2.3",
+    "tsx": "^3.14.0"
+  }
+}
