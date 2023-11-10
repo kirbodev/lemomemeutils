@@ -31,4 +31,6 @@ jobs:
         cache: 'npm'
     - run: npm install -g typescript
     - run: npm install
-    - run: npm run start
+    - run: tsc
+    - run: ls dist/src/helpers/
+    - run: node .
