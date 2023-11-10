@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts | npx pino-pretty",
     "build": "tsc",
-    "start": "tsc && node ."
+    "start": "tsc && node  --es-module-specifier-resolution=node ."
   },
   "repository": {
     "type": "git",
