@@ -31,6 +31,4 @@ jobs:
         cache: 'npm'
     - run: npm install -g typescript
     - run: npm install
-    - run: npm run build
-    - run: ls dist
-    - run: node dist/index.js
+    - run: npm run start
