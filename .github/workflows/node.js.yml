@@ -32,5 +32,5 @@ jobs:
     - run: npm install -g typescript
     - run: npm install
     - run: tsc
-    - run: cd ./dist/src/
-    - run: node index.js
+    - run: ls -R /home/runner/work/lemomemeutils/lemomemeutils/dist
+    - run: node /dist/src/index.js
