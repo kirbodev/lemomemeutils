@@ -14,7 +14,6 @@ export default () => {
     fs.readdir(logDir, (err, files) => {
         if (err) {
             logger.error(err, "Error cleaning up logs");
-            process.exit(1);
         }
 
         files.sort((a, b) => {
@@ -27,7 +26,6 @@ export default () => {
                 fs.unlink(path.join(logDir, file), (err) => {
                     if (err) {
                         logger.error(err, "Error cleaning up logs");
-                        process.exit(1);
                     }
                 });
             });

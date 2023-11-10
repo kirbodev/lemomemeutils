@@ -1,8 +1,6 @@
 import pino from 'pino';
 import logCleanup from './logCleanup';
 
-logCleanup();
-
 const transport = pino.transport({
     targets: [
         {
@@ -30,5 +28,7 @@ const logger = pino({
 }, transport);
 
 logger.info('Logger initialized');
+
+logCleanup();
 
 export default logger;
