@@ -8,5 +8,7 @@ export default interface Command {
     testOnly?: boolean,
     permissionsRequired?: bigint[],
     cooldown?: number,
-    execute: (interaction: Interaction) => void
+    slash: (interaction: Interaction) => void
+    // message: (interaction: Message) => void,
+    // contextMenu: (interaction: ContextMenuCommandInteraction) => void
 }

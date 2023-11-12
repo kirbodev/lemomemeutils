@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts | npx pino-pretty",
+    "dev": "set NODE_ENV=dev && tsx watch src/index.ts | npx pino-pretty",
     "build": "tsc",
-    "start": "tsc && node ."
+    "start": "tsc && node  --es-module-specifier-resolution=node .",
+    "test": "tsc && node  --es-module-specifier-resolution=node dist/src/test.js"
   },
   "repository": {
     "type": "git",
@@ -21,7 +22,9 @@
   "homepage": "https://github.com/kirbodev/lemomemeutils#readme",
   "dependencies": {
     "discord.js": "^14.13.0",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "mysql2": "^3.6.3",
+    "typeorm": "^0.3.17"
   },
   "devDependencies": {
     "@types/node": "^20.9.0",
