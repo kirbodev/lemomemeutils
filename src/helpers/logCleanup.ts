@@ -13,7 +13,7 @@ const logDir = path.join(__dirname, '../../logs');
 export default () => {
     fs.readdir(logDir, (err, files) => {
         if (err) {
-            logger.error(err, "Error cleaning up logs");
+            return logger.error(err, "Error cleaning up logs");
         }
 
         files.sort((a, b) => {
