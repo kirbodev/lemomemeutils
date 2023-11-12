@@ -20,4 +20,10 @@ process.on('unhandledRejection', (error) => {
     process.exit(1);
 });
 
-client.login(process.env.DISCORD_TOKEN);
+if (process.env.NODE_ENV) {
+    client.login(process.env.DISCORD_TOKEN_DEV);
+    logger.info('Bot is running in development mode');
+} else {
+    client.login(process.env.DISCORD_TOKEN);
+    logger.info('Bot is running in production mode');
+}
