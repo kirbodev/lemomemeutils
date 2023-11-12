@@ -18,7 +18,8 @@ const transport = pino.transport({
             target: 'pino/file',
             options: {
                 // ISO string is an invalid file name so replace colons with dashes
-                destination: `./logs/LOG-${new Date(Date.now()).toISOString().replace(/:/g, '-')}.log`
+                destination: `./logs/LOG-${new Date(Date.now()).toISOString().replace(/:/g, '-')}.log`,
+                mkdir: true,
             },
         },
         {
