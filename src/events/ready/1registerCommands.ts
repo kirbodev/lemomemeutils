@@ -13,6 +13,7 @@ export default async (client: Client) => {
             return;
         }
         for (const localCommand of localCommands) {
+            if (!localCommand) continue;
             const { name, description, options } = localCommand;
             const existingCommand = commands.find((command) => command.name === name);
 
@@ -24,6 +25,8 @@ export default async (client: Client) => {
                         description,
                         options: options as ApplicationCommandOptionData[]
                     });
+                } else {
+                    logger.info(`Command ${name} is up to date`);
                 }
             } else {
                 await client.application?.commands.create({
