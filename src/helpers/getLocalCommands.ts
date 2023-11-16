@@ -9,7 +9,7 @@ export default async () => {
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
     const commandDir = path.join(__dirname, '../commands');
-    const commandFolders = await getFiles(commandDir, true);
+    const commandFolders = await getFiles(commandDir, true, true);
 
     const commands: Command[] = [];
 
