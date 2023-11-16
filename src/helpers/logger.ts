@@ -1,7 +1,15 @@
 import pino from 'pino';
 import logCleanup from './logCleanup';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
 
-logCleanup();
+// Check if logs directory exists and create it if it doesn't
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const logDir = path.join(__dirname, '../../logs');
+if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir);
+}
 
 const transport = pino.transport({
     targets: [
@@ -11,7 +19,7 @@ const transport = pino.transport({
             options: {
                 // ISO string is an invalid file name so replace colons with dashes
                 destination: `./logs/LOG-${new Date(Date.now()).toISOString().replace(/:/g, '-')}.log`,
-                mkdir: true
+                mkdir: true,
             },
         },
         {
@@ -30,5 +38,7 @@ const logger = pino({
 }, transport);
 
 logger.info('Logger initialized');
+
+logCleanup();
 
 export default logger;
