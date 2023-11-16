@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts | npx pino-pretty",
+    "dev": "set NODE_ENV=dev && tsx watch src/index.ts | npx pino-pretty",
     "build": "tsc",
-    "start": "tsc && node ."
+    "start": "tsc && node  --es-module-specifier-resolution=node .",
+    "test": "tsc && node  --es-module-specifier-resolution=node dist/src/test.js"
   },
   "repository": {
     "type": "git",
