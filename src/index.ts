@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { Client } from 'discord.js';
 import logger from './helpers/logger';
 import eventHandler from './handlers/eventHandler';
+import './db/index';
 
 const client = new Client({
     intents: ['Guilds', 'GuildMessages', 'GuildMembers', 'MessageContent', 'DirectMessages', 'GuildBans', 'GuildEmojisAndStickers', 'GuildMessageReactions', 'GuildModeration', 'GuildVoiceStates']

@@ -3,7 +3,7 @@ import type Command from '../structures/commandInterface';
 import getFiles from './getFiles';
 import path from 'path'
 import { fileURLToPath } from 'url';
-// import logger from './logger';
+import logger from './logger';
 
 export default async () => {
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -17,10 +17,12 @@ export default async () => {
         const commandFiles = await getFiles(commandFolder, false);
         for (const commandFile of commandFiles) {
             const command = await import(`../commands/${path.basename(commandFolder)}/${commandFile}`);
-            // TODO: Add command validation
+            if (!command.default || !command.default.name || !command.default.description || !command.default.slash) {
+                logger.warn(`Invalid command file: ${commandFile}`);
+                continue;
+            }
             commands.push(command.default);
         }
     }
-
     return commands;
 }
