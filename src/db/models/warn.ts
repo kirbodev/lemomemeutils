@@ -24,7 +24,7 @@ const warnSchema = new mongoose.Schema<warnInterface>({
         default: false,
     },
     withMute: {
-        type: Boolean,
+        type: Boolean || Date,
         default: false,
     },
     severity: {
@@ -39,6 +39,10 @@ const warnSchema = new mongoose.Schema<warnInterface>({
     reason: {
         type: String,
         default: () => "No reason provided",
+    },
+    type: {
+        type: String,
+        default: () => "light",
     },
 });
 

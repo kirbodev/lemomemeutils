@@ -6,8 +6,9 @@ export default interface warnInterface {
     moderatorID: string,
     expiresAt: Date,
     forceExpired: boolean,
-    withMute: boolean,
+    withMute: boolean | Date,
     severity: number,
     timestamp: Date,
     reason: string,
+    type: string
 }
