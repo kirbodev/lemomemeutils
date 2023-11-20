@@ -1,17 +1,54 @@
-import { Client, Interaction, PermissionsBitField } from 'discord.js';
+import { Client, Interaction, PermissionsBitField, EmbedBuilder } from 'discord.js';
 import { devs, testServer } from '../../../config.json';
 import getLocalCommands from '../../helpers/getLocalCommands';
 import logger from '../../helpers/logger';
+import Errors from '../../structures/errors';
+import EmbedColors from '../../structures/embedColors';
+import getPermissionName from '../../helpers/getPermissionName';
 
 export default async (client: Client, interaction: Interaction) => {
     if (!interaction.isChatInputCommand()) return;
     const localCommands = await getLocalCommands();
     const command = localCommands.find((command) => command.name === interaction.commandName);
     if (!command) return;
-    if (command.devOnly && !devs.includes(interaction.user.id)) return interaction.reply({ content: 'This command is only available to developers', ephemeral: true });
-    if (command.testOnly && interaction.guildId !== testServer) return interaction.reply({ content: 'This command is only available in the test server', ephemeral: true });
+    if (command.devOnly && !devs.includes(interaction.user.id)) return interaction.reply({
+        embeds: [
+            new EmbedBuilder()
+                .setTitle(Errors.ErrorDevOnly)
+                .setColor(EmbedColors.error)
+                .setFooter({
+                    text: `Requested by ${interaction.user.tag}`,
+                    iconURL: interaction.user.displayAvatarURL()
+                })
+                .setTimestamp(Date.now())
+        ], ephemeral: true
+    });
+    if (command.testOnly && interaction.guildId !== testServer) return interaction.reply({
+        embeds: [
+            new EmbedBuilder()
+                .setTitle(Errors.ErrorTestOnly)
+                .setColor(EmbedColors.error)
+                .setFooter({
+                    text: `Requested by ${interaction.user.tag}`,
+                    iconURL: interaction.user.displayAvatarURL()
+                })
+                .setTimestamp(Date.now())
+        ], ephemeral: true
+    });
     // Check if user has any of the required permissions
-    if (command.permissionsRequired && !(interaction.member?.permissions as PermissionsBitField).has(command.permissionsRequired)) return interaction.reply({ content: 'You do not have permission to use this command', ephemeral: true });
+    if (command.permissionsRequired && !(interaction.member?.permissions as PermissionsBitField).has(command.permissionsRequired)) return interaction.reply({
+        embeds: [
+            new EmbedBuilder()
+                .setTitle(Errors.ErrorPermissions)
+                .setDescription(`You need the following permissions to use this command: ${command.permissionsRequired.map((permission) => `\`${getPermissionName(permission)}\``).join(', ')}`)
+                .setColor(EmbedColors.error)
+                .setFooter({
+                    text: `Requested by ${interaction.user.tag}`,
+                    iconURL: interaction.user.displayAvatarURL()
+                })
+                .setTimestamp(Date.now())
+        ], ephemeral: true
+    });
     try {
         command.slash(interaction);
     } catch (e) {
