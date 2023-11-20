@@ -1,4 +1,4 @@
-import type { ApplicationCommandOptionData, Interaction } from "discord.js";
+import type { ApplicationCommandOptionData, ContextMenuCommandInteraction, Interaction, Message } from "discord.js";
 
 export default interface Command {
     name: string,
@@ -8,7 +8,8 @@ export default interface Command {
     testOnly?: boolean,
     permissionsRequired?: bigint[],
     cooldown?: number,
+    aliases?: string[],
     slash: (interaction: Interaction) => void
-    // message: (interaction: Message) => void,
-    // contextMenu: (interaction: ContextMenuCommandInteraction) => void
+    message?: (interaction: Message, alias?: string) => void,
+    contextMenu?: (interaction: ContextMenuCommandInteraction) => void
 }

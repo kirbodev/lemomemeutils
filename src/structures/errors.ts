@@ -6,6 +6,7 @@ enum Errors {
     ErrorPermissions = "🔒 You don't have permission to do that",
     ErrorCooldown = "⏲️ You're on cooldown",
     ErrorDevOnly = "🛠️ That command is only available to developers",
+    ErrorTestOnly = "🧪 That command is only available in the test server",
     ErrorDM = "📨 You can't do that here! Use this command in a server.",
     ErrorForbiddenChannel = "😶‍🌫️ That command can't be used in this channel",
     ErrorAuthority = "👮 You can't do that to someone with more or the same authority than you",

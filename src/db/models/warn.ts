@@ -1,12 +1,7 @@
-import { randomUUID } from "crypto";
 import mongoose from "mongoose";
 import warnInterface from "../../structures/warnInterface";
 
 const warnSchema = new mongoose.Schema<warnInterface>({
-    id: {
-        type: "UUID",
-        default: () => randomUUID(),
-    },
     userID: {
         type: String,
         required: true,

@@ -1,12 +1,13 @@
-import type { ChatInputCommandInteraction, GuildMemberRoleManager, /* ContextMenuCommandInteraction, Message */ } from "discord.js";
+import type { ActionRowData, ButtonComponentData, ButtonInteraction, ChatInputCommandInteraction, GuildMemberRoleManager /* ContextMenuCommandInteraction, Message */ } from "discord.js";
 import type Command from "../../structures/commandInterface";
-import { GuildMember, ApplicationCommandOptionType, PermissionsBitField, EmbedBuilder } from "discord.js";
+import { GuildMember, ApplicationCommandOptionType, PermissionsBitField, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle, ComponentType } from "discord.js";
 import EmbedColors from "../../structures/embedColors";
 import Errors from "../../structures/errors";
 import { Warn } from "../../db/index"
 import { HydratedDocument } from "mongoose";
 import warnInterface from "../../structures/warnInterface";
 import config from "../../../config.json";
+import banMember from "../../helpers/banMember";
 
 const warnCooldown = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
 const maxWarnsBeforeBan = 3;
@@ -206,6 +207,7 @@ export default {
                 }
             ]);
         }
+        let row: ActionRowData<ButtonComponentData> | undefined = undefined;
         if (banWarn) {
             embed.addFields([
                 {
@@ -214,14 +216,79 @@ export default {
                 }
             ]);
             embed.setColor(EmbedColors.warning);
+            row = new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setCustomId("ban")
+                    .setLabel("Ban")
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji("🔨")
+            ).toJSON() as ActionRowData<ButtonComponentData>;
         }
-        interaction.reply({
+        const response = await interaction.reply({
             embeds: [
                 embed
             ],
+            components: row ? [row] : undefined,
             allowedMentions: {
                 users: [member.id]
             }
         });
+
+        if (row && banWarn) {
+            const filter = (i: ButtonInteraction) => i.customId === "ban" && i.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages) ? true : false;
+            try {
+                response.createMessageComponentCollector({ componentType: ComponentType.Button, filter, time: 1000 * 60 * 5 })
+                    .on("collect", async (i) => {
+                        if (i.customId === "ban") {
+                            try {
+                                // Ban is set to false when the user isn't notified, and throws an error if it can't ban a user
+                                const ban = await banMember(member, "Reached maximum number of warnings", interaction.member as GuildMember);
+                                await i.reply({
+                                    embeds: [
+                                        new EmbedBuilder()
+                                            .setTitle("Banned")
+                                            .setDescription(`Banned <@${member.id}> for reaching the maximum number of warnings. ${ban ? "They have been notified." : "They could not be notified."}`)
+                                            .setColor(EmbedColors.success)
+                                            .setFooter({
+                                                text: `Requested by ${interaction.user.tag}`,
+                                                iconURL: interaction.user.displayAvatarURL()
+                                            })
+                                            .setTimestamp(Date.now())
+                                    ],
+                                });
+                                row!.components[0].disabled = true;
+                                await interaction.editReply({
+                                    components: [
+                                        row!
+                                    ]
+                                })
+                            } catch (e) {
+                                i.reply({
+                                    embeds: [
+                                        new EmbedBuilder()
+                                            .setTitle(Errors.ErrorServer)
+                                            .setColor(EmbedColors.error)
+                                            .setFooter({
+                                                text: `Requested by ${interaction.user.tag}`,
+                                                iconURL: interaction.user.displayAvatarURL()
+                                            })
+                                            .setTimestamp(Date.now())
+                                    ],
+                                });
+                            }
+                        }
+                    })
+
+
+            } catch (e) {
+                // If the user does not respond in 5 minutes, disable the button
+                row.components[0].disabled = true;
+                await interaction.editReply({
+                    components: [
+                        row
+                    ]
+                })
+            }
+        }
     },
 } as Command;
