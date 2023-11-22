@@ -2,7 +2,8 @@ import { HydratedDocument } from "mongoose";
 import { Warn } from "../db"
 import warnInterface from "../structures/warnInterface";
 import type { Client } from "discord.js";
-import config from "../../config.json";
+// @ts-expect-error assertions are not supported yet
+import config from "../../config.json" assert { type: "json" };
 import Job from "../structures/jobInterface";
 
 export default {

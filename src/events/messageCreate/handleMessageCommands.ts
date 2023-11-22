@@ -1,7 +1,9 @@
 import { Client, Message, PermissionsBitField, EmbedBuilder } from 'discord.js';
-import { devs, testServer } from '../../../config.json';
+// @ts-expect-error assertions are not supported yet
+import { devs, testServer } from "../../../config.json" assert { type: "json" };
 import getLocalCommands from '../../helpers/getLocalCommands';
-import config from '../../../config.json';
+// @ts-expect-error assertions are not supported yet
+import config from '../../../config.json' assert { type: "json" };
 import logger from '../../helpers/logger';
 import Errors from '../../structures/errors';
 import EmbedColors from '../../structures/embedColors';

@@ -16,7 +16,7 @@ export default async (client: Client) => {
 
     for (const job of jobs) {
         const jobFile: Job = (await import(`../jobs/${job}`))?.default;
-        const jobName = path.basename(job, '.ts');
+        const jobName = path.basename(job).split('.')[0];
         if (!jobFile || !jobFile.every || !jobFile.execute) {
             logger.warn(`Job ${jobName} is not valid`);
             continue;
