@@ -1,6 +1,5 @@
 import { Client, Interaction, PermissionsBitField, EmbedBuilder } from 'discord.js';
-// @ts-expect-error assertions are not supported yet
-import { devs, testServer } from '../../../config.json' assert { type: 'json' };
+import config from '../../../config';
 import getLocalCommands from '../../helpers/getLocalCommands';
 import logger from '../../helpers/logger';
 import Errors from '../../structures/errors';
@@ -12,7 +11,7 @@ export default async (client: Client, interaction: Interaction) => {
     const localCommands = await getLocalCommands();
     const command = localCommands.find((command) => command.name === interaction.commandName);
     if (!command) return;
-    if (command.devOnly && !devs.includes(interaction.user.id)) return interaction.reply({
+    if (command.devOnly && !config.devs.includes(interaction.user.id)) return interaction.reply({
         embeds: [
             new EmbedBuilder()
                 .setTitle(Errors.ErrorDevOnly)
@@ -24,7 +23,7 @@ export default async (client: Client, interaction: Interaction) => {
                 .setTimestamp(Date.now())
         ], ephemeral: true
     });
-    if (command.testOnly && interaction.guildId !== testServer) return interaction.reply({
+    if (command.testOnly && interaction.guildId !== config.testServer) return interaction.reply({
         embeds: [
             new EmbedBuilder()
                 .setTitle(Errors.ErrorTestOnly)

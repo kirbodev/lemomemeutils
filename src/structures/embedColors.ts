@@ -1,8 +1,8 @@
 enum EmbedColors {
-    error = 0xff0000,
-    success = 0x00ff00,
-    warning = 0xffa500,
-    info = 0xadd8e6
+    error = 0xd0021b,
+    success = 0x7ed321,
+    warning = 0xf5a623,
+    info = 0x4a90e2
 }
 
 export default EmbedColors;

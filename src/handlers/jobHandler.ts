@@ -36,4 +36,5 @@ export default async (client: Client) => {
     }
 
     await agenda.start();
+    return agenda;
 }

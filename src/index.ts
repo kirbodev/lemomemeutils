@@ -10,10 +10,10 @@ const client = new Client({
 });
 
 // Event handling
-eventHandler(client);
+await eventHandler(client);
 
 // Job handling
-jobHandler(client);
+const agenda = await jobHandler(client);
 
 // Error handling
 client.on('error', (error) => {
@@ -32,3 +32,5 @@ if (process.env.NODE_ENV) {
     client.login(process.env.DISCORD_TOKEN);
     logger.info('Bot is running in production mode');
 }
+
+export { client, agenda };
