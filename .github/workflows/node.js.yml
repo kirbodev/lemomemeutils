@@ -5,6 +5,7 @@ name: Node.js CI
 
 env:
   DISCORD_TOKEN: ${{secrets.DISCORD_TEST_TOKEN}}
+  MONGO_CONNECTION: ${{secrets.MONGO_CONNECTION}}
 
 on:
   push:
