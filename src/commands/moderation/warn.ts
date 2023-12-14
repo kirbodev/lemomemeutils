@@ -6,7 +6,8 @@ import Errors from "../../structures/errors";
 import { Warn } from "../../db/index"
 import { HydratedDocument } from "mongoose";
 import warnInterface from "../../structures/warnInterface";
-import config from "../../../config.json";
+// @ts-expect-error assertions are not supported yet
+import config from "../../../config.json" assert { type: "json" };
 import banMember from "../../helpers/banMember";
 
 const warnCooldown = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds

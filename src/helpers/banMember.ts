@@ -1,9 +1,11 @@
 import { EmbedBuilder, GuildMember } from "discord.js";
 import EmbedColors from "../structures/embedColors";
-import warn from "../db/models/warn";
+import { Warn } from "../db";
+import { HydratedDocument } from "mongoose";
+import warnInterface from "../structures/warnInterface";
 
 export default async function banMember(member: GuildMember, reason: string, mod: GuildMember) {
-    const warns = await warn.find({ userID: member.id });
+    const warns: HydratedDocument<warnInterface>[] = await Warn.find({ userID: member.id });
     try {
         await member.send({
             embeds: [new EmbedBuilder()

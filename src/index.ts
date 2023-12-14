@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { Client } from 'discord.js';
 import logger from './helpers/logger';
 import eventHandler from './handlers/eventHandler';
+import jobHandler from './handlers/jobHandler';
 import './db/index';
 
 const client = new Client({
@@ -10,6 +11,9 @@ const client = new Client({
 
 // Event handling
 eventHandler(client);
+
+// Job handling
+jobHandler(client);
 
 // Error handling
 client.on('error', (error) => {
