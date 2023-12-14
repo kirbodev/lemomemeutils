@@ -20,6 +20,10 @@ enum Errors {
     ErrorBanned = "🔨 You're banned from using this command",
     ErrorSelf = "🤐 You can't do that to yourself",
     ErrorBot = "🤖 You can't do that to me",
+    ErrorUserNotBanned = "🤔 That user isn't banned",
+    ErrorUserNotMuted = "🤔 That user isn't muted",
+    ErrorUserBanned = "🔨 That user is banned from the server",
+    ErrorInvalidTime = "⏱️ That's not a valid time, try something like `1h` or `1d`",
 }
 
 export default Errors;

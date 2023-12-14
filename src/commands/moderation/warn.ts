@@ -6,9 +6,9 @@ import Errors from "../../structures/errors";
 import { Warn } from "../../db/index"
 import { HydratedDocument } from "mongoose";
 import warnInterface from "../../structures/warnInterface";
-// @ts-expect-error assertions are not supported yet
-import config from "../../../config.json" assert { type: "json" };
+import config from "../../../config";
 import banMember from "../../helpers/banMember";
+import { nanoid } from "nanoid";
 
 const warnCooldown = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
 const maxWarnsBeforeBan = 3;
@@ -132,12 +132,26 @@ export default {
                 ]
             });
         }
+        const banButtonID = nanoid();
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId(banButtonID)
+                .setLabel("Ban")
+                .setStyle(ButtonStyle.Danger)
+                .setEmoji("🔨")
+        ).toJSON() as ActionRowData<ButtonComponentData>;
 
         // Check if the user reached the maximum number of warnings
+        let secondaryReason = "";
         let banWarn = false;
         if (warns.length === maxWarnsBeforeBan - 1) {
             banWarn = true;
+            secondaryReason = "Reached maximum number of warnings."
             // TODO: Mute for 24 hours
+        }
+        if (member.roles.cache.has(config.paroleRoleID)) {
+            banWarn = true;
+            secondaryReason = "User warned while on parole."
         }
 
         if (warns.length < 2) {
@@ -160,6 +174,9 @@ export default {
                             iconURL: interaction.user.displayAvatarURL()
                         })
                         .setTimestamp(Date.now())
+                ],
+                components: [
+                    row
                 ]
             })
         } else {
@@ -208,75 +225,86 @@ export default {
                 }
             ]);
         }
-        let row: ActionRowData<ButtonComponentData> | undefined = undefined;
         if (banWarn) {
             embed.addFields([
                 {
                     name: "Ban warning",
-                    value: "This is the maximum number of warnings. This user must be banned."
+                    value: `Reason: \`${secondaryReason}\`. This user must be banned.`
                 }
             ]);
             embed.setColor(EmbedColors.warning);
-            row = new ActionRowBuilder().addComponents(
-                new ButtonBuilder()
-                    .setCustomId("ban")
-                    .setLabel("Ban")
-                    .setStyle(ButtonStyle.Danger)
-                    .setEmoji("🔨")
-            ).toJSON() as ActionRowData<ButtonComponentData>;
         }
         const response = await interaction.reply({
             embeds: [
                 embed
             ],
-            components: row ? [row] : undefined,
+            components: banWarn ? [row] : undefined,
             allowedMentions: {
                 users: [member.id]
             }
         });
 
         if (row && banWarn) {
-            const filter = (i: ButtonInteraction) => i.customId === "ban" && i.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages) ? true : false;
+            const filter = (i: ButtonInteraction) => i.customId === banButtonID && i.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages) ? true : false;
             try {
                 response.createMessageComponentCollector({ componentType: ComponentType.Button, filter, time: 1000 * 60 * 5 })
                     .on("collect", async (i) => {
-                        if (i.customId === "ban") {
-                            try {
-                                // Ban is set to false when the user isn't notified, and throws an error if it can't ban a user
-                                const ban = await banMember(member, "Reached maximum number of warnings", interaction.member as GuildMember);
-                                await i.reply({
-                                    embeds: [
-                                        new EmbedBuilder()
-                                            .setTitle("Banned")
-                                            .setDescription(`Banned <@${member.id}> for reaching the maximum number of warnings. ${ban ? "They have been notified." : "They could not be notified."}`)
-                                            .setColor(EmbedColors.success)
-                                            .setFooter({
-                                                text: `Requested by ${interaction.user.tag}`,
-                                                iconURL: interaction.user.displayAvatarURL()
-                                            })
-                                            .setTimestamp(Date.now())
-                                    ],
-                                });
-                                row!.components[0].disabled = true;
-                                await interaction.editReply({
-                                    components: [
-                                        row!
-                                    ]
-                                })
-                            } catch (e) {
-                                i.reply({
-                                    embeds: [
-                                        new EmbedBuilder()
-                                            .setTitle(Errors.ErrorServer)
-                                            .setColor(EmbedColors.error)
-                                            .setFooter({
-                                                text: `Requested by ${interaction.user.tag}`,
-                                                iconURL: interaction.user.displayAvatarURL()
-                                            })
-                                            .setTimestamp(Date.now())
-                                    ],
-                                });
-                            }
+                        const ban = await banMember(member, secondaryReason, interaction.member as GuildMember);
+                        if (!ban.success) {
+                            await i.reply({
+                                embeds: [
+                                    new EmbedBuilder()
+                                        .setTitle(Errors.ErrorGeneric)
+                                        .setDescription(`Failed to ban <@${member.id}>. This is likely because they are already banned.`)
+                                        .setColor(EmbedColors.error)
+                                        .setFooter({
+                                            text: `Requested by ${interaction.user.tag}`,
+                                            iconURL: interaction.user.displayAvatarURL()
+                                        })
+                                        .setTimestamp(Date.now())
+                                ],
+                            })
+                            row!.components[0].disabled = true;
+                            await interaction.editReply({
+                                components: [
+                                    row
+                                ]
+                            });
+                            return;
+                        }
+                        try {
+                            await i.reply({
+                                embeds: [
+                                    new EmbedBuilder()
+                                        .setTitle("Banned")
+                                        .setDescription(`Banned <@${member.id}> for \`${secondaryReason}\`. ${ban.dmSent ? "They have been notified." : "They could not be notified."}`)
+                                        .setColor(EmbedColors.success)
+                                        .setFooter({
+                                            text: `Requested by ${interaction.user.tag}`,
+                                            iconURL: interaction.user.displayAvatarURL()
+                                        })
+                                        .setTimestamp(Date.now())
+                                ],
+                            });
+                            row!.components[0].disabled = true;
+                            await interaction.editReply({
+                                components: [
+                                    row
+                                ]
+                            })
+                        } catch (e) {
+                            i.reply({
+                                embeds: [
+                                    new EmbedBuilder()
+                                        .setTitle(Errors.ErrorServer)
+                                        .setColor(EmbedColors.error)
+                                        .setFooter({
+                                            text: `Requested by ${interaction.user.tag}`,
+                                            iconURL: interaction.user.displayAvatarURL()
+                                        })
+                                        .setTimestamp(Date.now())
+                                ],
+                            });
                         }
                     })
 

@@ -19,7 +19,7 @@ const warnSchema = new mongoose.Schema<warnInterface>({
         default: false,
     },
     withMute: {
-        type: Boolean || Date,
+        type: mongoose.Schema.Types.Mixed,
         default: false,
     },
     severity: {

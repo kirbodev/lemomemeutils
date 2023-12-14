@@ -2,8 +2,7 @@ import { HydratedDocument } from "mongoose";
 import { Warn } from "../db"
 import warnInterface from "../structures/warnInterface";
 import type { Client } from "discord.js";
-// @ts-expect-error assertions are not supported yet
-import config from "../../config.json" assert { type: "json" };
+import config from "../../config";
 import Job from "../structures/jobInterface";
 
 export default {
@@ -15,15 +14,34 @@ export default {
         // Get all unique user ids
         const users = [...new Set(warns.map(warn => warn.userID))];
         for (const user of users) {
+            let removedWarnRoles = false;
             // Get member from guild
-            let member = await client.guilds.cache.get(config.mainServer)?.members.fetch({
-                user: user
-            });
-            if (!member) {
-                member = await client.guilds.cache.get(config.testServer)?.members.fetch({
+            let member;
+            try {
+                member = await client.guilds.cache.get(config.mainServer)?.members.fetch({
                     user: user
                 });
-                if (!member) continue;
+                try {
+                    if (!member) {
+                        member = await client.guilds.cache.get(config.testServer)?.members.fetch({
+                            user: user
+                        });
+                        if (!member) continue;
+                    }
+                } catch (e) {
+                    continue;
+                }
+            } catch (e) {
+                try {
+                    if (!member) {
+                        member = await client.guilds.cache.get(config.testServer)?.members.fetch({
+                            user: user
+                        });
+                        if (!member) continue;
+                    }
+                } catch (e) {
+                    continue;
+                }
             }
             // Get all warns for the user
             const userWarns = warns.filter(warn => warn.userID === user);
@@ -40,12 +58,13 @@ export default {
             // Remove warn roles if they have expired
             if (firstWarnRole && !firstWarn) {
                 await member.roles.remove(firstWarnRole)
-                count++
+                removedWarnRoles = true;
             }
             if (secondWarnRole && !secondWarn) {
                 await member.roles.remove(secondWarnRole)
-                count++;
+                removedWarnRoles = true;
             }
+            if (removedWarnRoles) count++;
         }
         return `Removed warn roles from ${count} users`;
     }

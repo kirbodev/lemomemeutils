@@ -1,9 +1,6 @@
 import { Client, Message, PermissionsBitField, EmbedBuilder } from 'discord.js';
-// @ts-expect-error assertions are not supported yet
-import { devs, testServer } from "../../../config.json" assert { type: "json" };
 import getLocalCommands from '../../helpers/getLocalCommands';
-// @ts-expect-error assertions are not supported yet
-import config from '../../../config.json' assert { type: "json" };
+import config from '../../../config';
 import logger from '../../helpers/logger';
 import Errors from '../../structures/errors';
 import EmbedColors from '../../structures/embedColors';
@@ -17,7 +14,7 @@ export default async (client: Client, message: Message) => {
         command = localCommands.find((command) => command.aliases?.includes(message.content.slice(config.prefix.length).split(' ')[0]));
         if (!command) return;
     }
-    if (command.devOnly && !devs.includes(message.author.id)) return message.reply({
+    if (command.devOnly && !config.devs.includes(message.author.id)) return message.reply({
         embeds: [
             new EmbedBuilder()
                 .setTitle(Errors.ErrorDevOnly)
@@ -29,7 +26,7 @@ export default async (client: Client, message: Message) => {
                 .setTimestamp(Date.now())
         ]
     });
-    if (command.testOnly && message.guildId !== testServer) return message.reply({
+    if (command.testOnly && message.guildId !== config.testServer) return message.reply({
         embeds: [
             new EmbedBuilder()
                 .setTitle(Errors.ErrorTestOnly)
