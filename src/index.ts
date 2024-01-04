@@ -1,19 +1,14 @@
 import 'dotenv/config';
-import { Client } from 'discord.js';
+import { Client, Partials } from 'discord.js';
 import logger from './helpers/logger';
 import eventHandler from './handlers/eventHandler';
-import jobHandler from './handlers/jobHandler';
-import './db/index';
 
 const client = new Client({
-    intents: ['Guilds', 'GuildMessages', 'GuildMembers', 'MessageContent', 'DirectMessages', 'GuildBans', 'GuildEmojisAndStickers', 'GuildMessageReactions', 'GuildModeration', 'GuildVoiceStates']
+    intents: ['Guilds', 'GuildMessages', 'GuildMembers', 'MessageContent', 'DirectMessages', 'GuildBans', 'GuildEmojisAndStickers', 'GuildMessageReactions', 'GuildModeration', 'GuildVoiceStates'],
+    partials: [Partials.Channel, Partials.GuildMember, Partials.Message, Partials.User, Partials.Reaction]
 });
 
-// Event handling
 await eventHandler(client);
-
-// Job handling
-const agenda = await jobHandler(client);
 
 // Error handling
 client.on('error', (error) => {
@@ -22,7 +17,6 @@ client.on('error', (error) => {
 
 process.on('unhandledRejection', (error) => {
     logger.fatal(error, 'Unhandled promise rejection');
-    process.exit(1);
 });
 
 if (process.env.NODE_ENV) {
@@ -33,4 +27,4 @@ if (process.env.NODE_ENV) {
     logger.info('Bot is running in production mode');
 }
 
-export { client, agenda };
+export { client };

@@ -1,56 +1,49 @@
-import type { ChatInputCommandInteraction, GuildMember, GuildMemberRoleManager, /* ContextMenuCommandInteraction, Message */ } from "discord.js";
+import type { ChatInputCommandInteraction, GuildMemberRoleManager, /* ContextMenuCommandInteraction, Message */ } from "discord.js";
 import type Command from "../../structures/commandInterface";
 import { ApplicationCommandOptionType, PermissionsBitField, EmbedBuilder } from "discord.js";
 import EmbedColors from "../../structures/embedColors";
 import Errors from "../../structures/errors";
-import { Action } from "../../db/index"
 import logger from "../../helpers/logger";
-import ms from "ms";
-import banMember from "../../helpers/banMember";
 import configs from "../../config";
+import muteMember from "../../helpers/muteMember";
+import ms from "ms";
+import { Action } from "../../db";
 
 export default {
-    name: "ban",
-    description: "Ban a user and optionally apply parole.",
+    name: "mute",
+    description: "Mute a user.",
     options: [
         {
             name: "user",
-            description: "The user to ban.",
+            description: "The user to mute.",
             type: ApplicationCommandOptionType.User,
             required: true,
         },
         {
             name: "time",
-            description: "The amount of time to ban the user for. By default, this is permanent. Format: `1d 2h 3m 4s`",
+            description: "The amount of time to mute the user for. Format: `1d 2h 3m 4s`",
             type: ApplicationCommandOptionType.String,
-            required: false,
-        },
-        {
-            name: "parole",
-            description: "Whether or not to apply parole to the user.",
-            type: ApplicationCommandOptionType.Boolean,
-            required: false,
+            required: true,
         },
         {
             name: "reason",
-            description: "The reason for banning the user.",
+            description: "The reason for muting the user.",
             type: ApplicationCommandOptionType.String,
             required: false,
         },
     ],
     cooldown: 10000,
-    permissionsRequired: [PermissionsBitField.Flags.BanMembers],
-    contextName: "Ban user",
+    permissionsRequired: [PermissionsBitField.Flags.ManageMessages],
+    contextName: "Mute user",
     slash: async (interaction: ChatInputCommandInteraction) => {
         const user = interaction.options.getUser("user")!;
-        const time = interaction.options.getString("time");
-        const parole = interaction.options.getBoolean("parole") ?? false;
         const reason = interaction.options.getString("reason");
         const config = configs.get(interaction.guildId!)!;
-
-        const member = interaction.guild!.members.cache.get(user.id);
+        const time = interaction.options.getString("time");
 
         const timeMs = time ? ms(time) : undefined;
+
+        const member = interaction.guild!.members.cache.get(user.id);
 
         if (!user) {
             return interaction.reply({
@@ -66,8 +59,21 @@ export default {
                 ]
             });
         }
-
-        if (time && (!timeMs || timeMs < 0 || timeMs > 3.1536E+10 /* 1 year */)) {
+        if (!member) {
+            return interaction.reply({
+                embeds: [
+                    new EmbedBuilder()
+                        .setTitle(Errors.ErrorMemberNotFound)
+                        .setColor(EmbedColors.error)
+                        .setFooter({
+                            text: `Requested by ${interaction.user.tag}`,
+                            iconURL: interaction.user.displayAvatarURL()
+                        })
+                        .setTimestamp(Date.now())
+                ]
+            });
+        }
+        if (!time || !timeMs || timeMs < 0 || timeMs > 3.1536E+10 /* 1 year */) {
             return interaction.reply({
                 embeds: [
                     new EmbedBuilder()
@@ -81,7 +87,6 @@ export default {
                 ]
             });
         }
-
         if (user.id === interaction.user.id) {
             return interaction.reply({
                 embeds: [
@@ -111,7 +116,7 @@ export default {
                 ]
             });
         }
-        if (member && member.roles.highest.position >= (interaction.member?.roles as GuildMemberRoleManager).highest.position) {
+        if (member.roles.highest.position >= (interaction.member?.roles as GuildMemberRoleManager).highest.position) {
             return interaction.reply({
                 embeds: [
                     new EmbedBuilder()
@@ -130,7 +135,7 @@ export default {
                 ephemeral: true
             });
         }
-        if (member && member.roles.highest.position >= (interaction.guild!.members.me?.roles as GuildMemberRoleManager).highest.position) {
+        if (member.roles.highest.position >= (interaction.guild!.members.me?.roles as GuildMemberRoleManager).highest.position) {
             return interaction.reply({
                 embeds: [
                     new EmbedBuilder()
@@ -145,13 +150,35 @@ export default {
                 ephemeral: true
             });
         }
-        if (member && !member.bannable) {
+        if (!member.manageable) {
             return interaction.reply({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorUser)
-                        .setDescription(`<@${user.id}> is not bannable.`)
+                        .setDescription(`<@${member.id}> is not muteable.`)
                         .setColor(EmbedColors.error)
+                        .setFooter({
+                            text: `Requested by ${interaction.user.tag}`,
+                            iconURL: interaction.user.displayAvatarURL()
+                        })
+                        .setTimestamp(Date.now())
+                ],
+                ephemeral: true
+            });
+        }
+        if (member.communicationDisabledUntilTimestamp && member.communicationDisabledUntilTimestamp > Date.now()) {
+            return interaction.reply({
+                embeds: [
+                    new EmbedBuilder()
+                        .setTitle(Errors.ErrorUserMuted)
+                        .setDescription(`<@${member.id}> is already muted. Unmute them first.`)
+                        .setFields([
+                            {
+                                name: "Expires At",
+                                value: `<t:${Math.floor(member.communicationDisabledUntilTimestamp / 1000)}:f>`
+                            }
+                        ])
+                        .setColor(EmbedColors.info)
                         .setFooter({
                             text: `Requested by ${interaction.user.tag}`,
                             iconURL: interaction.user.displayAvatarURL()
@@ -163,41 +190,61 @@ export default {
         }
 
         try {
-            const ban = await banMember(user, reason ?? "No reason provided", interaction.member as GuildMember, parole, timeMs ? new Date(Date.now() + timeMs) : undefined);
-            if (!ban.success) {
-                return interaction.reply({
+            const mute = await muteMember(member, new Date(Date.now() + timeMs), reason ?? "No reason provided");
+            // muteMember doesn't save to DB or send DMs bc it's used by other commands
+            let dmSent = false;
+            try {
+                await user.send({
                     embeds: [
                         new EmbedBuilder()
-                            .setTitle(Errors.ErrorUserBanned)
-                            .setDescription(`Something went wrong while banning <@${user.id}>, they are likely already banned.`)
-                            .setColor(EmbedColors.error)
+                            .setTitle("You have been muted")
+                            .setDescription(`You have been muted in \`${interaction.guild!.name}\``)
+                            .setFields([
+                                {
+                                    name: "Reason",
+                                    value: reason ?? "No reason provided"
+                                },
+                                {
+                                    name: "Moderator",
+                                    value: interaction.user.tag
+                                },
+                                {
+                                    name: "Expires At",
+                                    value: `<t:${Math.floor(mute.getTime() / 1000)}:f>`
+                                },
+                                {
+                                    name: "Appeal",
+                                    value: "You can appeal by joining the appeal server. https://discord.gg/EUsVK5E"
+                                }
+                            ])
+                            .setColor(EmbedColors.warning)
                             .setFooter({
-                                text: `Requested by ${interaction.user.tag}`,
+                                text: `Muted by ${interaction.user.tag}`,
                                 iconURL: interaction.user.displayAvatarURL()
                             })
                             .setTimestamp(Date.now())
                     ]
                 });
+                dmSent = true;
+            } catch (e) {
+                // Do nothing
             }
-            if (timeMs) {
-                setTimeout(async () => {
-                    const action = await Action.findOne({ userID: user.id, actionType: "ban", guildID: interaction.guildId }).sort({ timestamp: -1 });
-                    if (!action) return;
-                    if (action.expiresAt && action.expiresAt > new Date(Date.now())) return;
-                    await interaction.guild!.members.unban(user.id);
-                }, timeMs);
-            }
+            const action = new Action({
+                actionType: "mute",
+                guildID: interaction.guildId!,
+                moderatorID: interaction.user.id,
+                userID: user.id,
+                reason: reason,
+                expiresAt: new Date(Date.now() + timeMs),
+            })
+            await action.save();
             const embed = new EmbedBuilder()
-                .setTitle("Banned")
-                .setDescription(`Banned <@${user.id}> for \`${reason ?? "No reason provided"}\`. ${ban.dmSent ? "They have been notified." : "They could not be notified."}`)
+                .setTitle("Muted")
+                .setDescription(`Muted <@${user.id}> for \`${reason ?? "No reason provided"}\`. ${dmSent ? "They have been notified." : "They could not be notified."}`)
                 .setFields([
                     {
-                        name: "Parole",
-                        value: `${parole ? "Yes" : "No"}`,
-                    },
-                    {
                         name: "Expires",
-                        value: `${time ? `<t:${Math.floor((Date.now() + timeMs!) / 1000)}:f>` : "Never"}`,
+                        value: `<t:${Math.floor((mute.getTime()) / 1000)}:f>`,
                     },
                 ])
                 .setColor(EmbedColors.success)
@@ -211,12 +258,12 @@ export default {
                 embeds: [embed]
             })
         } catch (e) {
-            logger.warn(`Ban command failed to ban user. ${e}`)
+            logger.warn(`Mute command failed to mute user. ${e}`)
             return interaction.reply({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorGeneric)
-                        .setDescription("Something went wrong while banning the user.")
+                        .setDescription("Something went wrong while muting the user.")
                         .setColor(EmbedColors.error)
                         .setFooter({
                             text: `Requested by ${interaction.user.tag}`,

@@ -11,6 +11,10 @@ const actionSchema = new mongoose.Schema<actionInterface>({
         type: String,
         required: true,
     },
+    guildID: {
+        type: String,
+        required: true,
+    },
     expiresAt: {
         type: Date,
         required: false,
@@ -30,12 +34,15 @@ const actionSchema = new mongoose.Schema<actionInterface>({
     actionType: {
         type: String,
         required: true,
-        enum: ["kick", "ban", "unban"],
+        enum: ["kick", "ban", "unban", "mute", "unmute"],
     },
     withParole: {
         type: mongoose.Schema.Types.Mixed,
         default: false,
-    }
+    },
+    iceSeverity: {
+        type: Number, // 0 = thin ice, 1 = thinner ice
+    },
 });
 
-export default mongoose.model<actionInterface>("action", actionSchema, "actions");
+export default mongoose.models.action || mongoose.model<actionInterface>("action", actionSchema, "actions");

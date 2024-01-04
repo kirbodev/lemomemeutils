@@ -1,17 +1,18 @@
-import { EmbedBuilder, GuildMember, User } from "discord.js";
+import { EmbedBuilder, GuildMember } from "discord.js";
 import EmbedColors from "../structures/embedColors";
 import { Action, Warn } from "../db";
 import { HydratedDocument } from "mongoose";
 import warnInterface from "../structures/warnInterface";
 
-export default async function banMember(member: GuildMember | User, reason: string, mod: GuildMember, withParole?: boolean, expiresAt?: Date) {
+export default async function kickMember(member: GuildMember, mod: GuildMember, reason: string) {
     const warns: HydratedDocument<warnInterface>[] = await Warn.find({ userID: member.id, guildID: mod.guild.id, expiresAt: { $gte: new Date().getTime() }, unwarn: { $exists: false } });
     let dmSent: boolean;
+    const invite = member.guild.vanityURLCode ?? member.guild.invites.cache.find(inv => inv.inviterId === member.client.user.id)?.code;
     try {
         await member.send({
             embeds: [new EmbedBuilder()
-                .setTitle("You have been banned")
-                .setDescription(`You have been banned from \`${mod.guild.name}\``)
+                .setTitle("You have been kicked")
+                .setDescription(`You have been kicked from \`${mod.guild.name}\`. You can rejoin at any time, but if you continue to break the rules, you will be banned. ${invite ? `discord.gg/${invite}` : ""}`)
                 .setFields([
                     {
                         name: "Reason",
@@ -25,22 +26,10 @@ export default async function banMember(member: GuildMember | User, reason: stri
                         name: "Active warnings",
                         value: warns.map((warn) => `<t:${Math.floor(warn.timestamp.getTime() / 1000)}:f> - ${warn.reason} - Issued by <@${warn.moderatorID}>`).join("\n")
                     },
-                    {
-                        name: "Parole",
-                        value: withParole ? "Yes" : "No"
-                    },
-                    {
-                        name: "Expires At",
-                        value: expiresAt ? `<t:${Math.floor(expiresAt.getTime() / 1000)}:f>` : "Never"
-                    },
-                    {
-                        name: "Appeal",
-                        value: "You can appeal by joining the appeal server. https://discord.gg/EUsVK5E"
-                    }
                 ])
                 .setColor(EmbedColors.warning)
                 .setFooter({
-                    text: `Banned by ${mod.user.tag}`,
+                    text: `Kicked by ${mod.user.tag}`,
                     iconURL: mod.user.displayAvatarURL()
                 })
                 .setTimestamp(Date.now())
@@ -50,18 +39,16 @@ export default async function banMember(member: GuildMember | User, reason: stri
     } catch (err) {
         dmSent = false;
     }
-    const ban = new Action({
+    const kick = new Action({
         userID: member.id,
         moderatorID: mod.id,
         guildID: mod.guild.id,
-        actionType: "ban",
+        actionType: "kick",
         reason: reason,
-        withParole: withParole,
-        expiresAt: expiresAt
     })
-    await ban.save();
+    await kick.save();
     try {
-        await mod.guild.bans.create(member.id, { reason: reason });
+        await mod.guild.members.kick(member, reason);
         return {
             success: true,
             dmSent: dmSent

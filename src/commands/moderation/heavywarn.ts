@@ -9,12 +9,12 @@ import ms from "ms";
 import configs from "../../config";
 
 export default {
-    name: "warn",
-    description: "Warn a user.",
+    name: "hw",
+    description: "Heavy warn a user.",
     options: [
         {
             name: "user",
-            description: "The user to warn.",
+            description: "The user to heavy warn.",
             type: ApplicationCommandOptionType.User,
             required: true,
         },
@@ -31,11 +31,11 @@ export default {
             required: false,
         },
     ],
-    aliases: ["w", "wm"],
-    syntax: "prefixw <user> [reason] || prefixwm <user> <mute> [reason]",
+    aliases: ["heavy-warn, heavywarn, hwm"],
+    syntax: "prefixhw <user> [reason] || prefixhwm <user> <mute> [reason]",
     cooldown: 10000,
     permissionsRequired: [PermissionsBitField.Flags.ManageMessages],
-    contextName: "Warn user",
+    contextName: "Heavy-warn a user",
     slash: async (interaction: ChatInputCommandInteraction) => {
         const user = interaction.options.getUser("user")!;
         const reason = interaction.options.getString("reason");
@@ -143,7 +143,7 @@ export default {
             });
         }
 
-        const warn = await warnMember(member, interaction.member as GuildMember, 1, reason ?? undefined, timeMs ? new Date(Date.now() + timeMs) : undefined);
+        const warn = await warnMember(member, interaction.member as GuildMember, 2, reason ?? undefined);
 
         if (warn.response === WarnResponse.RateLimited) {
             return interaction.reply({
@@ -166,7 +166,7 @@ export default {
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorUser)
-                        .setDescription("This user has already reached the maximum amount of warns. Please ban them instead.")
+                        .setDescription("This user has already reached the maximum amount of warns.")
                         .setFields([
                             {
                                 name: "Active warnings",
@@ -179,13 +179,7 @@ export default {
                             iconURL: interaction.user.displayAvatarURL()
                         })
                         .setTimestamp(Date.now())
-                ],
-                components: [
-                    new ActionRowBuilder<ButtonBuilder>()
-                        .addComponents(
-                            getBanButton(interaction, member.user, "Reached the maximum amount of warns.")
-                        )
-                ],
+                ]
             })
         }
 
@@ -245,6 +239,7 @@ export default {
                 users: [member.id]
             }
         });
+
         config.log({ embeds: [embed], allowedMentions: { users: [member.id] } });
     },
 } as Command;

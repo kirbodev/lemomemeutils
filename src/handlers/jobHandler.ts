@@ -30,6 +30,13 @@ export default async (client: Client) => {
                 logger.error(e, `Error while executing job ${jobName}`);
             }
         });
+        try {
+            logger.info(`Executing job ${jobName} on startup`);
+            const response = await jobFile.execute(client);
+            logger.info(`Job ${jobName} executed with response: ${response}`);
+        } catch (e) {
+            logger.error(e, `Error while executing job ${jobName}`);
+        }
         agenda.every(jobFile.every, jobName);
 
         logger.info(`Job ${jobName} has been scheduled for every ${jobFile.every}`);
