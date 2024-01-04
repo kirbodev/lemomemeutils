@@ -3,54 +3,36 @@ import type Command from "../../structures/commandInterface";
 import { ApplicationCommandOptionType, PermissionsBitField, EmbedBuilder } from "discord.js";
 import EmbedColors from "../../structures/embedColors";
 import Errors from "../../structures/errors";
-import { Action } from "../../db/index"
 import logger from "../../helpers/logger";
-import ms from "ms";
-import banMember from "../../helpers/banMember";
+import kickMember from "../../helpers/kickMember";
 import configs from "../../config";
 
 export default {
-    name: "ban",
-    description: "Ban a user and optionally apply parole.",
+    name: "kick",
+    description: "Kick a user.",
     options: [
         {
             name: "user",
-            description: "The user to ban.",
+            description: "The user to kick.",
             type: ApplicationCommandOptionType.User,
             required: true,
         },
         {
-            name: "time",
-            description: "The amount of time to ban the user for. By default, this is permanent. Format: `1d 2h 3m 4s`",
-            type: ApplicationCommandOptionType.String,
-            required: false,
-        },
-        {
-            name: "parole",
-            description: "Whether or not to apply parole to the user.",
-            type: ApplicationCommandOptionType.Boolean,
-            required: false,
-        },
-        {
             name: "reason",
-            description: "The reason for banning the user.",
+            description: "The reason for kicking the user.",
             type: ApplicationCommandOptionType.String,
             required: false,
         },
     ],
     cooldown: 10000,
-    permissionsRequired: [PermissionsBitField.Flags.BanMembers],
-    contextName: "Ban user",
+    permissionsRequired: [PermissionsBitField.Flags.ManageMessages],
+    contextName: "Kick user",
     slash: async (interaction: ChatInputCommandInteraction) => {
         const user = interaction.options.getUser("user")!;
-        const time = interaction.options.getString("time");
-        const parole = interaction.options.getBoolean("parole") ?? false;
         const reason = interaction.options.getString("reason");
         const config = configs.get(interaction.guildId!)!;
 
         const member = interaction.guild!.members.cache.get(user.id);
-
-        const timeMs = time ? ms(time) : undefined;
 
         if (!user) {
             return interaction.reply({
@@ -66,12 +48,11 @@ export default {
                 ]
             });
         }
-
-        if (time && (!timeMs || timeMs < 0 || timeMs > 3.1536E+10 /* 1 year */)) {
+        if (!member) {
             return interaction.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setTitle(Errors.ErrorInvalidTime)
+                        .setTitle(Errors.ErrorMemberNotFound)
                         .setColor(EmbedColors.error)
                         .setFooter({
                             text: `Requested by ${interaction.user.tag}`,
@@ -81,7 +62,6 @@ export default {
                 ]
             });
         }
-
         if (user.id === interaction.user.id) {
             return interaction.reply({
                 embeds: [
@@ -111,7 +91,7 @@ export default {
                 ]
             });
         }
-        if (member && member.roles.highest.position >= (interaction.member?.roles as GuildMemberRoleManager).highest.position) {
+        if (member.roles.highest.position >= (interaction.member?.roles as GuildMemberRoleManager).highest.position) {
             return interaction.reply({
                 embeds: [
                     new EmbedBuilder()
@@ -130,7 +110,7 @@ export default {
                 ephemeral: true
             });
         }
-        if (member && member.roles.highest.position >= (interaction.guild!.members.me?.roles as GuildMemberRoleManager).highest.position) {
+        if (member.roles.highest.position >= (interaction.guild!.members.me?.roles as GuildMemberRoleManager).highest.position) {
             return interaction.reply({
                 embeds: [
                     new EmbedBuilder()
@@ -145,12 +125,12 @@ export default {
                 ephemeral: true
             });
         }
-        if (member && !member.bannable) {
+        if (!member.kickable) {
             return interaction.reply({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorUser)
-                        .setDescription(`<@${user.id}> is not bannable.`)
+                        .setDescription(`<@${user.id}> is not kickable.`)
                         .setColor(EmbedColors.error)
                         .setFooter({
                             text: `Requested by ${interaction.user.tag}`,
@@ -163,13 +143,13 @@ export default {
         }
 
         try {
-            const ban = await banMember(user, reason ?? "No reason provided", interaction.member as GuildMember, parole, timeMs ? new Date(Date.now() + timeMs) : undefined);
-            if (!ban.success) {
+            const kick = await kickMember(member, interaction.member as GuildMember, reason ?? "No reason provided");
+            if (!kick.success) {
                 return interaction.reply({
                     embeds: [
                         new EmbedBuilder()
-                            .setTitle(Errors.ErrorUserBanned)
-                            .setDescription(`Something went wrong while banning <@${user.id}>, they are likely already banned.`)
+                            .setTitle(Errors.ErrorGeneric)
+                            .setDescription(`Something went wrong while kicking <@${user.id}>.`)
                             .setColor(EmbedColors.error)
                             .setFooter({
                                 text: `Requested by ${interaction.user.tag}`,
@@ -179,27 +159,9 @@ export default {
                     ]
                 });
             }
-            if (timeMs) {
-                setTimeout(async () => {
-                    const action = await Action.findOne({ userID: user.id, actionType: "ban", guildID: interaction.guildId }).sort({ timestamp: -1 });
-                    if (!action) return;
-                    if (action.expiresAt && action.expiresAt > new Date(Date.now())) return;
-                    await interaction.guild!.members.unban(user.id);
-                }, timeMs);
-            }
             const embed = new EmbedBuilder()
-                .setTitle("Banned")
-                .setDescription(`Banned <@${user.id}> for \`${reason ?? "No reason provided"}\`. ${ban.dmSent ? "They have been notified." : "They could not be notified."}`)
-                .setFields([
-                    {
-                        name: "Parole",
-                        value: `${parole ? "Yes" : "No"}`,
-                    },
-                    {
-                        name: "Expires",
-                        value: `${time ? `<t:${Math.floor((Date.now() + timeMs!) / 1000)}:f>` : "Never"}`,
-                    },
-                ])
+                .setTitle("Kicked")
+                .setDescription(`Kicked <@${user.id}> for \`${reason ?? "No reason provided"}\`. ${kick.dmSent ? "They have been notified." : "They could not be notified."}`)
                 .setColor(EmbedColors.success)
                 .setFooter({
                     text: `Requested by ${interaction.user.tag}`,
@@ -211,12 +173,12 @@ export default {
                 embeds: [embed]
             })
         } catch (e) {
-            logger.warn(`Ban command failed to ban user. ${e}`)
+            logger.warn(`Kick command failed to kick user. ${e}`)
             return interaction.reply({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorGeneric)
-                        .setDescription("Something went wrong while banning the user.")
+                        .setDescription("Something went wrong while kicking the user.")
                         .setColor(EmbedColors.error)
                         .setFooter({
                             text: `Requested by ${interaction.user.tag}`,

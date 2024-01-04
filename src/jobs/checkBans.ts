@@ -1,5 +1,4 @@
 import type { Client } from "discord.js";
-import config from "../../config"
 import Job from "../structures/jobInterface";
 import { Action } from "../db";
 import actionInterface from "../structures/actionInterface";
@@ -20,30 +19,14 @@ export default {
             if (!mostRecentBan) continue;
             if (mostRecentBan.expiresAt && mostRecentBan.expiresAt.getTime() > Date.now()) continue;
             if (mostRecentBan.forceExpired) continue;
-            let server = config.mainServer;
-            let guildBan;
+            // Find the ban in the guild
             try {
-                guildBan = await client.guilds.cache.get(config.mainServer)?.bans.fetch(user);
-                if (!guildBan) {
-                    try {
-                        guildBan = await client.guilds.cache.get(config.testServer)?.bans.fetch(user);
-                        if (!guildBan) continue;
-                        server = config.testServer;
-                    } catch (e) {
-                        continue;
-                    }
-                }
-            } catch (err) {
-                try {
-                    guildBan = await client.guilds.cache.get(config.testServer)?.bans.fetch(user);
-                    if (!guildBan) continue;
-                    server = config.testServer;
-                } catch (e) {
-                    continue;
-                }
+                await client.guilds.cache.get(mostRecentBan.guildID)?.bans.fetch(user);
+            } catch (e) {
+                continue;
             }
-            // Unban user
-            await client.guilds.cache.get(server)?.bans.remove(user);
+            // Unban the user
+            await client.guilds.cache.get(mostRecentBan.guildID)?.members.unban(user, "Ban expired");
             count++;
         }
         return `Unbanned ${count} users`;

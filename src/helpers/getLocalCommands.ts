@@ -5,7 +5,9 @@ import path from 'path'
 import { fileURLToPath } from 'url';
 import logger from './logger';
 
-export default async () => {
+let cachedCommands: Command[] | undefined;
+export default async function getLocalCommands() {
+    if (cachedCommands) return cachedCommands;
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
     const commandDir = path.join(__dirname, '../commands');
@@ -24,5 +26,10 @@ export default async () => {
             commands.push(command.default);
         }
     }
+    cachedCommands = commands;
     return commands;
+}
+
+export function getCachedCommands() {
+    return cachedCommands;
 }

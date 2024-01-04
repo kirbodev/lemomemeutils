@@ -1,11 +1,21 @@
 export default interface warnInterface {
     userID: string,
+    guildID: string,
     moderatorID: string,
     expiresAt: Date,
-    forceExpired: boolean,
-    withMute: boolean | Date,
-    severity: number,
+    unwarn: {
+        moderatorID: string,
+        reason?: string,
+        timestamp?: Date,
+    }
+    withMute?: Date,
+    severity: number, // 1 = light, 2 = heavy
     timestamp: Date,
     reason: string,
-    type: string
+}
+
+export interface unwarnInterface {
+    moderatorID: string,
+    reason?: string,
+    timestamp?: Date,
 }
