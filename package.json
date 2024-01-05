@@ -7,8 +7,8 @@
   "scripts": {
     "dev": "set NODE_ENV=dev && tsx watch src/index.ts | npx pino-pretty",
     "build": "tsc",
-    "start": "tsc && node  --es-module-specifier-resolution=node .",
-    "test": "tsc && node  --es-module-specifier-resolution=node dist/src/test.js"
+    "start": "npm run build && node --es-module-specifier-resolution=node .",
+    "test": "tsc && node --es-module-specifier-resolution=node dist/src/test.js"
   },
   "repository": {
     "type": "git",
