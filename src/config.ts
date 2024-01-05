@@ -28,5 +28,5 @@ config.set("538903170189885460", new Config(
 export default config;
 export let maintainanceMode = process.env.NODE_ENV ? true : false;
 export const toggleMode = () => maintainanceMode = !maintainanceMode;
-export const devs = ["980280857958965328", "695228246966534255"];
+export const devs = ["980280857958965328", "695228246966534255", "923993065784508496", "884036644234231819", "551032697578061858", "230122719511969792"];
 export const testServer = "907340495498407977";
