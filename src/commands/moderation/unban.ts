@@ -47,7 +47,7 @@ export default {
         },
     ],
     cooldown: 10000,
-    permissionsRequired: [PermissionsBitField.Flags.BanMembers],
+    permissionsRequired: [PermissionsBitField.Flags.ModerateMembers],
     slash: async (interaction: ChatInputCommandInteraction) => {
         const userID = interaction.options.getString("user")!;
         const parole = interaction.options.getBoolean("parole") ?? false;

@@ -44,7 +44,6 @@ export default async function warnMember(member: GuildMember, mod: GuildMember, 
     if (banReason) {
         muteExpires = await muteMember(member, new Date(currentTime + 1000 * 60 * 60 * 24), banReason === WarnResponse.reachedMaxWarns ? "Reached the maximum amount of warns." : "Warned while on parole.")
     }
-    console.log(muteExpires);
 
     const warn = new Warn({
         userID: member.id,

@@ -17,7 +17,6 @@ export default async function unwarnMember(warn: HydratedDocument<warnInterface>
     const role = warn.severity === 1 ? config.firstWarnRoleID : config.secondWarnRoleID;
     if (role) await member.roles.remove(role);
     // Remove the mute
-    console.log(warn.withMute)
     if (warn.withMute) await member.disableCommunicationUntil(null);
     return warn;
 }

@@ -5,7 +5,7 @@ import configs from "../../config";
 import logger from "../../helpers/logger";
 
 export default async (client: Client, member: GuildMember) => {
-    const action = await Action.findOne({ userID: member.id, guildID: member.guild.id, withParole: { $ne: false } }).sort({timestamp: -1});
+    const action = await Action.findOne({ userID: member.id, guildID: member.guild.id, withParole: { $ne: false } }).sort({ timestamp: -1 });
     if (!action) return;
     const config = configs.get(member.guild.id)!;
     const paroleRole = member.guild.roles.cache.find(role => role.id === config.paroleRoleID);
@@ -17,30 +17,14 @@ export default async (client: Client, member: GuildMember) => {
         } catch (e) {
             return logger.warn(`Failed to add parole role to ${member.user.tag} (${member.id})`);
         }
-        
+
         action.withParole = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7);
         await action.save();
-
-        setTimeout(async () => {
-            try {
-                await member.roles.remove(paroleRole);
-            } catch (e) {
-                return logger.warn(`Failed to remove parole role from ${member.user.tag} (${member.id})`);
-            }
-        }, 1000 * 60 * 60 * 24 * 7);
     } else {
         try {
             await member.roles.add(paroleRole);
         } catch (e) {
             return logger.warn(`Failed to add parole role to ${member.user.tag} (${member.id})`);
         }
-
-        setTimeout(async () => {
-            try {
-                await member.roles.remove(paroleRole);
-            } catch (e) {
-                return logger.warn(`Failed to remove parole role from ${member.user.tag} (${member.id})`);
-            }
-        }, (action.withParole as Date).getTime() - Date.now());
     }
 };
