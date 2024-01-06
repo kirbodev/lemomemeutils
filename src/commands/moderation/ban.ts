@@ -39,7 +39,7 @@ export default {
         },
     ],
     cooldown: 10000,
-    permissionsRequired: [PermissionsBitField.Flags.BanMembers],
+    permissionsRequired: [PermissionsBitField.Flags.ManageRoles],
     contextName: "Ban user",
     slash: async (interaction: ChatInputCommandInteraction) => {
         const user = interaction.options.getUser("user")!;

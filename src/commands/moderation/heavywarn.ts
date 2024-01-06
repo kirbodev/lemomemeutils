@@ -150,7 +150,7 @@ export default {
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorCooldown)
-                        .setDescription("To prevent accidentally warning a user multiple times, there is a 5 second cooldown between warnings of the same user.")
+                        .setDescription("To prevent accidentally warning a user multiple times, there is a 10 second cooldown between warnings of the same user.")
                         .setColor(EmbedColors.info)
                         .setFooter({
                             text: `Requested by ${interaction.user.tag}`,
@@ -232,7 +232,7 @@ export default {
             components: warn.response !== WarnResponse.Success ? [
                 new ActionRowBuilder<ButtonBuilder>()
                     .addComponents(
-                        getBanButton(interaction, member.user, reason ?? warn.response === WarnResponse.reachedMaxWarns ? "Reached the maximum amount of warns." : "Warned on parole.")
+                        getBanButton(interaction, member.user, warn.response === WarnResponse.reachedMaxWarns ? "Reached the maximum amount of warns." : "Warned on parole.")
                     )
             ] : [],
             allowedMentions: {
