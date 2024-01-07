@@ -9,6 +9,7 @@ import { Client, GuildMember } from "discord.js";
 
 export default async (client: Client, member: GuildMember) => {
     const warns: HydratedDocument<warnInterface>[] = await Warn.find({ userID: member.id, guildID: member.guild.id, expiresAt: { $gte: new Date().getTime() }, unwarn: { $exists: false } });
+if (!warns) return;
     const config = configs.get(member.guild.id)!;
     const warnPoints = warns.reduce((acc, warn) => acc + (warn.severity), 0);
 
