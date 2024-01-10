@@ -8,12 +8,12 @@ export default interface Command {
     devOnly?: boolean,
     otpRequired?: boolean, // Will only return slash commands if true, use with devOnly
     testOnly?: boolean,
-    permissionsRequired?: bigint[], 
+    permissionsRequired?: bigint[],
     cooldown?: number,
     aliases?: string[], // Only works for message commands
     syntax?: string, // Use to override the default syntax inherited from the options property, will replace "prefix" with the actual prefix
     contextName?: string, // Set the context menu name
-    slash: (interaction: ChatInputCommandInteraction, m?: ModalSubmitInteraction ) => void | Promise<any>,
-    message?: (interaction: Message, alias?: string) => void | Promise<any>,
+    slash: (interaction: ChatInputCommandInteraction, m?: ModalSubmitInteraction) => void | Promise<any>,
+    message?: (interaction: Message, options: { alias: string, args?: string[] }) => void | Promise<any>,
     contextMenu?: (interaction: ContextMenuCommandInteraction) => void | Promise<any>,
 }

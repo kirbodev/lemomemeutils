@@ -1,4 +1,4 @@
-import type { ChatInputCommandInteraction, GuildMember, GuildMemberRoleManager, /* ContextMenuCommandInteraction, Message */ } from "discord.js";
+import type { ChatInputCommandInteraction, GuildMember, GuildMemberRoleManager, Message, User, /* ContextMenuCommandInteraction, Message */ } from "discord.js";
 import type Command from "../../structures/commandInterface";
 import { ApplicationCommandOptionType, PermissionsBitField, EmbedBuilder } from "discord.js";
 import EmbedColors from "../../structures/embedColors";
@@ -168,7 +168,7 @@ export default {
                     iconURL: interaction.user.displayAvatarURL()
                 })
                 .setTimestamp(Date.now())
-            config.log({ embeds: [embed] });
+            if (interaction.channel !== config.logChannel) config.log({ embeds: [embed] });
             return interaction.reply({
                 embeds: [embed]
             })
@@ -189,4 +189,168 @@ export default {
             });
         }
     },
+    message: async (interaction: Message, { args }) => {
+        const config = configs.get(interaction.guildId!)!;
+        args = args ?? [];
+        const rawUser = args[0];
+        let user: User;
+        try {
+            user = await interaction.client.users.fetch(rawUser.replace(/[<@!>]/g, ""));
+        } catch (e) {
+            return interaction.reply({
+                embeds: [
+                    new EmbedBuilder()
+                        .setTitle(Errors.ErrorUserNotFound)
+                        .setDescription("Please provide a valid user.")
+                        .setColor(EmbedColors.error)
+                        .setFooter({
+                            text: `Requested by ${interaction.author.tag}`,
+                            iconURL: interaction.author.displayAvatarURL()
+                        })
+                        .setTimestamp(Date.now())
+                ],
+            });
+        }
+        let reason: string | undefined = args.slice(1).join(" ");
+        if (!reason) reason = undefined;
+
+        const member = interaction.guild!.members.cache.get(user.id);
+        if (!member) {
+            return interaction.reply({
+                embeds: [
+                    new EmbedBuilder()
+                        .setTitle(Errors.ErrorMemberNotFound)
+                        .setColor(EmbedColors.error)
+                        .setFooter({
+                            text: `Requested by ${interaction.author.tag}`,
+                            iconURL: interaction.author.displayAvatarURL()
+                        })
+                        .setTimestamp(Date.now())
+                ]
+            });
+        }
+        if (user.id === interaction.author.id) {
+            return interaction.reply({
+                embeds: [
+                    new EmbedBuilder()
+                        .setTitle(Errors.ErrorSelf)
+                        .setColor(EmbedColors.error)
+                        .setFooter({
+                            text: `Requested by ${interaction.author.tag}`,
+                            iconURL: interaction.author.displayAvatarURL()
+                        })
+                        .setTimestamp(Date.now())
+                ]
+            });
+        }
+        if (user.id === interaction.client.user.id) {
+            return interaction.reply({
+                embeds: [
+                    new EmbedBuilder()
+                        .setTitle(Errors.ErrorBot)
+                        .setDescription("What have I done wrong? :(")
+                        .setColor(EmbedColors.error)
+                        .setFooter({
+                            text: `Requested by ${interaction.author.tag}`,
+                            iconURL: interaction.author.displayAvatarURL()
+                        })
+                        .setTimestamp(Date.now())
+                ]
+            });
+        }
+        if (member.roles.highest.position >= (interaction.member?.roles as GuildMemberRoleManager).highest.position) {
+            return interaction.reply({
+                embeds: [
+                    new EmbedBuilder()
+                        .setTitle(Errors.ErrorAuthority)
+                        .setDescription(`<@${member.id}>'s highest role is <@&${member.roles.highest.id}> (Position: ${member.roles.highest.position}), which is higher or equal to your highest role. (Position: ${(interaction.member?.roles as GuildMemberRoleManager).highest.position})`)
+                        .setColor(EmbedColors.error)
+                        .setFooter({
+                            text: `Requested by ${interaction.author.tag}`,
+                            iconURL: interaction.author.displayAvatarURL()
+                        })
+                        .setTimestamp(Date.now())
+                ],
+                allowedMentions: {
+                    users: []
+                },
+            });
+        }
+        if (member.roles.highest.position >= (interaction.guild!.members.me?.roles as GuildMemberRoleManager).highest.position) {
+            return interaction.reply({
+                embeds: [
+                    new EmbedBuilder()
+                        .setTitle(Errors.ErrorBotAuthority)
+                        .setColor(EmbedColors.error)
+                        .setFooter({
+                            text: `Requested by ${interaction.author.tag}`,
+                            iconURL: interaction.author.displayAvatarURL()
+                        })
+                        .setTimestamp(Date.now())
+                ],
+            });
+        }
+        if (!member.kickable) {
+            return interaction.reply({
+                embeds: [
+                    new EmbedBuilder()
+                        .setTitle(Errors.ErrorUser)
+                        .setDescription(`<@${user.id}> is not kickable.`)
+                        .setColor(EmbedColors.error)
+                        .setFooter({
+                            text: `Requested by ${interaction.author.tag}`,
+                            iconURL: interaction.author.displayAvatarURL()
+                        })
+                        .setTimestamp(Date.now())
+                ],
+            });
+        }
+
+        try {
+            const kick = await kickMember(member, interaction.member as GuildMember, reason ?? "No reason provided");
+            if (!kick.success) {
+                return interaction.reply({
+                    embeds: [
+                        new EmbedBuilder()
+                            .setTitle(Errors.ErrorGeneric)
+                            .setDescription(`Something went wrong while kicking <@${user.id}>.`)
+                            .setColor(EmbedColors.error)
+                            .setFooter({
+                                text: `Requested by ${interaction.author.tag}`,
+                                iconURL: interaction.author.displayAvatarURL()
+                            })
+                            .setTimestamp(Date.now())
+                    ]
+                });
+            }
+            const embed = new EmbedBuilder()
+                .setTitle("Kicked")
+                .setDescription(`Kicked <@${user.id}> for \`${reason ?? "No reason provided"}\`. ${kick.dmSent ? "They have been notified." : "They could not be notified."}`)
+                .setColor(EmbedColors.success)
+                .setFooter({
+                    text: `Requested by ${interaction.author.tag}`,
+                    iconURL: interaction.author.displayAvatarURL()
+                })
+                .setTimestamp(Date.now())
+            if (interaction.channel !== config.logChannel) config.log({ embeds: [embed] });
+            return interaction.reply({
+                embeds: [embed]
+            })
+        } catch (e) {
+            logger.warn(`Kick command failed to kick user. ${e}`)
+            return interaction.reply({
+                embeds: [
+                    new EmbedBuilder()
+                        .setTitle(Errors.ErrorGeneric)
+                        .setDescription("Something went wrong while kicking the user.")
+                        .setColor(EmbedColors.error)
+                        .setFooter({
+                            text: `Requested by ${interaction.author.tag}`,
+                            iconURL: interaction.author.displayAvatarURL()
+                        })
+                        .setTimestamp(Date.now())
+                ]
+            });
+        }
+    }
 } as Command;
