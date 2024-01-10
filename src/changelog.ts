@@ -9,5 +9,6 @@ export default {
         "Bot no longer sends the same message twice when using commands in the log channel.",
         "Apples can now use the ban button from having too many warnings.",
         "Help command now displays the correct cooldown.",
+        "Added fake ban for the lulz."
     ]
 }
