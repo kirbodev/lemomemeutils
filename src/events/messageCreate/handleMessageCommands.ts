@@ -19,6 +19,21 @@ export default async (client: Client, message: Message) => {
         command = localCommands.find((command) => command.aliases?.includes(message.content.slice(prefix.length).split(' ')[0]));
         if (!command) return;
     }
+    if (!command.message) {
+        return message.reply({
+            embeds: [
+                new EmbedBuilder()
+                    .setTitle(Errors.ErrorCommand)
+                    .setDescription(`The command \`${command.name}\` does not support message commands.`)
+                    .setColor(EmbedColors.error)
+                    .setFooter({
+                        text: `Requested by ${message.author.tag}`,
+                        iconURL: message.author.displayAvatarURL()
+                    })
+                    .setTimestamp(Date.now())
+            ]
+        });
+    }
     if (command.devOnly && !devs.includes(message.author.id)) return message.reply({
         embeds: [
             new EmbedBuilder()
@@ -71,25 +86,30 @@ export default async (client: Client, message: Message) => {
                 .setTimestamp(Date.now())
         ]
     });
+    const options = message.content.slice(prefix.length).split(' ');
+    options.shift(); // Remove the command name
+    const requiredOptions = command.options?.filter((option) => option.required);
+    if (requiredOptions && requiredOptions.length > options.length) return message.reply({
+        embeds: [
+            new EmbedBuilder()
+                .setTitle(Errors.ErrorUser)
+                .setDescription(`The correct syntax for this command is:\n \`\`\`${command.syntax?.replaceAll('prefix', prefix) || `${prefix}${command.name} ${command.options?.map((option) => option.required ? `<${option.name}>` : `[${option.name}]`).join(' ')}`}\`\`\``)
+                .setColor(EmbedColors.error)
+                .setFooter({
+                    text: `Requested by ${message.author.tag}`,
+                    iconURL: message.author.displayAvatarURL()
+                })
+                .setTimestamp(Date.now())
+        ]
+    });
+
     try {
-        if (!command.message) {
-            return message.reply({
-                embeds: [
-                    new EmbedBuilder()
-                        .setTitle(Errors.ErrorCommand)
-                        .setDescription(`The command \`${command.name}\` does not support message commands.`)
-                        .setColor(EmbedColors.error)
-                        .setFooter({
-                            text: `Requested by ${message.author.tag}`,
-                            iconURL: message.author.displayAvatarURL()
-                        })
-                        .setTimestamp(Date.now())
-                ]
-            });
-        }
         // Call the message command with the parameters: message and the alias used
         setCooldown(message.author.id, command.name);
-        await command.message(message, message.content.slice(prefix.length).split(' ')[0]);
+        await command.message(message, {
+            alias: message.content.slice(prefix.length).split(' ')[0],
+            args: options
+        });
     } catch (e) {
         message.reply('An error occurred while executing this command');
         logger.error(e, `Error while executing command ${command.name}`);
