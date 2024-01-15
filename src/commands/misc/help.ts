@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, ComponentType, StringSelectMenuInteraction, ApplicationCommandType, Message } from "discord.js";
+import { ChatInputCommandInteraction, ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, ComponentType, StringSelectMenuInteraction, ApplicationCommandType, Message, PermissionsBitField } from "discord.js";
 import type Command from "../../structures/commandInterface";
 import { getCachedCommands } from "../../helpers/getLocalCommands";
 import Errors from "../../structures/errors";
@@ -24,6 +24,7 @@ export default {
             }))
         }
     ],
+    permissionsRequired: [PermissionsBitField.Flags.SendMessages],
     async slash(interaction: ChatInputCommandInteraction) {
         const config = configs.get(interaction.guildId!)!;
         const localCommands = getCachedCommands()!;
