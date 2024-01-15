@@ -16,15 +16,32 @@ export default {
     options: [
         {
             name: "user",
-            description: "The user to show the moderation history of.",
+            description: "The user to show the moderation history of. (Moderator only)",
             type: ApplicationCommandOptionType.User,
-            required: true,
+            required: false,
         },
     ],
     contextName: 'Case logs',
-    permissionsRequired: [PermissionsBitField.Flags.ManageMessages],
+    permissionsRequired: [PermissionsBitField.Flags.SendMessages],
     async slash(interaction: ChatInputCommandInteraction) {
-        const user = interaction.options.getUser("user")!;
+        let user = interaction.options.getUser("user");
+
+        if (user && !interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)) {
+            return interaction.reply({
+                embeds: [
+                    new EmbedBuilder()
+                        .setTitle(Errors.ErrorPermissions)
+                        .setDescription("You must be a moderator to view the case logs of another user.")
+                        .setColor(EmbedColors.error)
+                        .setFooter({
+                            text: `Requested by ${interaction.user.tag}`,
+                            iconURL: interaction.user.displayAvatarURL()
+                        })
+                        .setTimestamp(Date.now())
+                ], ephemeral: true
+            });
+        }
+        if (!user) user = interaction.user;
         const member = interaction.guild!.members.cache.get(user.id);
 
         const config = configs.get(interaction.guildId!)!;
@@ -205,22 +222,41 @@ export default {
         args = args ?? [];
         const rawUser = args[0];
         let user: User;
-        try {
-            user = await interaction.client.users.fetch(rawUser.replace(/[<@!>]/g, ""));
-        } catch (e) {
-            return interaction.reply({
-                embeds: [
-                    new EmbedBuilder()
-                        .setTitle(Errors.ErrorUserNotFound)
-                        .setDescription("Please provide a valid user.")
-                        .setColor(EmbedColors.error)
-                        .setFooter({
-                            text: `Requested by ${interaction.author.tag}`,
-                            iconURL: interaction.author.displayAvatarURL()
-                        })
-                        .setTimestamp(Date.now())
-                ],
-            });
+        if (!rawUser) {
+            user = interaction.author;
+        } else {
+            if (!interaction.member?.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
+                return interaction.reply({
+                    embeds: [
+                        new EmbedBuilder()
+                            .setTitle(Errors.ErrorPermissions)
+                            .setDescription("You must be a moderator to view the case logs of another user.")
+                            .setColor(EmbedColors.error)
+                            .setFooter({
+                                text: `Requested by ${interaction.author.tag}`,
+                                iconURL: interaction.author.displayAvatarURL()
+                            })
+                            .setTimestamp(Date.now())
+                    ],
+                });
+            }
+            try {
+                user = await interaction.client.users.fetch(rawUser.replace(/[<@!>]/g, ""));
+            } catch (e) {
+                return interaction.reply({
+                    embeds: [
+                        new EmbedBuilder()
+                            .setTitle(Errors.ErrorUserNotFound)
+                            .setDescription("Please provide a valid user.")
+                            .setColor(EmbedColors.error)
+                            .setFooter({
+                                text: `Requested by ${interaction.author.tag}`,
+                                iconURL: interaction.author.displayAvatarURL()
+                            })
+                            .setTimestamp(Date.now())
+                    ],
+                });
+            }
         }
         const member = interaction.guild!.members.cache.get(user.id);
         if (!member) {
