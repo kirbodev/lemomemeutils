@@ -1,4 +1,4 @@
-import { PermissionsBitField, type ChatInputCommandInteraction, EmbedBuilder, ModalBuilder, ActionRowBuilder, ModalActionRowComponentBuilder, TextInputBuilder, TextInputStyle, TextChannel } from "discord.js";
+import { PermissionsBitField, type ChatInputCommandInteraction, EmbedBuilder, ModalBuilder, ActionRowBuilder, ModalActionRowComponentBuilder, TextInputBuilder, TextInputStyle, TextChannel, ButtonBuilder, ButtonStyle } from "discord.js";
 import type Command from "../../structures/commandInterface";
 import configs from "../../config";
 import Errors from "../../structures/errors";
@@ -207,9 +207,23 @@ export default {
                     iconURL: interaction.user.displayAvatarURL()
                 })
                 .setTimestamp(Date.now());
+            const bypassButtons = new ActionRowBuilder<ButtonBuilder>()
+                .setComponents([
+                    new ButtonBuilder()
+                        .setLabel("Bypass - Approve")
+                        .setStyle(ButtonStyle.Success)
+                        .setCustomId(`bypass-approve-${interaction.user.id}`),
+                    new ButtonBuilder()
+                        .setLabel("Bypass - Decline")
+                        .setStyle(ButtonStyle.Danger)
+                        .setCustomId(`bypass-decline-${interaction.user.id}`)
+                ])
             const i = await (voteChannel as TextChannel).send({
                 embeds: [
                     embed
+                ],
+                components: [
+                    bypassButtons
                 ],
                 content: "@everyone"
             });
