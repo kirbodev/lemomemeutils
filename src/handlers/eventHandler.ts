@@ -13,9 +13,7 @@ export default async (client: Client) => {
     for (const eventFolder of eventFolders) {
         const eventFiles = await getFiles(eventFolder, false, false);
         // Sort files alphabetically to give priority in case needed
-        eventFiles.sort((a, b) => {
-            return a.localeCompare(b);
-        });
+        eventFiles.sort();
 
         const eventName = path.basename(eventFolder);
         client.on(eventName, async (...args) => {
@@ -25,7 +23,11 @@ export default async (client: Client) => {
                     logger.warn(`Event file ${eventFile} does not export a default function`);
                     continue;
                 }
-                event.default(client, ...args);
+                try {
+                    event.default(client, ...args);
+                } catch (err) {
+                    logger.error(`Event file ${eventFile} errored: ${err}`);
+                }
             }
         })
     }

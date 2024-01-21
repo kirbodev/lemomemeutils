@@ -1,10 +1,9 @@
 import { EmbedBuilder, GuildMember } from "discord.js";
 import { Warn } from "../db";
-import { HydratedDocument } from "mongoose";
-import warnInterface from "../structures/warnInterface";
 import configs from "../config";
 import EmbedColors from "../structures/embedColors";
 import muteMember from "./muteMember";
+import getActiveWarns from "./getActiveWarns";
 
 export enum WarnResponse {
     RateLimited,
@@ -16,7 +15,7 @@ export enum WarnResponse {
 
 export default async function warnMember(member: GuildMember, mod: GuildMember, severity: 1 | 2, reason?: string, withMute?: Date) {
     const config = configs.get(member.guild.id)!;
-    const warns: HydratedDocument<warnInterface>[] = await Warn.find({ userID: member.id, guildID: member.guild.id, expiresAt: { $gte: new Date().getTime() }, unwarn: { $exists: false } });
+    const warns = await getActiveWarns(member);
     const currentTime = new Date().getTime();
     // Add together all the warns, with light being 1 point and heavy being 2 points
     const warnPoints = warns.reduce((acc, warn) => acc + (warn.severity), 0);
@@ -40,7 +39,7 @@ export default async function warnMember(member: GuildMember, mod: GuildMember, 
     let muteExpires: Date | undefined;
     if (withMute) {
         muteExpires = await muteMember(member, withMute, reason || "No reason provided");
-    } 
+    }
     if (banReason) {
         muteExpires = await muteMember(member, new Date(currentTime + 1000 * 60 * 60 * 24), banReason === WarnResponse.reachedMaxWarns ? "Reached the maximum amount of warns." : "Warned while on parole.")
     }
@@ -49,7 +48,7 @@ export default async function warnMember(member: GuildMember, mod: GuildMember, 
         userID: member.id,
         guildID: member.guild.id,
         moderatorID: mod.id,
-        expiresAt: severity === 1 ? new Date(currentTime + 1000 * 60 * 60 * 24 * 3) : new Date(currentTime + 1000 * 60 * 60 * 24 * 7),
+        expiresAt: severity === 1 ? new Date(currentTime + 1000 * 60 * 60 * 24 * 3) : new Date(currentTime + 1000 * 60 * 60 * 24 * 6),
         severity,
         reason,
         withMute: muteExpires
@@ -59,13 +58,23 @@ export default async function warnMember(member: GuildMember, mod: GuildMember, 
     const role = warnPoints + severity === 1 ? config.firstWarnRoleID : config.secondWarnRoleID;
     if (role) {
         await member.roles.add(role);
+        if (warnPoints + severity > 1) await member.roles.add(config.firstWarnRoleID);
         setTimeout(async () => {
             // Fetch the warn again to make sure it hasn't been unwarned, this is to prevent a bug where the role is removed when it shouldn't be
             const newWarn = await Warn.findOne({ _id: warn._id });
             if (!newWarn) return;
             if (newWarn.unwarn) return;
+            if (warnPoints + severity > 1) {
+                setTimeout(async () => {
+                    // Fetch the warn again to make sure it hasn't been unwarned, this is to prevent a bug where the role is removed when it shouldn't be
+                    const newWarn = await Warn.findOne({ _id: warn._id });
+                    if (!newWarn) return;
+                    if (newWarn.unwarn) return;
+                    member.roles.remove(config.firstWarnRoleID);
+                }, 1000 * 60 * 60 * 24 * 3);
+            }
             member.roles.remove(role);
-        }, severity === 1 ? 1000 * 60 * 60 * 24 * 3 : 1000 * 60 * 60 * 24 * 7);
+        }, 1000 * 60 * 60 * 24 * 3);
     }
 
     let dmSent = false;

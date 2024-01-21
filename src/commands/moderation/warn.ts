@@ -41,6 +41,7 @@ export default {
     permissionsRequired: [PermissionsBitField.Flags.ManageMessages],
     contextName: "Warn user",
     slash: async (interaction: ChatInputCommandInteraction) => {
+        await interaction.deferReply();
         const user = interaction.options.getUser("user")!;
         const reason = interaction.options.getString("reason");
         const time = interaction.options.getString("mute");
@@ -50,7 +51,7 @@ export default {
         const config = configs.get(interaction.guildId!)!;
 
         if (!member) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorMemberNotFound)
@@ -66,7 +67,7 @@ export default {
             });
         }
         if (member.id === interaction.user.id) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorSelf)
@@ -81,7 +82,7 @@ export default {
             });
         }
         if (member.id === interaction.client.user.id) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorBot)
@@ -97,7 +98,7 @@ export default {
             });
         }
         if (time && (!timeMs || timeMs < 0 || timeMs > 3.1536E+10 /* 1 year */)) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorInvalidTime)
@@ -112,7 +113,7 @@ export default {
             });
         }
         if (member.roles.highest.position >= (interaction.member?.roles as GuildMemberRoleManager).highest.position) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorAuthority)
@@ -132,7 +133,7 @@ export default {
         }
 
         if (member.roles.highest.position >= (interaction.guild!.members.me?.roles as GuildMemberRoleManager).highest.position) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorBotAuthority)
@@ -148,7 +149,7 @@ export default {
         }
 
         if (time && member.communicationDisabledUntilTimestamp && member.communicationDisabledUntilTimestamp > Date.now()) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorUserMuted)
@@ -173,7 +174,7 @@ export default {
         const warn = await warnMember(member, interaction.member as GuildMember, 1, reason ?? undefined, timeMs ? new Date(Date.now() + timeMs) : undefined);
 
         if (warn.response === WarnResponse.RateLimited) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorCooldown)
@@ -189,7 +190,7 @@ export default {
         }
 
         if (warn.response === WarnResponse.isAtMaxWarns) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorUser)
@@ -261,7 +262,7 @@ export default {
             ]);
             embed.setColor(EmbedColors.warning);
         }
-        await interaction.reply({
+        await interaction.followUp({
             embeds: [
                 embed
             ],
@@ -319,7 +320,6 @@ export default {
             });
         }
         const timeMs = time ? ms(time) : undefined;
-        console.log(time, timeMs)
         const member = interaction.guild!.members.cache.get(user.id) as GuildMember;
 
         if (!member) {

@@ -26,13 +26,14 @@ export default {
     ],
     permissionsRequired: [PermissionsBitField.Flags.SendMessages],
     async slash(interaction: ChatInputCommandInteraction) {
+        await interaction.deferReply({ ephemeral: true });
         const config = configs.get(interaction.guildId!)!;
         const localCommands = getCachedCommands()!;
         const commandName = interaction.options.getString("command");
         if (commandName) {
             const command = localCommands.find((command) => command.name === commandName);
             if (!command) {
-                return interaction.reply({
+                return interaction.followUp({
                     embeds: [
                         new EmbedBuilder()
                             .setTitle(Errors.ErrorCommandNotFound)
@@ -46,7 +47,7 @@ export default {
                     ephemeral: true
                 });
             }
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(`Help | ${command.name}`)
@@ -95,7 +96,7 @@ export default {
             })
         } else {
             const selectMenuId = nanoid();
-            await interaction.reply({
+            await interaction.followUp({
                 components: [
                     new ActionRowBuilder()
                         .addComponents([
@@ -122,7 +123,7 @@ export default {
                 if (interaction.customId !== selectMenuId) return;
                 const command = localCommands.find((command) => command.name === interaction.values[0]);
                 if (!command) {
-                    interaction.reply({
+                    interaction.followUp({
                         embeds: [
                             new EmbedBuilder()
                                 .setTitle(Errors.ErrorCommandNotFound)
@@ -281,7 +282,7 @@ export default {
                 if (interaction.customId !== selectMenuId) return;
                 const command = localCommands.find((command) => command.name === interaction.values[0]);
                 if (!command) {
-                    interaction.reply({
+                    interaction.followUp({
                         embeds: [
                             new EmbedBuilder()
                                 .setTitle(Errors.ErrorCommandNotFound)

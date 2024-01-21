@@ -16,10 +16,10 @@ export default async (client: Client) => {
             const { name, description, options } = localCommand;
             const existingCommand = commands.find((command) => command.name === name);
             if (existingCommand) {
-                await existingCommand.edit({ name, description, options: options as ApplicationCommandOptionData[], dmPermission: false, defaultMemberPermissions: localCommand.permissionsRequired });
+                await existingCommand.edit({ name, description, options: options as ApplicationCommandOptionData[], dmPermission: false, defaultMemberPermissions: localCommand.permissionsRequired || [] });
                 logger.info(`Updated command ${name}`);
             } else {
-                await client.application?.commands.create({ name, description, options: options as ApplicationCommandOptionData[], dmPermission: false, defaultMemberPermissions: localCommand.permissionsRequired });
+                await client.application?.commands.create({ name, description, options: options as ApplicationCommandOptionData[], dmPermission: false, defaultMemberPermissions: localCommand.permissionsRequired || [] });
                 logger.info(`Created command ${name}`);
             }
         }

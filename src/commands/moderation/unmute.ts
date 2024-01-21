@@ -28,6 +28,7 @@ export default {
     permissionsRequired: [PermissionsBitField.Flags.ManageMessages],
     contextName: "Unmute user",
     slash: async (interaction: ChatInputCommandInteraction) => {
+        await interaction.deferReply();
         const user = interaction.options.getUser("user")!;
         const reason = interaction.options.getString("reason");
         const config = configs.get(interaction.guildId!)!;
@@ -35,7 +36,7 @@ export default {
         const member = interaction.guild!.members.cache.get(user.id);
 
         if (!user) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorUserNotFound)
@@ -49,7 +50,7 @@ export default {
             });
         }
         if (!member) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorMemberNotFound)
@@ -63,7 +64,7 @@ export default {
             });
         }
         if (user.id === interaction.user.id) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorSelf)
@@ -77,7 +78,7 @@ export default {
             });
         }
         if (user.id === interaction.client.user.id) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorBot)
@@ -117,12 +118,12 @@ export default {
                 })
                 .setTimestamp(Date.now())
             if (interaction.channel !== config.logChannel) config.log({ embeds: [embed] });
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [embed]
             })
         } catch (e) {
             logger.warn(`Unmute command failed to unmute user. ${e}`)
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorGeneric)

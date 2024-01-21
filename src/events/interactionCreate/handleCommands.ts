@@ -9,6 +9,7 @@ import Dev from '../../db/models/dev';
 import { nanoid } from 'nanoid';
 import showOTPModal from '../../helpers/showOTPModal';
 import { getCooldown, setCooldown } from '../../handlers/cooldownHandler';
+import ms from 'ms';
 
 export default async (client: Client, interaction: Interaction) => {
     if (!interaction.isChatInputCommand()) return;
@@ -16,6 +17,7 @@ export default async (client: Client, interaction: Interaction) => {
     const localCommands = await getLocalCommands();
     const command = localCommands.find((command) => command.name === interaction.commandName);
     if (!command) return;
+
     if (maintainanceMode && !devs.includes(interaction.user.id)) return interaction.reply({
         embeds: [
             new EmbedBuilder()
@@ -72,7 +74,7 @@ export default async (client: Client, interaction: Interaction) => {
         embeds: [
             new EmbedBuilder()
                 .setTitle(Errors.ErrorCooldown)
-                .setDescription(`You can use this command again in ${Math.ceil((cooldown - Date.now()) / 1000)} seconds.`)
+                .setDescription(`You can use this command again in ${ms(cooldown - Date.now(), { long: true })}.`)
                 .setColor(EmbedColors.info)
                 .setFooter({
                     text: `Requested by ${interaction.user.tag}`,
@@ -215,14 +217,20 @@ export default async (client: Client, interaction: Interaction) => {
                 iconURL: interaction.user.displayAvatarURL()
             })
             .setTimestamp(Date.now())
-        interaction.replied ? interaction.editReply({
-            embeds: [embed],
-            components: []
-        }) : interaction.reply({
-            embeds: [embed],
-            components: [],
-            ephemeral: true
-        });
+        try {
+            await interaction.followUp({
+                embeds: [embed],
+                components: [],
+                ephemeral: true
+            });
+        } catch (e) {
+            interaction.reply({
+                embeds: [embed],
+                components: []
+            })
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            .catch(() => {});
+        }
         logger.error(e, `Error while executing command ${command.name}`);
     }
 }

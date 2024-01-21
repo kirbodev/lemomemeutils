@@ -8,10 +8,11 @@ export default {
     description: 'Toggles maintainance mode. Only available to developers.',
     devOnly: true,
     otpRequired: true,
-    slash(ogInteraction: ChatInputCommandInteraction, interaction: ModalSubmitInteraction | ChatInputCommandInteraction) {
+    async slash(ogInteraction: ChatInputCommandInteraction, interaction: ModalSubmitInteraction | ChatInputCommandInteraction) {
         if (!interaction) interaction = ogInteraction;
+        await interaction.deferReply({ ephemeral: true });
         toggleMode();
-        interaction.reply({
+        interaction.followUp({
             embeds: [
                 new EmbedBuilder()
                     .setTitle('Maintainance Mode')

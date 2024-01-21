@@ -50,6 +50,7 @@ export default {
     syntax: "<user> [parole (true/false)] [ice (thin/thinner)] [reason]",
     permissionsRequired: [PermissionsBitField.Flags.ModerateMembers],
     slash: async (interaction: ChatInputCommandInteraction) => {
+        await interaction.deferReply();
         const userID = interaction.options.getString("user")!;
         const parole = interaction.options.getBoolean("parole") ?? false;
         const ice = interaction.options.getString("ice");
@@ -60,7 +61,7 @@ export default {
         try {
             user = await interaction.client.users.fetch(userID);
             if (!user) {
-                return interaction.reply({
+                return interaction.followUp({
                     embeds: [
                         new EmbedBuilder()
                             .setTitle(Errors.ErrorUserNotFound)
@@ -74,7 +75,7 @@ export default {
                 });
             }
         } catch (e) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorUserNotFound)
@@ -88,7 +89,7 @@ export default {
             });
         }
         if (ice && !config.thinIceRoleID || ice && !config.thinnerIceRoleID) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorCommand)
@@ -103,7 +104,7 @@ export default {
             });
         }
         if (user.id === interaction.user.id) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorSelf)
@@ -117,7 +118,7 @@ export default {
             });
         }
         if (user.id === interaction.client.user.id) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorBot)
@@ -135,7 +136,7 @@ export default {
             try {
                 await interaction.guild?.members.unban(user, reason ?? "No reason provided")
             } catch (e) {
-                return interaction.reply({
+                return interaction.followUp({
                     embeds: [
                         new EmbedBuilder()
                             .setTitle(Errors.ErrorUserNotBanned)
@@ -180,12 +181,12 @@ export default {
                 })
                 .setTimestamp(Date.now())
             if (interaction.channel !== config.logChannel) config.log({ embeds: [embed] });
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [embed]
             })
         } catch (e) {
             logger.warn(`Unban command failed to unban user. ${e}`)
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorGeneric)

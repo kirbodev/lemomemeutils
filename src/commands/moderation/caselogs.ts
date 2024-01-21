@@ -24,10 +24,11 @@ export default {
     contextName: 'Case logs',
     permissionsRequired: [PermissionsBitField.Flags.SendMessages],
     async slash(interaction: ChatInputCommandInteraction) {
+        await interaction.deferReply();
         let user = interaction.options.getUser("user");
 
         if (user && !interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorPermissions)
@@ -47,7 +48,7 @@ export default {
         const config = configs.get(interaction.guildId!)!;
 
         if (!user) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorUserNotFound)
@@ -61,7 +62,7 @@ export default {
             });
         }
         if (!member) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorMemberNotFound)
@@ -75,7 +76,7 @@ export default {
             });
         }
         if (user.id === interaction.client.user.id) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorBot)
@@ -88,8 +89,6 @@ export default {
                 ], ephemeral: true
             });
         }
-
-        await interaction.deferReply();
 
         const warns: HydratedDocument<warnInterface>[] = await Warn.find({ guildID: interaction.guildId, userID: user.id }).sort({ timestamp: -1 })
         const actions: HydratedDocument<actionInterface>[] = await Action.find({ guildID: interaction.guildId, userID: user.id }).sort({ timestamp: -1 });

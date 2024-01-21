@@ -39,6 +39,7 @@ export default {
     permissionsRequired: [PermissionsBitField.Flags.ManageMessages],
     contextName: "Heavy-warn a user",
     slash: async (interaction: ChatInputCommandInteraction) => {
+        await interaction.deferReply();
         const user = interaction.options.getUser("user")!;
         const reason = interaction.options.getString("reason");
         const time = interaction.options.getString("mute");
@@ -48,7 +49,7 @@ export default {
         const config = configs.get(interaction.guildId!)!;
 
         if (!member) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorMemberNotFound)
@@ -64,7 +65,7 @@ export default {
             });
         }
         if (member.id === interaction.user.id) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorSelf)
@@ -79,7 +80,7 @@ export default {
             });
         }
         if (member.id === interaction.client.user.id) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorBot)
@@ -95,7 +96,7 @@ export default {
             });
         }
         if (time && (!timeMs || timeMs < 0 || timeMs > 3.1536E+10 /* 1 year */)) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorInvalidTime)
@@ -110,7 +111,7 @@ export default {
             });
         }
         if (member.roles.highest.position >= (interaction.member?.roles as GuildMemberRoleManager).highest.position) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorAuthority)
@@ -130,7 +131,7 @@ export default {
         }
 
         if (member.roles.highest.position >= (interaction.guild!.members.me?.roles as GuildMemberRoleManager).highest.position) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorBotAuthority)
@@ -148,7 +149,7 @@ export default {
         const warn = await warnMember(member, interaction.member as GuildMember, 2, reason ?? undefined);
 
         if (warn.response === WarnResponse.RateLimited) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorCooldown)
@@ -164,7 +165,7 @@ export default {
         }
 
         if (warn.response === WarnResponse.isAtMaxWarns) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorUser)
@@ -186,7 +187,7 @@ export default {
         }
 
         if (time && member.communicationDisabledUntilTimestamp && member.communicationDisabledUntilTimestamp > Date.now()) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorUserMuted)
@@ -250,7 +251,7 @@ export default {
             ]);
             embed.setColor(EmbedColors.warning);
         }
-        await interaction.reply({
+        await interaction.followUp({
             embeds: [
                 embed
             ],
@@ -289,11 +290,11 @@ export default {
                 ],
             });
         }
-        if (!alias) alias = "w";
+        if (!alias) alias = "hw";
         // Reason will either be args[1] and forwards or args[2] and forwards depending on the alias
-        const reason = alias === "w" ? args.slice(1).join(" ") : args.slice(2).join(" ");
-        const time = alias === "wm" ? args[1] : undefined;
-        if (alias === "wm" && !time) {
+        const reason = alias === "hw" ? args.slice(1).join(" ") : args.slice(2).join(" ");
+        const time = alias === "hwm" ? args[1] : undefined;
+        if (alias === "hwm" && !time) {
             return interaction.reply({
                 embeds: [
                     new EmbedBuilder()

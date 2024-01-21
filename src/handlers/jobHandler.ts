@@ -24,20 +24,28 @@ export default async (client: Client) => {
         agenda.define(jobName, async () => {
             try {
                 logger.info(`Executing job ${jobName}`);
-                const response = await jobFile.execute(client);
-                logger.info(`Job ${jobName} executed with response: ${response}`);
+                jobFile.execute(client)
+                    .then((response) => logger.info(`Job ${jobName} executed with response: ${response}`))
+                    .catch((e) => logger.error(e, `Error while executing job ${jobName}`));
             } catch (e) {
                 logger.error(e, `Error while executing job ${jobName}`);
             }
         });
-        try {
-            logger.info(`Executing job ${jobName} on startup`);
-            const response = await jobFile.execute(client);
-            logger.info(`Job ${jobName} executed with response: ${response}`);
-        } catch (e) {
-            logger.error(e, `Error while executing job ${jobName}`);
+        if (!jobFile.dontRunOnStart) {
+            try {
+                logger.info(`Executing job ${jobName} on startup`);
+                jobFile.execute(client)
+                    .then((response) => logger.info(`Job ${jobName} executed with response: ${response}`))
+                    .catch((e) => logger.error(e, `Error while executing job ${jobName}`));
+            } catch (e) {
+                logger.error(e, `Error while executing job ${jobName}`);
+            }
         }
-        agenda.every(jobFile.every, jobName);
+        try {
+            agenda.every(jobFile.every, jobName);
+        } catch (e) {
+            logger.error(e, `Error while scheduling job ${jobName}`);
+        }
 
         logger.info(`Job ${jobName} has been scheduled for every ${jobFile.every}`);
     }

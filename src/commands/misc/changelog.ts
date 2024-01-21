@@ -8,9 +8,10 @@ export default {
     description: 'Shows the most recent changelog for the bot.',
     cooldown: 10000,
     permissionsRequired: [PermissionsBitField.Flags.ManageMessages],
-    slash(interaction: ChatInputCommandInteraction) {
+    async slash(interaction: ChatInputCommandInteraction) {
+        await interaction.deferReply();
         const changes = changelog.changelog.map(change => `- ${change}`);
-        interaction.reply({
+        interaction.followUp({
             embeds: [
                 new EmbedBuilder()
                     .setTitle(`${changelog.version} | ${changelog.name}`)

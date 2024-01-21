@@ -7,6 +7,7 @@ import EmbedColors from '../../structures/embedColors';
 import getPermissionName from '../../helpers/getPermissionName';
 import { maintainanceMode } from '../../config';
 import { getCooldown, setCooldown } from '../../handlers/cooldownHandler';
+import ms from 'ms';
 
 export default async (client: Client, interaction: Interaction) => {
     if (!interaction.isContextMenuCommand()) return;
@@ -69,7 +70,7 @@ export default async (client: Client, interaction: Interaction) => {
         embeds: [
             new EmbedBuilder()
                 .setTitle(Errors.ErrorCooldown)
-                .setDescription(`You can use this command again in ${Math.ceil((cooldown - Date.now()) / 1000)} seconds.`)
+                .setDescription(`You can use this command again in ${ms(cooldown - Date.now(), { long: true })}`)
                 .setColor(EmbedColors.info)
                 .setFooter({
                     text: `Requested by ${interaction.user.tag}`,
@@ -91,14 +92,18 @@ export default async (client: Client, interaction: Interaction) => {
                 iconURL: interaction.user.displayAvatarURL()
             })
             .setTimestamp(Date.now())
-        interaction.replied ? interaction.editReply({
-            embeds: [embed],
-            components: []
-        }) : interaction.reply({
-            embeds: [embed],
-            components: [],
-            ephemeral: true
-        });
+        try {
+            interaction.reply({
+                embeds: [embed],
+                components: [],
+                ephemeral: true
+            });
+        } catch (e) {
+            interaction.editReply({
+                embeds: [embed],
+                components: []
+            });
+        }
         logger.error(e, `Error while executing contextMenu command ${command.name}`);
     }
 }
