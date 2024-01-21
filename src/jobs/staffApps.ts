@@ -1,4 +1,4 @@
-import { Client, EmbedBuilder } from 'discord.js';
+import { APIEmbed, Client, EmbedBuilder, GuildTextBasedChannel } from 'discord.js';
 import Job from '../structures/jobInterface';
 import { Staff } from '../db';
 import { HydratedDocument } from 'mongoose';
@@ -43,6 +43,25 @@ export default {
                             embeds: [embed]
                         });
                     } catch (e) {
+                        // Do nothing
+                    }
+                    try {
+                        const message = await (guild.channels.cache.get(config.staffVoteChannelID!) as GuildTextBasedChannel)?.messages.fetch(vote.voteMessage);
+                        if (!message) return;
+                        const membed = new EmbedBuilder(message.embeds[0] as APIEmbed)
+                            .addFields([
+                                {
+                                    name: "Decision",
+                                    value: "Approved by majority vote"
+                                }
+                            ])
+                            .setColor(EmbedColors.success)
+                            .setTimestamp();
+                        await message.edit({
+                            components: [],
+                            embeds: [membed]
+                        });
+                    } catch (e) {
                         continue;
                     }
                 } else {
@@ -59,6 +78,25 @@ export default {
                     try {
                         await client.users.cache.get(vote.userID)?.send({
                             embeds: [embed]
+                        });
+                    } catch (e) {
+                        // Do nothing
+                    }
+                    try {
+                        const message = await (guild.channels.cache.get(config.staffVoteChannelID!) as GuildTextBasedChannel)?.messages.fetch(vote.voteMessage);
+                        if (!message) return;
+                        const membed = new EmbedBuilder(message.embeds[0] as APIEmbed)
+                            .addFields([
+                                {
+                                    name: "Decision",
+                                    value: votes.length - yesVotes >= majority ? "Denied by majority vote" : "Denied by timeout"
+                                }
+                            ])
+                            .setColor(EmbedColors.error)
+                            .setTimestamp();
+                        await message.edit({
+                            components: [],
+                            embeds: [membed]
                         });
                     } catch (e) {
                         continue;
