@@ -6,6 +6,7 @@ import Errors from '../../structures/errors';
 import EmbedColors from '../../structures/embedColors';
 import getPermissionName from '../../helpers/getPermissionName';
 import { getCooldown, setCooldown } from '../../handlers/cooldownHandler';
+import ms from 'ms';
 
 export default async (client: Client, message: Message) => {
     if (!message.guild) return;
@@ -77,7 +78,7 @@ export default async (client: Client, message: Message) => {
         embeds: [
             new EmbedBuilder()
                 .setTitle(Errors.ErrorCooldown)
-                .setDescription(`You can use this command again in ${Math.ceil((cooldown - Date.now()) / 1000)} seconds.`)
+                .setDescription(`You can use this command again in ${ms(cooldown - Date.now(), { long: true })}.`)
                 .setColor(EmbedColors.info)
                 .setFooter({
                     text: `Requested by ${message.author.tag}`,

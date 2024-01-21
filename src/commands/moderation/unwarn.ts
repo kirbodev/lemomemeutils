@@ -36,6 +36,7 @@ export default {
     cooldown: 10000,
     permissionsRequired: [PermissionsBitField.Flags.ManageMessages],
     slash: async (interaction: ChatInputCommandInteraction) => {
+        await interaction.deferReply();
         const user = interaction.options.getUser("user")!;
         const reason = interaction.options.getString("reason");
         const member = interaction.guild!.members.cache.get(user.id) as GuildMember;
@@ -43,7 +44,7 @@ export default {
         const config = configs.get(interaction.guildId!)!;
 
         if (!member) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorMemberNotFound)
@@ -59,7 +60,7 @@ export default {
             });
         }
         if (member.id === interaction.user.id) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorSelf)
@@ -74,7 +75,7 @@ export default {
             });
         }
         if (member.id === interaction.client.user.id) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorBot)
@@ -89,7 +90,7 @@ export default {
             });
         }
         if (member.roles.highest.position >= (interaction.member?.roles as GuildMemberRoleManager).highest.position) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorAuthority)
@@ -109,7 +110,7 @@ export default {
         }
 
         if (member.roles.highest.position >= (interaction.guild!.members.me?.roles as GuildMemberRoleManager).highest.position) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorBotAuthority)
@@ -126,7 +127,7 @@ export default {
 
         const warns: HydratedDocument<warnInterface>[] = await Warn.find({ userID: member.id, guildID: interaction.guild!.id, expiresAt: { $gte: new Date().getTime() }, unwarn: { $exists: false } }).sort({ timestamp: -1 });
         if (warns.length === 0) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorUser)
@@ -142,7 +143,7 @@ export default {
             });
         }
         const id = nanoid();
-        const idInteraction = await interaction.reply({
+        const idInteraction = await interaction.followUp({
             embeds: [
                 new EmbedBuilder()
                     .setTitle("Unwarn")

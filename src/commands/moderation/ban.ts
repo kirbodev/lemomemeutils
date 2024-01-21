@@ -43,6 +43,7 @@ export default {
     contextName: "Ban user",
     aliases: ["fban"],
     slash: async (interaction: ChatInputCommandInteraction) => {
+        await interaction.deferReply();
         const user = interaction.options.getUser("user")!;
         const time = interaction.options.getString("time");
         const parole = interaction.options.getBoolean("parole") ?? false;
@@ -54,7 +55,7 @@ export default {
         const timeMs = time ? ms(time) : undefined;
 
         if (!user) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorUserNotFound)
@@ -69,7 +70,7 @@ export default {
         }
 
         if (time && (!timeMs || timeMs < 0 || timeMs > 3.1536E+10 /* 1 year */)) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorInvalidTime)
@@ -84,7 +85,7 @@ export default {
         }
 
         if (user.id === interaction.user.id) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorSelf)
@@ -98,7 +99,7 @@ export default {
             });
         }
         if (user.id === interaction.client.user.id) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorBot)
@@ -113,7 +114,7 @@ export default {
             });
         }
         if (member && member.roles.highest.position >= (interaction.member?.roles as GuildMemberRoleManager).highest.position) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorAuthority)
@@ -132,7 +133,7 @@ export default {
             });
         }
         if (member && member.roles.highest.position >= (interaction.guild!.members.me?.roles as GuildMemberRoleManager).highest.position) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorBotAuthority)
@@ -147,7 +148,7 @@ export default {
             });
         }
         if (member && !member.bannable) {
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorUser)
@@ -164,7 +165,7 @@ export default {
         }
         try {
             const fetchedBan = await interaction.guild!.bans.fetch(user.id)
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorUserBanned)
@@ -190,7 +191,7 @@ export default {
         try {
             const ban = await banMember(user, reason ?? "No reason provided", interaction.member as GuildMember, parole, timeMs ? new Date(Date.now() + timeMs) : undefined);
             if (!ban.success) {
-                return interaction.reply({
+                return interaction.followUp({
                     embeds: [
                         new EmbedBuilder()
                             .setTitle(Errors.ErrorGeneric)
@@ -232,12 +233,12 @@ export default {
                 })
                 .setTimestamp(Date.now())
             if (interaction.channel !== config.logChannel) config.log({ embeds: [embed] });
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [embed]
             })
         } catch (e) {
             logger.warn(`Ban command failed to ban user. ${e}`)
-            return interaction.reply({
+            return interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(Errors.ErrorGeneric)

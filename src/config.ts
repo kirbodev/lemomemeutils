@@ -1,29 +1,54 @@
 import { Collection } from "discord.js";
 import Config from "./structures/configInterface";
 
+/*
+    guildID: string;
+    firstWarnRoleID: string;
+    secondWarnRoleID: string;
+    paroleRoleID: string;
+    prefix?: string;
+    thinIceRoleID?: string;
+    thinnerIceRoleID?: string;
+    logChannelID?: string;
+    logChannel?: GuildTextBasedChannel;
+    staffApplicationsChannelID?: string;
+    staffVoteChannelID?: string;
+    staffVoteRoles?: string[];
+    staffRoles?: (string | null)[];
+*/
+
 const config = new Collection<string, Config>();
 // Test server
 config.set("907340495498407977", new Config(
-    "907340495498407977",
-    "1172919578641317939",
-    "1172920021371072534",
-    "1180542522062278707",
-    ",",
-    "1187137588813893692",
-    "1187137637841113179",
-    "1036213847293444166"
+    {
+        guildID: "907340495498407977",
+        firstWarnRoleID: "1172919578641317939",
+        secondWarnRoleID: "1172920021371072534",
+        paroleRoleID: "1180542522062278707",
+        prefix: ",",
+        thinIceRoleID: "1187137588813893692",
+        thinnerIceRoleID: "1187137637841113179",
+        logChannelID: "1036213847293444166",
+        staffApplicationsChannelID: "1195120979039502377",
+        staffVoteChannelID: "1011952861325819984",
+        staffVoteRoles: ["1191713864274939914"],
+        staffRoles: [null, null, "907341095145472010"]}
 ));
 // Lemomeme
-config.set("538903170189885460", new Config(
-    "538903170189885460",
-    "724839115828232232",
-    "724839112192032798",
-    "765883363520544778",
-    ",",
-    "985333181538521128",
-    "985333604013965343",
-    "1096117788516552795"
-));
+config.set("538903170189885460", new Config({
+    guildID: "538903170189885460",
+    firstWarnRoleID: "724839115828232232",
+    secondWarnRoleID: "724839112192032798",
+    paroleRoleID: "765883363520544778",
+    prefix: ",",
+    thinIceRoleID: "985333181538521128",
+    thinnerIceRoleID: "985333604013965343",
+    logChannelID: "1096117788516552795",
+    staffApplicationsChannelID: "1096120117974290503",
+    staffVoteChannelID: "1096121574983225435",
+    staffVoteRoles: ["594576990212849767", "553354789359058954", "1124428178102948011"],
+    staffRoles: [null, "688607097948078092", "554006029365542922", "553354935425564713", "555585458281775115", "553354789359058954", "1124428178102948011", "594576990212849767"]
+}));
 
 export default config;
 export let maintainanceMode = process.env.NODE_ENV ? true : false;

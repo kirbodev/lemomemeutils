@@ -20,9 +20,10 @@ export default {
         // When using otpRequired, there will sometimes be the original interaction with all original data, and interaction which is the modal interaction which should be used for replying. 
         // For simplicity, we will just use the modal interaction if it exists, otherwise we will use the original interaction so don't use modal-specific methods.
         if (!interaction) interaction = ogInteraction;
+        await interaction.deferReply({ ephemeral: true });
         try {
             const result = inspect(await eval(ogInteraction.options.getString('code')!), { depth: 1 });
-            interaction.reply({
+            interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle('Eval | Success')
@@ -37,7 +38,7 @@ export default {
                 ephemeral: true
             });
         } catch (err) {
-            interaction.reply({
+            interaction.followUp({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle('Eval | Error')

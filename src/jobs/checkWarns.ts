@@ -4,6 +4,7 @@ import warnInterface from "../structures/warnInterface";
 import type { Client } from "discord.js";
 import configs from "../config";
 import Job from "../structures/jobInterface";
+import getActiveWarns from "../helpers/getActiveWarns";
 
 export default {
     every: '1 hour',
@@ -14,7 +15,7 @@ export default {
         const users = [...new Set(warns.map(warn => warn.userID))];
         for (const user of users) {
             const userWarns = warns.filter(w => w.userID === user);
-            for (const guild of userWarns.map(warn => warn.guildID)) {
+            for (const guild of [... new Set(userWarns.map(warn => warn.guildID))]) {
                 const config = configs.get(guild)!;
                 // Get member from guild
                 let member;
@@ -25,11 +26,7 @@ export default {
                     continue;
                 }
                 // Get the warn points for the user by adding the severity of all active warns
-                let warnPoints = 0;
-                for (const warn of userWarns) {
-                    if (warn.unwarn || warn.expiresAt.getTime() < Date.now()) continue;
-                    warnPoints += warn.severity;
-                }
+                const warnPoints = (await getActiveWarns(member))?.reduce((acc, warn) => acc + (warn.severity), 0);
                 // Check if user has warn roles
                 const firstWarnRole = member.roles.cache.get(config.firstWarnRoleID!);
                 const secondWarnRole = member.roles.cache.get(config.secondWarnRoleID!);
