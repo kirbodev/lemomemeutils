@@ -1,6 +1,7 @@
 import { GuildTextBasedChannel, MessageCreateOptions } from "discord.js";
 import { client } from "..";
 import logger from "../helpers/logger";
+import { StaffLevel } from "./staffInterface";
 
 interface ConfigParams {
     guildID: string;
@@ -15,6 +16,7 @@ interface ConfigParams {
     staffVoteChannelID?: string;
     staffVoteRoles?: string[];
     staffRoles?: (string | null)[];
+    linkedStaffRoles?: Map<StaffLevel, string>;
 }
 export default class Config {
     guildID: string;
@@ -30,6 +32,7 @@ export default class Config {
     staffVoteChannelID?: string;
     staffVoteRoles?: string[];
     staffRoles?: (string | null)[];
+    linkedStaffRoles?: Map<StaffLevel, string>; // If >= StaffLevel, they get the role
 
     constructor(params: ConfigParams) {
         this.guildID = params.guildID;
@@ -44,6 +47,7 @@ export default class Config {
         this.staffVoteChannelID = params.staffVoteChannelID;
         this.staffVoteRoles = params.staffVoteRoles;
         this.staffRoles = params.staffRoles;
+        this.linkedStaffRoles = params.linkedStaffRoles;
 
         if (!this.prefix) this.prefix = ",";
         client.channels.fetch(this.logChannelID!)

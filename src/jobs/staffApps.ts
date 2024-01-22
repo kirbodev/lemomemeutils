@@ -36,6 +36,16 @@ export default {
                     const embed = new EmbedBuilder()
                         .setTitle("Staff Application Approved")
                         .setDescription(`Your staff application for ${guild.name} has been approved!`)
+                        .setFields([
+                            {
+                                name: "Decision",
+                                value: "Approved by majority vote"
+                            },
+                            {
+                                name: "Reason",
+                                value: vote.decision.reason || "No reason provided"
+                            }
+                        ])
                         .setColor(EmbedColors.success)
                         .setTimestamp();
                     try {
@@ -61,6 +71,28 @@ export default {
                             components: [],
                             embeds: [membed]
                         });
+
+                        const staffChannel = guild.channels.cache.get(config.staffApplicationsChannelID!) as GuildTextBasedChannel;
+                        if (!staffChannel) continue;
+                        staffChannel.send({
+                            embeds: [
+                                new EmbedBuilder()
+                                    .setTitle("Staff Application Approved")
+                                    .setDescription(`<@${vote.userID}>'s staff application has been approved!`)
+                                    .setFields([
+                                        {
+                                            name: "Decision",
+                                            value: "Approved by majority vote"
+                                        },
+                                        {
+                                            name: "Reason",
+                                            value: vote.decision.reason || "No reason provided"
+                                        }
+                                    ])
+                                    .setColor(EmbedColors.success)
+                                    .setTimestamp()
+                            ]
+                        })
                     } catch (e) {
                         continue;
                     }
@@ -73,6 +105,16 @@ export default {
                     const embed = new EmbedBuilder()
                         .setTitle("Staff Application Declined")
                         .setDescription(`Your staff application for ${guild.name} has been declined.`)
+                        .setFields([
+                            {
+                                name: "Decision",
+                                value: votes.length - yesVotes >= majority ? "Denied by majority vote" : "Denied by timeout"
+                            },
+                            {
+                                name: "Reason",
+                                value: vote.decision.reason || "No reason provided"
+                            }
+                        ])
                         .setColor(EmbedColors.error)
                         .setTimestamp();
                     try {
@@ -98,6 +140,28 @@ export default {
                             components: [],
                             embeds: [membed]
                         });
+
+                        const staffChannel = guild.channels.cache.get(config.staffApplicationsChannelID!) as GuildTextBasedChannel;
+                        if (!staffChannel) continue;
+                        staffChannel.send({
+                            embeds: [
+                                new EmbedBuilder()
+                                    .setTitle("Staff Application Declined")
+                                    .setDescription(`<@${vote.userID}>'s staff application has been declined.`)
+                                    .setFields([
+                                        {
+                                            name: "Decision",
+                                            value: votes.length - yesVotes >= majority ? "Denied by majority vote" : "Denied by timeout"
+                                        },
+                                        {
+                                            name: "Reason",
+                                            value: vote.decision.reason || "No reason provided"
+                                        }
+                                    ])
+                                    .setColor(EmbedColors.error)
+                                    .setTimestamp()
+                            ]
+                        })
                     } catch (e) {
                         continue;
                     }
