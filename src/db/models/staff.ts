@@ -24,6 +24,7 @@ const staffSchema = new mongoose.Schema<staffInterface>({
         type: {
             approved: Boolean,
             decisionAt: Date,
+            reason: String,
             votes: {
                 type: Map,
                 of: Boolean,

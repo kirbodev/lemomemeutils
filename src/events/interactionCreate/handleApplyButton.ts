@@ -1,21 +1,17 @@
-import { PermissionsBitField, type ChatInputCommandInteraction, EmbedBuilder, ModalBuilder, ActionRowBuilder, ModalActionRowComponentBuilder, TextInputBuilder, TextInputStyle, TextChannel, ButtonBuilder, ButtonStyle } from "discord.js";
-import type Command from "../../structures/commandInterface";
-import configs from "../../config";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, EmbedBuilder, Interaction, ModalActionRowComponentBuilder, ModalBuilder, PermissionsBitField, TextChannel, TextInputBuilder, TextInputStyle } from "discord.js";
 import Errors from "../../structures/errors";
 import EmbedColors from "../../structures/embedColors";
-import { nanoid } from "nanoid";
 import { Staff } from "../../db";
-import { HydratedDocument } from "mongoose";
+import { nanoid } from "nanoid";
 import staffInterface from "../../structures/staffInterface";
+import { HydratedDocument } from "mongoose";
+import configs from "../../config";
 import ms from "ms";
 
-export default {
-    name: 'apply',
-    description: 'Apply for staff. You can only apply once every 2 weeks.',
-    permissionsRequired: [PermissionsBitField.Flags.SendMessages],
-    async slash(interaction: ChatInputCommandInteraction) {
-        // Don't defer reply, modal can't be shown when deferred
-        const config = configs.get(interaction.guildId!)!;
+export default async (client: Client, interaction: Interaction) => {
+    if (!interaction.isButton()) return;
+    if (!interaction.customId.startsWith("apply-")) return;
+    const config = configs.get(interaction.guildId!)!;
         if (!config.staffApplicationsChannelID) return interaction.reply({
             embeds: [
                 new EmbedBuilder()
@@ -30,20 +26,20 @@ export default {
             ],
             ephemeral: true
         })
-        if (interaction.channelId !== config.staffApplicationsChannelID) return interaction.reply({
-            embeds: [
-                new EmbedBuilder()
-                    .setTitle(Errors.ErrorUser)
-                    .setDescription('You can only apply for staff in the staff applications channel.')
-                    .setColor(EmbedColors.error)
-                    .setFooter({
-                        text: `Requested by ${interaction.user.tag}`,
-                        iconURL: interaction.user.displayAvatarURL()
-                    })
-                    .setTimestamp(Date.now())
-            ],
-            ephemeral: true
-        })
+        // if (interaction.channelId !== config.staffApplicationsChannelID) return interaction.reply({
+        //     embeds: [
+        //         new EmbedBuilder()
+        //             .setTitle(Errors.ErrorUser)
+        //             .setDescription('You can only apply for staff in the staff applications channel.')
+        //             .setColor(EmbedColors.error)
+        //             .setFooter({
+        //                 text: `Requested by ${interaction.user.tag}`,
+        //                 iconURL: interaction.user.displayAvatarURL()
+        //             })
+        //             .setTimestamp(Date.now())
+        //     ],
+        //     ephemeral: true
+        // })
         if (interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)) return interaction.reply({
             embeds: [
                 new EmbedBuilder()
@@ -182,7 +178,7 @@ export default {
             if (!voteChannel) return;
             const embed = new EmbedBuilder()
                 .setTitle('Staff Application')
-                .setDescription(`<@${interaction.user.id}> has applied for staff.`)
+                .setDescription(`<@${interaction.user.id}> has applied for staff. **Reply** with \`r${config.prefix}<reason>\` to add a reason.`)
                 .setFields([
                     {
                         name: 'Age',
@@ -271,5 +267,4 @@ export default {
                 components: []
             });
         }
-    },
-} as Command;
+}

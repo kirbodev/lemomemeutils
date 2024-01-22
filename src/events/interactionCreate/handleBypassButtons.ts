@@ -1,5 +1,5 @@
-import { APIEmbed, Client, EmbedBuilder, Interaction } from "discord.js";
-import { devs } from "../../config";
+import { APIEmbed, Client, EmbedBuilder, GuildTextBasedChannel, Interaction } from "discord.js";
+import configs, { devs } from "../../config";
 import { Staff } from "../../db";
 import setStaffLevel from "../../helpers/setStaffLevel";
 import { HydratedDocument } from "mongoose";
@@ -13,6 +13,7 @@ export default async (client: Client, interaction: Interaction) => {
         content: "❌ You can't do that!",
         ephemeral: true
     });
+    const config = configs.get(interaction.guildId!)!;
     // split after the first - and before the second - to get the type
     const type = interaction.customId.split("-").slice(1, 2).join("-");
     // split after the second - to get the user id
@@ -24,8 +25,8 @@ export default async (client: Client, interaction: Interaction) => {
     const staff: HydratedDocument<staffInterface> | null = await Staff.findOne({ userID: user.id, guildID: interaction.guild!.id, "decision.decisionAt": undefined });
     if (!staff) return await interaction.followUp({
         content: "❌ No staff application found!",
+        ephemeral: true
     });
-    console.log(type);
     if (type === "approve") {
         staff.decision.decisionAt = new Date();
         staff.decision.approved = true;
@@ -33,10 +34,21 @@ export default async (client: Client, interaction: Interaction) => {
         await setStaffLevel(staff, 2)
         await interaction.followUp({
             content: "✅ Approved!",
+            ephemeral: true
         });
         const embed = new EmbedBuilder()
             .setTitle("Staff Application Approved")
             .setDescription(`Your staff application for ${interaction.guild!.name} has been approved!`)
+            .setFields([
+                {
+                    name: "Decision",
+                    value: "Approved by bypass"
+                },
+                {
+                    name: "Reason",
+                    value: staff.decision.reason || "No reason provided"
+                }
+            ])
             .setColor(EmbedColors.success)
             .setTimestamp();
         try {
@@ -62,6 +74,28 @@ export default async (client: Client, interaction: Interaction) => {
                 components: [],
                 embeds: [membed]
             });
+
+            const staffChannel = interaction.guild!.channels.cache.get(config.staffApplicationsChannelID!) as GuildTextBasedChannel;
+            if (!staffChannel) return;
+            staffChannel.send({
+                embeds: [
+                    new EmbedBuilder()
+                        .setTitle("Staff Application Approved")
+                        .setDescription(`<@${staff.userID}>'s staff application has been approved!`)
+                        .setFields([
+                            {
+                                name: "Decision",
+                                value: "Approved by bypass"
+                            },
+                            {
+                                name: "Reason",
+                                value: staff.decision.reason || "No reason provided"
+                            }
+                        ])
+                        .setColor(EmbedColors.success)
+                        .setTimestamp()
+                ]
+            })
         } catch (e) {
             return;
         }
@@ -71,10 +105,21 @@ export default async (client: Client, interaction: Interaction) => {
         await staff.save();
         await interaction.followUp({
             content: "✅ Denied!",
+            ephemeral: true
         });
         const embed = new EmbedBuilder()
             .setTitle("Staff Application Declined")
             .setDescription(`Your staff application for ${interaction.guild!.name} has been declined.`)
+            .setFields([
+                {
+                    name: "Decision",
+                    value: "Denied by bypass"
+                },
+                {
+                    name: "Reason",
+                    value: staff.decision.reason || "No reason provided"
+                }
+            ])
             .setColor(EmbedColors.error)
             .setTimestamp();
         try {
@@ -100,6 +145,28 @@ export default async (client: Client, interaction: Interaction) => {
                 components: [],
                 embeds: [membed]
             });
+
+            const staffChannel = interaction.guild!.channels.cache.get(config.staffApplicationsChannelID!) as GuildTextBasedChannel;
+            if (!staffChannel) return;
+            staffChannel.send({
+                embeds: [
+                    new EmbedBuilder()
+                        .setTitle("Staff Application Declined")
+                        .setDescription(`<@${staff.userID}>'s staff application has been declined.`)
+                        .setFields([
+                            {
+                                name: "Decision",
+                                value: "Denied by bypass"
+                            },
+                            {
+                                name: "Reason",
+                                value: staff.decision.reason || "No reason provided"
+                            }
+                        ])
+                        .setColor(EmbedColors.error)
+                        .setTimestamp()
+                ]
+            })
         } catch (e) {
             return;
         }

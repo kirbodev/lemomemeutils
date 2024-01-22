@@ -1,5 +1,6 @@
 import { Collection } from "discord.js";
 import Config from "./structures/configInterface";
+import { StaffLevel } from "./structures/staffInterface";
 
 /*
     guildID: string;
@@ -47,7 +48,11 @@ config.set("538903170189885460", new Config({
     staffApplicationsChannelID: "1096120117974290503",
     staffVoteChannelID: "1096121574983225435",
     staffVoteRoles: ["594576990212849767", "553354789359058954", "1124428178102948011"],
-    staffRoles: [null, "688607097948078092", "554006029365542922", "553354935425564713", "555585458281775115", "553354789359058954", "1124428178102948011", "594576990212849767"]
+    staffRoles: [null, "688607097948078092", "554006029365542922", "553354935425564713", "555585458281775115", "553354789359058954", "1124428178102948011", "594576990212849767"],
+    linkedStaffRoles: new Map([
+        [StaffLevel.Farmer, "555134155395039256"], // Staff role
+        [StaffLevel.Pineapple, "1162007763426234459"] // High staff role
+    ])
 }));
 
 export default config;

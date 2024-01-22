@@ -17,6 +17,7 @@ export default interface staffInterface {
     decision: {
         approved?: boolean;
         decisionAt?: Date;
+        reason?: string;
         votes: Map<string, boolean>;
     };
     staffLevel: StaffLevel;
