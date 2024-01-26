@@ -42,7 +42,7 @@ export default async (client: Client, interaction: Interaction) => {
             .setFields([
                 {
                     name: "Decision",
-                    value: "Approved by bypass"
+                    value: `Bypass approved by ${interaction.user.tag}`
                 },
                 {
                     name: "Reason",
@@ -65,7 +65,7 @@ export default async (client: Client, interaction: Interaction) => {
                 .addFields([
                     {
                         name: "Decision",
-                        value: "Approved by bypass"
+                        value: `Bypass approved by ${interaction.user.tag}`
                     }
                 ])
                 .setColor(EmbedColors.success)
@@ -85,7 +85,7 @@ export default async (client: Client, interaction: Interaction) => {
                         .setFields([
                             {
                                 name: "Decision",
-                                value: "Approved by bypass"
+                                value: `Bypass approved by ${interaction.user.tag}`
                             },
                             {
                                 name: "Reason",
@@ -113,7 +113,7 @@ export default async (client: Client, interaction: Interaction) => {
             .setFields([
                 {
                     name: "Decision",
-                    value: "Denied by bypass"
+                    value: `Bypass denied by ${interaction.user.tag}`
                 },
                 {
                     name: "Reason",
@@ -136,7 +136,7 @@ export default async (client: Client, interaction: Interaction) => {
                 .addFields([
                     {
                         name: "Decision",
-                        value: "Denied by bypass"
+                        value: `Bypass denied by ${interaction.user.tag}`
                     }
                 ])
                 .setColor(EmbedColors.error)
@@ -156,7 +156,7 @@ export default async (client: Client, interaction: Interaction) => {
                         .setFields([
                             {
                                 name: "Decision",
-                                value: "Denied by bypass"
+                                value: `Bypass denied by ${interaction.user.tag}`
                             },
                             {
                                 name: "Reason",
