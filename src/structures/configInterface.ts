@@ -13,6 +13,7 @@ interface ConfigParams {
     thinnerIceRoleID?: string;
     logChannelID?: string;
     staffApplicationsChannelID?: string;
+    staffAppRoleID?: string;
     staffVoteChannelID?: string;
     staffVoteRoles?: string[];
     staffRoles?: (string | null)[];
@@ -29,6 +30,7 @@ export default class Config {
     logChannelID?: string;
     logChannel?: GuildTextBasedChannel;
     staffApplicationsChannelID?: string;
+    staffAppRoleID?: string;
     staffVoteChannelID?: string;
     staffVoteRoles?: string[];
     staffRoles?: (string | null)[];
@@ -44,6 +46,7 @@ export default class Config {
         this.thinnerIceRoleID = params.thinnerIceRoleID;
         this.logChannelID = params.logChannelID;
         this.staffApplicationsChannelID = params.staffApplicationsChannelID;
+        this.staffAppRoleID = params.staffAppRoleID;
         this.staffVoteChannelID = params.staffVoteChannelID;
         this.staffVoteRoles = params.staffVoteRoles;
         this.staffRoles = params.staffRoles;

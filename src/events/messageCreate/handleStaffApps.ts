@@ -7,11 +7,6 @@ export default async (client: Client, message: Message) => {
     const config = configs.get(message.guild.id);
     if (!config || !config.staffApplicationsChannelID) return;
     if (message.channelId !== config.staffApplicationsChannelID) return;
-    if (message.embeds[0]?.data.title === "Staff Application") return;
-    let dontDelete = false;
-    if (message.member!.permissions.has(PermissionFlagsBits.ManageMessages) && !message.author.bot) dontDelete = true;
-    if (message.author.bot && message.embeds[0]?.data.title?.startsWith("Staff Application")) dontDelete = true;
-
     const msg = await message.channel.messages.fetch({ limit: 2 });
     const lastMessage = msg.last();
     if (lastMessage?.embeds[0]?.data.title === "Staff Application") {
@@ -22,8 +17,10 @@ export default async (client: Client, message: Message) => {
         })
         await lastMessage.delete();
     }
+    if (message.embeds[0]?.data.title === "Staff Application") return;
+    if (message.member!.permissions.has(PermissionFlagsBits.ManageMessages) && !message.author.bot) return;
+    if (message.author.bot && message.embeds[0]?.data.title?.startsWith("Staff Application")) return;
 
-    if (dontDelete) return;
     try {
         if (message.author.bot) await setTimeout(3000);
         await message.delete();
