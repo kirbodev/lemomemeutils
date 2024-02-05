@@ -46,7 +46,6 @@ export default async function warnMember(
 
   let muteExpires: Date | null | undefined;
   if (withMute) {
-    console.log(withMute);
     muteExpires = await muteMember(
       member,
       withMute,

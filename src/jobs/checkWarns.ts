@@ -37,12 +37,16 @@ export default {
         // Remove warn roles if they have expired
         let counted = false;
         if (firstWarnRole && warnPoints < 1) {
-          await member.roles.remove(firstWarnRole);
+          await member.roles.remove(firstWarnRole).catch(() => {
+            return;
+          });
           count++;
           counted = true;
         }
         if (secondWarnRole && warnPoints < 2) {
-          await member.roles.remove(secondWarnRole);
+          await member.roles.remove(secondWarnRole).catch(() => {
+            return;
+          });
           if (!counted) count++;
         }
       }

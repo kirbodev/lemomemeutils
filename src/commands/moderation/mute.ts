@@ -229,6 +229,21 @@ export default {
         new Date(Date.now() + timeMs),
         reason || "No reason provided"
       );
+      if (!mute) {
+        return interaction.followUp({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorGeneric)
+              .setDescription("Something went wrong while muting the user.")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now()),
+          ],
+        });
+      }
       // muteMember doesn't save to DB or send DMs bc it's used by other commands
       let dmSent = false;
       try {
@@ -507,6 +522,21 @@ export default {
         new Date(Date.now() + timeMs),
         reason || "No reason provided"
       );
+      if (!mute) {
+        return interaction.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorGeneric)
+              .setDescription("Something went wrong while muting the user.")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now()),
+          ],
+        });
+      }
       // muteMember doesn't save to DB or send DMs bc it's used by other commands
       let dmSent = false;
       try {
