@@ -18,7 +18,7 @@ export default async function warnMember(
   mod: GuildMember,
   severity: 1 | 2,
   reason?: string,
-  withMute?: Date
+  withMute?: Date,
 ) {
   const config = configs.get(member.guild.id)!;
   const warns = (await getActiveWarns(member)) || [];
@@ -49,7 +49,7 @@ export default async function warnMember(
     muteExpires = await muteMember(
       member,
       withMute,
-      reason || "No reason provided"
+      reason || "No reason provided",
     );
   }
   if (banReason) {
@@ -58,7 +58,7 @@ export default async function warnMember(
       new Date(currentTime + 1000 * 60 * 60 * 24),
       banReason === WarnResponse.reachedMaxWarns
         ? "Reached the maximum amount of warns."
-        : "Warned while on parole."
+        : "Warned while on parole.",
     );
   }
 
@@ -84,22 +84,28 @@ export default async function warnMember(
     await member.roles.add(role);
     if (warnPoints + severity > 1)
       await member.roles.add(config.firstWarnRoleID);
-    setTimeout(async () => {
-      // Fetch the warn again to make sure it hasn't been unwarned, this is to prevent a bug where the role is removed when it shouldn't be
-      const newWarn = await Warn.findOne({ _id: warn._id });
-      if (!newWarn) return;
-      if (newWarn.unwarn) return;
-      if (warnPoints + severity > 1) {
-        setTimeout(async () => {
-          // Fetch the warn again to make sure it hasn't been unwarned, this is to prevent a bug where the role is removed when it shouldn't be
-          const newWarn = await Warn.findOne({ _id: warn._id });
-          if (!newWarn) return;
-          if (newWarn.unwarn) return;
-          member.roles.remove(config.firstWarnRoleID);
-        }, 1000 * 60 * 60 * 24 * 3);
-      }
-      member.roles.remove(role);
-    }, 1000 * 60 * 60 * 24 * 3);
+    setTimeout(
+      async () => {
+        // Fetch the warn again to make sure it hasn't been unwarned, this is to prevent a bug where the role is removed when it shouldn't be
+        const newWarn = await Warn.findOne({ _id: warn._id });
+        if (!newWarn) return;
+        if (newWarn.unwarn) return;
+        if (warnPoints + severity > 1) {
+          setTimeout(
+            async () => {
+              // Fetch the warn again to make sure it hasn't been unwarned, this is to prevent a bug where the role is removed when it shouldn't be
+              const newWarn = await Warn.findOne({ _id: warn._id });
+              if (!newWarn) return;
+              if (newWarn.unwarn) return;
+              member.roles.remove(config.firstWarnRoleID);
+            },
+            1000 * 60 * 60 * 24 * 3,
+          );
+        }
+        member.roles.remove(role);
+      },
+      1000 * 60 * 60 * 24 * 3,
+    );
   }
 
   let dmSent = false;
@@ -113,9 +119,9 @@ export default async function warnMember(
               warnPoints + severity >= 3
                 ? "You have reached the maximum amount of warns, this means you have been temporarily muted while mods decide what to do next."
                 : warnPoints + severity === 2
-                ? "If you receive one more warn, you will be banned."
-                : ""
-            }`
+                  ? "If you receive one more warn, you will be banned."
+                  : ""
+            }`,
           )
           .setFields([
             {

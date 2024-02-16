@@ -104,7 +104,7 @@ export default {
     try {
       await member.disableCommunicationUntil(
         null,
-        reason || "No reason provided"
+        reason || "No reason provided",
       );
       const mutes = await Action.find({
         userID: user.id,
@@ -128,7 +128,7 @@ export default {
       const embed = new EmbedBuilder()
         .setTitle("Unmuted")
         .setDescription(
-          `Unmuted <@${user.id}> for \`${reason || "No reason provided"}\`.`
+          `Unmuted <@${user.id}> for \`${reason || "No reason provided"}\`.`,
         )
         .setColor(EmbedColors.success)
         .setFooter({
@@ -165,7 +165,7 @@ export default {
     let user: User;
     try {
       user = await interaction.client.users.fetch(
-        rawUser.replace(/[<@!>]/g, "")
+        rawUser.replace(/[<@!>]/g, ""),
       );
     } catch (e) {
       return interaction.reply({
@@ -234,7 +234,7 @@ export default {
     try {
       await member.disableCommunicationUntil(
         null,
-        reason || "No reason provided"
+        reason || "No reason provided",
       );
       const mutes = await Action.find({
         userID: user.id,
@@ -258,7 +258,7 @@ export default {
       const embed = new EmbedBuilder()
         .setTitle("Unmuted")
         .setDescription(
-          `Unmuted <@${user.id}> for \`${reason || "No reason provided"}\`.`
+          `Unmuted <@${user.id}> for \`${reason || "No reason provided"}\`.`,
         )
         .setColor(EmbedColors.success)
         .setFooter({

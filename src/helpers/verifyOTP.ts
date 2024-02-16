@@ -4,18 +4,21 @@ import Dev from "../db/models/dev";
 import speakeasy from "speakeasy";
 import devInterface from "../structures/devInterface";
 
-export default async function (secret: string, code: string): Promise<boolean | undefined> {
-    const dev: HydratedDocument<devInterface> | null = await Dev.findOne({
-        secret
-    });
+export default async function (
+  secret: string,
+  code: string,
+): Promise<boolean | undefined> {
+  const dev: HydratedDocument<devInterface> | null = await Dev.findOne({
+    secret,
+  });
 
-    const verified = speakeasy.totp.verify({
-        secret,
-        token: code,
-    });
-    if (verified && dev) {
-        dev.lastVerified = new Date();
-        await dev.save();
-    }
-    return verified;
+  const verified = speakeasy.totp.verify({
+    secret,
+    token: code,
+  });
+  if (verified && dev) {
+    dev.lastVerified = new Date();
+    await dev.save();
+  }
+  return verified;
 }

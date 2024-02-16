@@ -1,5 +1,5 @@
-import './index';
+import "./index";
 
 setTimeout(() => {
-    process.exit(0);
+  process.exit(0);
 }, 60 * 1000);

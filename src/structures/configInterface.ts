@@ -18,6 +18,7 @@ interface ConfigParams {
   staffVoteRoles?: string[];
   staffRoles?: (string | null)[];
   linkedStaffRoles?: Map<StaffLevel, string>;
+  highStaffRole?: string;
 }
 export default class Config {
   guildID: string;
@@ -35,6 +36,7 @@ export default class Config {
   staffVoteRoles?: string[];
   staffRoles?: (string | null)[];
   linkedStaffRoles?: Map<StaffLevel, string>; // If >= StaffLevel, they get the role
+  highStaffRole?: string;
 
   constructor(params: ConfigParams) {
     this.guildID = params.guildID;
@@ -51,14 +53,25 @@ export default class Config {
     this.staffVoteRoles = params.staffVoteRoles;
     this.staffRoles = params.staffRoles;
     this.linkedStaffRoles = params.linkedStaffRoles;
+    this.highStaffRole = params.highStaffRole;
 
     if (!this.prefix) this.prefix = ",";
     client.channels
       .fetch(this.logChannelID!)
       .then((channel) => (this.logChannel = channel as GuildTextBasedChannel))
       .catch(() =>
-        logger.error(`Could not find log channel for guild ${this.guildID}`)
+        logger.error(`Could not find log channel for guild ${this.guildID}`),
       );
+    if (this.highStaffRole) {
+      client.guilds.cache
+        .get(this.guildID)
+        ?.roles.fetch(this.highStaffRole)
+        .catch(() =>
+          logger.error(
+            `Could not find high staff role for guild ${this.guildID}`,
+          ),
+        );
+    }
   }
 
   log(options: MessageCreateOptions = {}) {

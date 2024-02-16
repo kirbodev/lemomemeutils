@@ -35,7 +35,8 @@ config.set(
     staffVoteChannelID: "1011952861325819984",
     staffVoteRoles: ["1191713864274939914"],
     staffRoles: [null, null, "907341095145472010"],
-  })
+    highStaffRole: "1036654749891706961",
+  }),
 );
 // Lemomeme
 config.set(
@@ -71,7 +72,8 @@ config.set(
       [StaffLevel.Farmer, "555134155395039256"], // Staff role
       [StaffLevel.Pineapple, "1162007763426234459"], // High staff role
     ]),
-  })
+    highStaffRole: "1162007763426234459",
+  }),
 );
 
 export default config;
@@ -83,5 +85,12 @@ export const devs = [
   "884036644234231819",
   "551032697578061858",
   "230122719511969792",
+];
+export const qrCodeAllowlist = [
+  "youtube.com",
+  "youtu.be",
+  "twitch.tv",
+  "instagram.com",
+  "facebook.com",
 ];
 export const testServer = "907340495498407977";

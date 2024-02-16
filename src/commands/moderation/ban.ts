@@ -43,6 +43,12 @@ export default {
       required: false,
     },
     {
+      name: "delete_messages",
+      description: "Whether or not to delete user messages.",
+      type: ApplicationCommandOptionType.Boolean,
+      required: false,
+    },
+    {
       name: "reason",
       description: "The reason for banning the user.",
       type: ApplicationCommandOptionType.String,
@@ -53,11 +59,14 @@ export default {
   permissionsRequired: [PermissionsBitField.Flags.ManageRoles],
   contextName: "Ban user",
   aliases: ["fban"],
+  syntax:
+    "ban <user> [time] [parole] [reason] | fban <user> [time] [parole] [reason] - deleteMessages is not supported in message commands.",
   slash: async (interaction: ChatInputCommandInteraction) => {
     await interaction.deferReply();
     const user = interaction.options.getUser("user")!;
     const time = interaction.options.getString("time");
     const parole = interaction.options.getBoolean("parole") ?? false;
+    const del = interaction.options.getBoolean("delete_messages") ?? false;
     const reason = interaction.options.getString("reason");
     const config = configs.get(interaction.guildId!)!;
 
@@ -141,7 +150,7 @@ export default {
               }), which is higher or equal to your highest role. (Position: ${
                 (interaction.member?.roles as GuildMemberRoleManager).highest
                   .position
-              })`
+              })`,
             )
             .setColor(EmbedColors.error)
             .setFooter({
@@ -223,7 +232,8 @@ export default {
         reason || "No reason provided",
         interaction.member as GuildMember,
         parole,
-        timeMs ? new Date(Date.now() + timeMs) : undefined
+        timeMs ? new Date(Date.now() + timeMs) : undefined,
+        del,
       );
       if (!ban.success) {
         return interaction.followUp({
@@ -231,7 +241,7 @@ export default {
             new EmbedBuilder()
               .setTitle(Errors.ErrorGeneric)
               .setDescription(
-                `Something went wrong while banning <@${user.id}>.`
+                `Something went wrong while banning <@${user.id}>.`,
               )
               .setColor(EmbedColors.error)
               .setFooter({
@@ -262,7 +272,7 @@ export default {
             ban.dmSent
               ? "They have been notified."
               : "They could not be notified."
-          }`
+          }`,
         )
         .setFields([
           {
@@ -276,6 +286,10 @@ export default {
                 ? `<t:${Math.floor((Date.now() + timeMs!) / 1000)}:f>`
                 : "Never"
             }`,
+          },
+          {
+            name: "Deleted Messages",
+            value: `${del ? "Yes" : "No"}`,
           },
         ])
         .setColor(EmbedColors.success)
@@ -313,7 +327,7 @@ export default {
     let user: User;
     try {
       user = await interaction.client.users.fetch(
-        rawUser.replace(/[<@!>]/g, "")
+        rawUser.replace(/[<@!>]/g, ""),
       );
     } catch (e) {
       return interaction.reply({
@@ -411,7 +425,7 @@ export default {
         .setDescription(
           `Banned <@${user.id}> for \`${
             reason || "No reason provided"
-          }\`. They have been notified.`
+          }\`. They have been notified.`,
         )
         .setFields([
           {
@@ -454,7 +468,7 @@ export default {
               }), which is higher or equal to your highest role. (Position: ${
                 (interaction.member?.roles as GuildMemberRoleManager).highest
                   .position
-              })`
+              })`,
             )
             .setColor(EmbedColors.error)
             .setFooter({
@@ -533,7 +547,7 @@ export default {
         reason || "No reason provided",
         interaction.member as GuildMember,
         parole,
-        timeMs ? new Date(Date.now() + timeMs) : undefined
+        timeMs ? new Date(Date.now() + timeMs) : undefined,
       );
       if (!ban.success) {
         return interaction.reply({
@@ -541,7 +555,7 @@ export default {
             new EmbedBuilder()
               .setTitle(Errors.ErrorGeneric)
               .setDescription(
-                `Something went wrong while banning <@${user.id}>.`
+                `Something went wrong while banning <@${user.id}>.`,
               )
               .setColor(EmbedColors.error)
               .setFooter({
@@ -572,7 +586,7 @@ export default {
             ban.dmSent
               ? "They have been notified."
               : "They could not be notified."
-          }`
+          }`,
         )
         .setFields([
           {

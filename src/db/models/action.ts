@@ -3,46 +3,47 @@ import mongoose from "mongoose";
 import actionInterface from "../../structures/actionInterface";
 
 const actionSchema = new mongoose.Schema<actionInterface>({
-    userID: {
-        type: String,
-        required: true,
-    },
-    moderatorID: {
-        type: String,
-        required: true,
-    },
-    guildID: {
-        type: String,
-        required: true,
-    },
-    expiresAt: {
-        type: Date,
-        required: false,
-    },
-    forceExpired: {
-        type: Boolean,
-        default: false,
-    },
-    timestamp: {
-        type: Date,
-        default: () => new Date(),
-    },
-    reason: {
-        type: String,
-        default: () => "No reason provided",
-    },
-    actionType: {
-        type: String,
-        required: true,
-        enum: ["kick", "ban", "unban", "mute", "unmute"],
-    },
-    withParole: {
-        type: mongoose.Schema.Types.Mixed,
-        default: false,
-    },
-    iceSeverity: {
-        type: Number, // 0 = thin ice, 1 = thinner ice
-    },
+  userID: {
+    type: String,
+    required: true,
+  },
+  moderatorID: {
+    type: String,
+    required: true,
+  },
+  guildID: {
+    type: String,
+    required: true,
+  },
+  expiresAt: {
+    type: Date,
+    required: false,
+  },
+  forceExpired: {
+    type: Boolean,
+    default: false,
+  },
+  timestamp: {
+    type: Date,
+    default: () => new Date(),
+  },
+  reason: {
+    type: String,
+    default: () => "No reason provided",
+  },
+  actionType: {
+    type: String,
+    required: true,
+    enum: ["kick", "ban", "unban", "mute", "unmute"],
+  },
+  withParole: {
+    type: mongoose.Schema.Types.Mixed,
+    default: false,
+  },
+  iceSeverity: {
+    type: Number, // 0 = thin ice, 1 = thinner ice
+  },
 });
 
-export default mongoose.models.action || mongoose.model<actionInterface>("action", actionSchema, "actions");
+export default mongoose.models.action ||
+  mongoose.model<actionInterface>("action", actionSchema, "actions");

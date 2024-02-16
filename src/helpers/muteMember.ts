@@ -7,7 +7,7 @@ import logger from "./logger";
 export default async function muteMember(
   member: GuildMember,
   until: Date,
-  reason?: string
+  reason?: string,
 ) {
   const warns: HydratedDocument<warnInterface>[] = await Warn.find({
     userID: member.id,
@@ -22,7 +22,7 @@ export default async function muteMember(
   try {
     await member.disableCommunicationUntil(
       until,
-      reason || "No reason provided"
+      reason || "No reason provided",
     );
   } catch (e) {
     logger.error(`Failed to mute ${member.user.tag} ${e}`);

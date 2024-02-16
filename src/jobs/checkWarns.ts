@@ -29,7 +29,7 @@ export default {
         const warnPoints =
           (await getActiveWarns(member))?.reduce(
             (acc, warn) => acc + warn.severity,
-            0
+            0,
           ) || 0;
         // Check if user has warn roles
         const firstWarnRole = member.roles.cache.get(config.firstWarnRoleID!);

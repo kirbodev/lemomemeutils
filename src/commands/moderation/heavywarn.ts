@@ -136,7 +136,7 @@ export default {
               }), which is higher or equal to your highest role. (Position: ${
                 (interaction.member?.roles as GuildMemberRoleManager).highest
                   .position
-              })`
+              })`,
             )
             .setColor(EmbedColors.error)
             .setFooter({
@@ -176,7 +176,7 @@ export default {
       member,
       interaction.member as GuildMember,
       2,
-      reason || undefined
+      reason || undefined,
     );
 
     if (warn.response === WarnResponse.RateLimited) {
@@ -185,7 +185,7 @@ export default {
           new EmbedBuilder()
             .setTitle(Errors.ErrorCooldown)
             .setDescription(
-              "To prevent accidentally warning a user multiple times, there is a 10 second cooldown between warnings of the same user."
+              "To prevent accidentally warning a user multiple times, there is a 10 second cooldown between warnings of the same user.",
             )
             .setColor(EmbedColors.info)
             .setFooter({
@@ -203,7 +203,7 @@ export default {
           new EmbedBuilder()
             .setTitle(Errors.ErrorUser)
             .setDescription(
-              "This user has already reached the maximum amount of warns."
+              "This user has already reached the maximum amount of warns.",
             )
             .setFields([
               {
@@ -213,7 +213,7 @@ export default {
                     (warn) =>
                       `<t:${Math.floor(warn.timestamp.getTime() / 1000)}:f> - ${
                         warn.reason || "No reason provided"
-                      } - Issued by <@${warn.moderatorID}>`
+                      } - Issued by <@${warn.moderatorID}>`,
                   )
                   .join("\n"),
               },
@@ -238,13 +238,13 @@ export default {
           new EmbedBuilder()
             .setTitle(Errors.ErrorUserMuted)
             .setDescription(
-              `<@${member.id}> is already muted. Unmute them first.`
+              `<@${member.id}> is already muted. Unmute them first.`,
             )
             .setFields([
               {
                 name: "Expires At",
                 value: `<t:${Math.floor(
-                  member.communicationDisabledUntilTimestamp / 1000
+                  member.communicationDisabledUntilTimestamp / 1000,
                 )}:f>`,
               },
             ])
@@ -266,7 +266,7 @@ export default {
           warn.dmSent
             ? "They have been notified."
             : "They could not be notified."
-        }`
+        }`,
       )
       .setFields([
         {
@@ -302,7 +302,7 @@ export default {
                 (warn) =>
                   `<t:${Math.floor(warn.timestamp.getTime() / 1000)}:f> - ${
                     warn.reason
-                  } - Issued by <@${warn.moderatorID}>`
+                  } - Issued by <@${warn.moderatorID}>`,
               )
               .join("\n") || "No active warnings.",
         },
@@ -332,8 +332,8 @@ export default {
                   member.user,
                   warn.response === WarnResponse.reachedMaxWarns
                     ? "Reached the maximum amount of warns."
-                    : "Warned on parole."
-                )
+                    : "Warned on parole.",
+                ),
               ),
             ]
           : [],
@@ -343,7 +343,7 @@ export default {
     });
     if (warn.muteExpires === null && timeMs !== undefined) {
       await interaction.followUp(
-        "Something went wrong, the user was not muted. The user has been warned, but not muted."
+        "Something went wrong, the user was not muted. The user has been warned, but not muted.",
       );
     }
 
@@ -357,7 +357,7 @@ export default {
     let user: User;
     try {
       user = await interaction.client.users.fetch(
-        rawUser.replace(/[<@!>]/g, "")
+        rawUser.replace(/[<@!>]/g, ""),
       );
     } catch (e) {
       return interaction.reply({
@@ -385,7 +385,7 @@ export default {
           new EmbedBuilder()
             .setTitle(Errors.ErrorUser)
             .setDescription(
-              `The correct syntax for this command is:\n \`\`\`${config.prefix}wm <user> <mute> [reason]\`\`\``
+              `The correct syntax for this command is:\n \`\`\`${config.prefix}wm <user> <mute> [reason]\`\`\``,
             )
             .setColor(EmbedColors.error)
             .setFooter({
@@ -473,7 +473,7 @@ export default {
               }), which is higher or equal to your highest role. (Position: ${
                 (interaction.member?.roles as GuildMemberRoleManager).highest
                   .position
-              })`
+              })`,
             )
             .setColor(EmbedColors.error)
             .setFooter({
@@ -517,13 +517,13 @@ export default {
           new EmbedBuilder()
             .setTitle(Errors.ErrorUserMuted)
             .setDescription(
-              `<@${member.id}> is already muted. Unmute them first.`
+              `<@${member.id}> is already muted. Unmute them first.`,
             )
             .setFields([
               {
                 name: "Expires At",
                 value: `<t:${Math.floor(
-                  member.communicationDisabledUntilTimestamp / 1000
+                  member.communicationDisabledUntilTimestamp / 1000,
                 )}:f>`,
               },
             ])
@@ -542,7 +542,7 @@ export default {
       interaction.member as GuildMember,
       2,
       reason || undefined,
-      timeMs ? new Date(Date.now() + timeMs) : undefined
+      timeMs ? new Date(Date.now() + timeMs) : undefined,
     );
 
     if (warn.response === WarnResponse.RateLimited) {
@@ -551,7 +551,7 @@ export default {
           new EmbedBuilder()
             .setTitle(Errors.ErrorCooldown)
             .setDescription(
-              "To prevent accidentally warning a user multiple times, there is a 10 second cooldown between warnings of the same user."
+              "To prevent accidentally warning a user multiple times, there is a 10 second cooldown between warnings of the same user.",
             )
             .setColor(EmbedColors.info)
             .setFooter({
@@ -569,7 +569,7 @@ export default {
           new EmbedBuilder()
             .setTitle(Errors.ErrorUser)
             .setDescription(
-              "This user has already reached the maximum amount of warns. Please ban them instead."
+              "This user has already reached the maximum amount of warns. Please ban them instead.",
             )
             .setFields([
               {
@@ -579,7 +579,7 @@ export default {
                     (warn) =>
                       `<t:${Math.floor(warn.timestamp.getTime() / 1000)}:f> - ${
                         warn.reason || "No reason provided"
-                      } - Issued by <@${warn.moderatorID}>`
+                      } - Issued by <@${warn.moderatorID}>`,
                   )
                   .join("\n"),
               },
@@ -596,8 +596,8 @@ export default {
             getBanButton(
               interaction,
               member.user,
-              "Reached the maximum amount of warns."
-            )
+              "Reached the maximum amount of warns.",
+            ),
           ),
         ],
         allowedMentions: {
@@ -613,7 +613,7 @@ export default {
           warn.dmSent
             ? "They have been notified."
             : "They could not be notified."
-        }`
+        }`,
       )
       .setFields([
         {
@@ -649,7 +649,7 @@ export default {
                 (warn) =>
                   `<t:${Math.floor(warn.timestamp.getTime() / 1000)}:f> - ${
                     warn.reason
-                  } - Issued by <@${warn.moderatorID}>`
+                  } - Issued by <@${warn.moderatorID}>`,
               )
               .join("\n") || "No active warnings.",
         },
@@ -679,8 +679,8 @@ export default {
                   member.user,
                   warn.response === WarnResponse.reachedMaxWarns
                     ? "Reached the maximum amount of warns."
-                    : "Warned on parole."
-                )
+                    : "Warned on parole.",
+                ),
               ),
             ]
           : [],
@@ -690,7 +690,7 @@ export default {
     });
     if (warn.muteExpires === null && timeMs !== undefined) {
       await interaction.reply(
-        "Something went wrong, the user was not muted. The user has been warned, but not muted."
+        "Something went wrong, the user was not muted. The user has been warned, but not muted.",
       );
     }
     if (interaction.channel !== config.logChannel)

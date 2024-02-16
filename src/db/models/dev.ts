@@ -3,23 +3,24 @@ import mongoose from "mongoose";
 import devInterface from "../../structures/devInterface";
 
 const devSchema = new mongoose.Schema<devInterface>({
-    id: {
-        type: String,
-        required: true,
-    },
-    secret: {
-        type: String,
-        required: true,
-    },
-    lastVerified: {
-        type: Date,
-        required: false,
-        default: () => new Date(),
-    },
-    timestamp: {
-        type: Date,
-        default: () => new Date(),
-    }
+  id: {
+    type: String,
+    required: true,
+  },
+  secret: {
+    type: String,
+    required: true,
+  },
+  lastVerified: {
+    type: Date,
+    required: false,
+    default: () => new Date(),
+  },
+  timestamp: {
+    type: Date,
+    default: () => new Date(),
+  },
 });
 
-export default mongoose.models.dev || mongoose.model<devInterface>("dev", devSchema, "devs");
+export default mongoose.models.dev ||
+  mongoose.model<devInterface>("dev", devSchema, "devs");
