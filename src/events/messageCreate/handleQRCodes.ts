@@ -27,7 +27,7 @@ export default async (client: Client, message: Message) => {
             new EmbedBuilder()
               .setTitle("Unsafe QR Code")
               .setDescription(
-                `An unsafe QR code was found in ${message.author.tag}'s (${message.author.id}) message. The message has been deleted.`,
+                `An unsafe QR code was found in ${message.author.tag}'s (${message.author.id}) message. The message has been deleted.`
               )
               .setFields({ name: "URL", value: qrURL.href })
               .setColor(EmbedColors.error)
@@ -38,12 +38,12 @@ export default async (client: Client, message: Message) => {
           ],
         });
       }
-      message.reply({
+      await message.reply({
         embeds: [
           new EmbedBuilder()
             .setTitle("QR Code")
             .setDescription(
-              "An unsafe QR code was found in this image. Your message has been deleted.",
+              "An unsafe QR code was found in this image. Your message has been deleted."
             )
             .setColor(EmbedColors.error)
             .setFooter({
@@ -61,7 +61,7 @@ export default async (client: Client, message: Message) => {
             new EmbedBuilder()
               .setTitle("QR Code")
               .setDescription(
-                `An unallowed QR code was found in ${message.author.tag}'s (${message.author.id}) message. The message has been deleted.`,
+                `An unallowed QR code was found in ${message.author.tag}'s (${message.author.id}) message. The message has been deleted.`
               )
               .setFields({ name: "URL", value: qrURL.href })
               .setColor(EmbedColors.error)
@@ -72,12 +72,12 @@ export default async (client: Client, message: Message) => {
           ],
         });
       }
-      message.reply({
+      await message.reply({
         embeds: [
           new EmbedBuilder()
             .setTitle("QR Code")
             .setDescription(
-              "An unallowed QR code was found in this image. Your message has been deleted.",
+              "An unallowed QR code was found in this image. Your message has been deleted. Only youtube, twitch, instagram and facebook links are allowed."
             )
             .setColor(EmbedColors.error)
             .setFooter({
