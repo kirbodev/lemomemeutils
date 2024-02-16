@@ -1,8 +1,9 @@
 import { Client, EmbedBuilder, Message } from "discord.js";
-import QRCode from "qrcode-reader";
-import Jimp from "jimp";
+import sharp from "sharp";
 import { qrCodeAllowlist } from "../../config";
 import EmbedColors from "../../structures/embedColors";
+
+import { readBarcodesFromImageFile } from "zxing-wasm";
 
 export default async (client: Client, message: Message) => {
   if (!message.guild) return;
@@ -11,14 +12,45 @@ export default async (client: Client, message: Message) => {
     if (!attachment.contentType?.startsWith("image")) return;
     if (!attachment.height || !attachment.width) return;
     if (attachment.ephemeral) return;
-    const image = await Jimp.read(attachment.url);
+    const mainImage = await sharp(
+      await (await fetch(attachment.url)).arrayBuffer()
+    )
+      .resize(500, 500)
+      .toBuffer();
+    const bg = sharp({
+      create: {
+        width: 500,
+        height: 500,
+        channels: 4,
+        background: { r: 255, g: 255, b: 255, alpha: 1 },
+      },
+    });
+    const image = await bg
+      .composite([{ input: mainImage, gravity: "center" }])
+      .png()
+      .toBuffer();
+
     const qr = await getQRCode(image);
     if (!qr) return;
     let qrURL: URL;
     try {
       qrURL = new URL(qr);
     } catch (e) {
-      return;
+      await message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("QR Code")
+            .setDescription(
+              "I found a QR code in this image, but it's not a valid URL. Your message has been deleted."
+            )
+            .setColor(EmbedColors.error)
+            .setFooter({
+              text: `Sender: ${message.author.tag} (${message.author.id})`,
+            })
+            .setTimestamp(),
+        ],
+      });
+      return message.deletable && message.delete();
     }
     if (qrURL.protocol !== "https:") {
       if (message.guild!.safetyAlertsChannel) {
@@ -54,7 +86,7 @@ export default async (client: Client, message: Message) => {
       });
       return message.deletable && message.delete();
     }
-    if (!qrCodeAllowlist.includes(qrURL.hostname)) {
+    if (!qrCodeAllowlist.includes(qrURL.hostname.replace("www.", ""))) {
       if (message.guild!.safetyAlertsChannel) {
         message.guild!.safetyAlertsChannel.send({
           embeds: [
@@ -104,17 +136,11 @@ export default async (client: Client, message: Message) => {
   });
 };
 
-const getQRCode = async (image: Jimp) => {
-  const qrcode = new QRCode();
-  const qr = await new Promise<string | null>((resolve) => {
-    qrcode.callback = (err: unknown, value: { result: string | null }) => {
-      if (err) {
-        resolve(null);
-      } else {
-        resolve(value.result);
-      }
-    };
-    qrcode.decode(image.bitmap);
+const getQRCode = async (image: Buffer) => {
+  const blob = new Blob([image], { type: "image/png" });
+  const result = await readBarcodesFromImageFile(blob, {
+    maxNumberOfSymbols: 1,
+    formats: ["QRCode", "MicroQRCode"],
   });
-  return qr;
+  return result[0]?.text;
 };
