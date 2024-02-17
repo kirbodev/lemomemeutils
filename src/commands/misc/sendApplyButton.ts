@@ -8,13 +8,13 @@ import {
 } from "discord.js";
 import type Command from "../../structures/commandInterface";
 import EmbedColors from "../../structures/embedColors";
+import kv from "../../db/models/kv";
 
 export default {
   name: "sendapplybutton",
   description: "Send the embed with the apply button.",
   permissionsRequired: [PermissionsBitField.Flags.Administrator],
   async slash(interaction: ChatInputCommandInteraction) {
-    // Don't defer reply, modal can't be shown when deferred
     const button = new ActionRowBuilder<ButtonBuilder>().setComponents([
       new ButtonBuilder()
         .setCustomId(`apply-${interaction.guildId!}`)
@@ -31,9 +31,20 @@ export default {
       content: "Sending...",
       ephemeral: true,
     });
-    return interaction.channel!.send({
+    const msg = await interaction.channel!.send({
       embeds: [embed],
       components: [button],
     });
+    kv.findOneAndUpdate(
+      {
+        key: `staffAppsMessage-${interaction.guildId}`,
+      },
+      {
+        value: msg.id,
+      },
+      {
+        upsert: true,
+      }
+    );
   },
 } as Command;
