@@ -56,7 +56,7 @@ export default {
   ],
   cooldown: 10000,
   syntax: "<user> [parole (true/false)] [ice (thin/thinner)] [reason]",
-  permissionsRequired: [PermissionsBitField.Flags.BanMembers],
+  permissionsRequired: [PermissionsBitField.Flags.ManageRoles],
   requiresHighStaff: true,
   slash: async (interaction: ChatInputCommandInteraction) => {
     await interaction.deferReply();
@@ -145,7 +145,7 @@ export default {
       try {
         await interaction.guild?.members.unban(
           user,
-          reason || "No reason provided",
+          reason || "No reason provided"
         );
       } catch (e) {
         return interaction.followUp({
@@ -157,7 +157,7 @@ export default {
                   interaction.guild?.members.cache.has(user.id)
                     ? `<@${user.id}> is not banned and is in the server.`
                     : `<@${user.id}> is not banned and is not in the server.`
-                }`,
+                }`
               )
               .setColor(EmbedColors.error)
               .setFooter({
@@ -170,7 +170,7 @@ export default {
       }
       await Action.findOneAndUpdate(
         { userID: user.id, actionType: "ban", guildID: interaction.guildId },
-        { forceExpired: true },
+        { forceExpired: true }
       ).sort({ timestamp: -1 });
       const action = new Action({
         userID: user.id,
@@ -187,7 +187,7 @@ export default {
         .setDescription(
           `Unbanned <@${user.id}> for \`${
             reason ? reason : "No reason provided"
-          }\``,
+          }\``
         )
         .setFields([
           {
@@ -242,14 +242,14 @@ export default {
       args[1] === "true" || args[2] === "true"
         ? true
         : args[1] === "false" || args[2] === "false"
-          ? false
-          : undefined;
+        ? false
+        : undefined;
     const ice =
       args[1] === "thin" || args[2] === "thin"
         ? "thin"
         : args[1] === "thinner" || args[2] === "thinner"
-          ? "thinner"
-          : undefined;
+        ? "thinner"
+        : undefined;
     const reason = parole
       ? ice
         ? args.slice(3).join(" ")
@@ -336,7 +336,7 @@ export default {
       try {
         await interaction.guild?.members.unban(
           user,
-          reason || "No reason provided",
+          reason || "No reason provided"
         );
       } catch (e) {
         return interaction.reply({
@@ -348,7 +348,7 @@ export default {
                   interaction.guild?.members.cache.has(user.id)
                     ? `<@${user.id}> is not banned and is in the server.`
                     : `<@${user.id}> is not banned and is not in the server.`
-                }`,
+                }`
               )
               .setColor(EmbedColors.error)
               .setFooter({
@@ -361,7 +361,7 @@ export default {
       }
       await Action.findOneAndUpdate(
         { userID: user.id, actionType: "ban", guildID: interaction.guildId },
-        { forceExpired: true },
+        { forceExpired: true }
       ).sort({ timestamp: -1 });
       const action = new Action({
         userID: user.id,
@@ -378,7 +378,7 @@ export default {
         .setDescription(
           `Unbanned <@${user.id}> for \`${
             reason ? reason : "No reason provided"
-          }\``,
+          }\``
         )
         .setFields([
           {
