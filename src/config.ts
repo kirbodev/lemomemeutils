@@ -36,7 +36,7 @@ config.set(
     staffVoteRoles: ["1191713864274939914"],
     staffRoles: [null, null, "907341095145472010"],
     highStaffRole: "1036654749891706961",
-  }),
+  })
 );
 // Lemomeme
 config.set(
@@ -59,6 +59,16 @@ config.set(
       "1124428178102948011",
     ],
     staffRoles: [
+      /*
+      None,
+      Retired,
+      Farmer,
+      Apple,
+      Pineapple,
+      Orange,
+      Grapefruit,
+      Lime,
+      */
       null,
       "688607097948078092",
       "554006029365542922",
@@ -73,9 +83,8 @@ config.set(
       [StaffLevel.Pineapple, "1162007763426234459"], // High staff role
     ]),
     highStaffRole: "1162007763426234459",
-  }),
+  })
 );
-
 //House of VOX
 config.set(
   "750868690416697424",
@@ -99,22 +108,19 @@ config.set(
     ],
     staffRoles: [
       null,
-      "788690701759545386",
+      "757713206528704528",
       "784084772027891783",
       "751558655047893122",
       "1089338128101290104",
-      "1210588048014843946",
       "750870599802290266",
       "1189725064640352327",
-      "755680176809181244",
-      "750869935353233418",
     ],
     linkedStaffRoles: new Map([
-      [StaffLevel.managementTeam, "788690701759545386"], // Staff role
-      [StaffLevel.seniorManagement, "1210588048014843946"], // High staff role
+      [StaffLevel.Farmer, "788690701759545386"], // Staff role
+      [StaffLevel.Pineapple, "1210588048014843946"], // High staff role
     ]),
     highStaffRole: "1210588048014843946",
-  }),
+  })
 );
 export default config;
 export let maintainanceMode = process.env.NODE_ENV ? true : false;
