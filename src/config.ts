@@ -132,6 +132,7 @@ export const devs = [
   "884036644234231819",
   "551032697578061858",
   "230122719511969792",
+  "691321562179305492",
 ];
 export const qrCodeAllowlist = [
   "youtube.com",
