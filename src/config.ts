@@ -76,6 +76,46 @@ config.set(
   }),
 );
 
+//House of VOX
+config.set(
+  "750868690416697424",
+  new Config({
+    guildID: "750868690416697424",
+    firstWarnRoleID: "751144667814428854",
+    secondWarnRoleID: "751144884270006323",
+    paroleRoleID: "753660192641515560",
+    prefix: ",",
+    thinIceRoleID: "1080304170663428126",
+    thinnerIceRoleID: "1158485225924481065",
+    logChannelID: "751745362842222632",
+    staffApplicationsChannelID: "839276878145650708",
+    staffAppRoleID: "784084772027891783",
+    staffVoteChannelID: "937537883936534538",
+    staffVoteRoles: [
+      "750870599802290266",
+      "1189725064640352327",
+      "755680176809181244",
+      "750869935353233418",
+    ],
+    staffRoles: [
+      null,
+      "788690701759545386",
+      "784084772027891783",
+      "751558655047893122",
+      "1089338128101290104",
+      "1210588048014843946",
+      "750870599802290266",
+      "1189725064640352327",
+      "755680176809181244",
+      "750869935353233418",
+    ],
+    linkedStaffRoles: new Map([
+      [StaffLevel.managementTeam, "788690701759545386"], // Staff role
+      [StaffLevel.seniorManagement, "1210588048014843946"], // High staff role
+    ]),
+    highStaffRole: "1210588048014843946",
+  }),
+);
 export default config;
 export let maintainanceMode = process.env.NODE_ENV ? true : false;
 export const toggleMode = () => (maintainanceMode = !maintainanceMode);
