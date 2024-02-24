@@ -42,7 +42,7 @@ export default {
     if (
       user &&
       !interaction.memberPermissions?.has(
-        PermissionsBitField.Flags.ManageMessages,
+        PermissionsBitField.Flags.ManageMessages
       )
     ) {
       return interaction.followUp({
@@ -50,7 +50,7 @@ export default {
           new EmbedBuilder()
             .setTitle(Errors.ErrorPermissions)
             .setDescription(
-              "You must be a moderator to view the case logs of another user.",
+              "You must be a moderator to view the case logs of another user."
             )
             .setColor(EmbedColors.error)
             .setFooter({
@@ -63,7 +63,6 @@ export default {
       });
     }
     if (!user) user = interaction.user;
-    const member = interaction.guild!.members.cache.get(user.id);
 
     const config = configs.get(interaction.guildId!)!;
 
@@ -72,21 +71,6 @@ export default {
         embeds: [
           new EmbedBuilder()
             .setTitle(Errors.ErrorUserNotFound)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
-        ],
-        ephemeral: true,
-      });
-    }
-    if (!member) {
-      return interaction.followUp({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorMemberNotFound)
             .setColor(EmbedColors.error)
             .setFooter({
               text: `Requested by ${interaction.user.tag}`,
@@ -171,7 +155,7 @@ export default {
             actions.filter((action) => action.actionType === "ban").length
           } ban(s), and ${
             actions.filter((action) => action.actionType === "kick").length
-          } kick(s).\nPage ${i + 1}/${Math.ceil(combined.length / 5)}`,
+          } kick(s).\nPage ${i + 1}/${Math.ceil(combined.length / 5)}`
         );
       } else {
         embed.setDescription(`Page ${i + 1}/${Math.ceil(combined.length / 5)}`);
@@ -190,7 +174,7 @@ export default {
                 `**Moderator**: <@${action.moderatorID}>`,
                 action.expiresAt
                   ? `**Expires At**: <t:${Math.floor(
-                      action.expiresAt.getTime() / 1000,
+                      action.expiresAt.getTime() / 1000
                     )}:f>`
                   : undefined,
                 action.withParole ? `**Parole**: Yes` : undefined,
@@ -203,7 +187,7 @@ export default {
                   : undefined,
                 `**Reason**: ${action.reason || "No reason provided"}`,
                 `**Timestamp**: <t:${Math.floor(
-                  action.timestamp!.getTime() / 1000,
+                  action.timestamp!.getTime() / 1000
                 )}:f>`,
               ]
                 .filter(Boolean)
@@ -220,13 +204,13 @@ export default {
                 `**Mute time**: ${
                   action.withMute
                     ? ms(
-                        action.withMute.getTime() - action.timestamp!.getTime(),
+                        action.withMute.getTime() - action.timestamp!.getTime()
                       )
                     : "N/A"
                 }`,
                 `**Reason**: ${action.reason || "No reason provided"}`,
                 `**Timestamp**: <t:${Math.floor(
-                  action.timestamp!.getTime() / 1000,
+                  action.timestamp!.getTime() / 1000
                 )}:f>`,
               ].join("\n"),
             },
@@ -239,7 +223,7 @@ export default {
                 `**Moderator**: <@${action.moderatorID}>`,
                 `**Reason**: ${action.reason || "No reason provided"}`,
                 `**Timestamp**: <t:${Math.floor(
-                  action.timestamp!.getTime() / 1000,
+                  action.timestamp!.getTime() / 1000
                 )}:f>`,
               ].join("\n"),
             },
@@ -277,15 +261,12 @@ export default {
       // Change the page when the user clicks a button for 5 minutes
       let page = 0;
       let expired = false;
-      setTimeout(
-        () => {
-          interaction.editReply({
-            components: [],
-          });
-          expired = true;
-        },
-        1000 * 60 * 5,
-      );
+      setTimeout(() => {
+        interaction.editReply({
+          components: [],
+        });
+        expired = true;
+      }, 1000 * 60 * 5);
       while (!expired) {
         page = await changePage(
           reply,
@@ -293,7 +274,7 @@ export default {
           embeds,
           page,
           backId,
-          nextId,
+          nextId
         );
       }
     } catch (err) {
@@ -312,7 +293,7 @@ export default {
     } else {
       if (
         !interaction.member?.permissions.has(
-          PermissionsBitField.Flags.ManageMessages,
+          PermissionsBitField.Flags.ManageMessages
         )
       ) {
         return interaction.reply({
@@ -320,7 +301,7 @@ export default {
             new EmbedBuilder()
               .setTitle(Errors.ErrorPermissions)
               .setDescription(
-                "You must be a moderator to view the case logs of another user.",
+                "You must be a moderator to view the case logs of another user."
               )
               .setColor(EmbedColors.error)
               .setFooter({
@@ -333,7 +314,7 @@ export default {
       }
       try {
         user = await interaction.client.users.fetch(
-          rawUser.replace(/[<@!>]/g, ""),
+          rawUser.replace(/[<@!>]/g, "")
         );
       } catch (e) {
         return interaction.reply({
@@ -350,21 +331,6 @@ export default {
           ],
         });
       }
-    }
-    const member = interaction.guild!.members.cache.get(user.id);
-    if (!member) {
-      return interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorMemberNotFound)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
-        ],
-      });
     }
     if (user.id === interaction.client.user.id) {
       return interaction.reply({
@@ -439,7 +405,7 @@ export default {
             actions.filter((action) => action.actionType === "ban").length
           } ban(s), and ${
             actions.filter((action) => action.actionType === "kick").length
-          } kick(s).\nPage ${i + 1}/${Math.ceil(combined.length / 5)}`,
+          } kick(s).\nPage ${i + 1}/${Math.ceil(combined.length / 5)}`
         );
       } else {
         embed.setDescription(`Page ${i + 1}/${Math.ceil(combined.length / 5)}`);
@@ -458,7 +424,7 @@ export default {
                 `**Moderator**: <@${action.moderatorID}>`,
                 action.expiresAt
                   ? `**Expires At**: <t:${Math.floor(
-                      action.expiresAt.getTime() / 1000,
+                      action.expiresAt.getTime() / 1000
                     )}:f>`
                   : undefined,
                 action.withParole ? `**Parole**: Yes` : undefined,
@@ -471,7 +437,7 @@ export default {
                   : undefined,
                 `**Reason**: ${action.reason || "No reason provided"}`,
                 `**Timestamp**: <t:${Math.floor(
-                  action.timestamp!.getTime() / 1000,
+                  action.timestamp!.getTime() / 1000
                 )}:f>`,
               ]
                 .filter(Boolean)
@@ -488,13 +454,13 @@ export default {
                 `**Mute time**: ${
                   action.withMute
                     ? ms(
-                        action.withMute.getTime() - action.timestamp!.getTime(),
+                        action.withMute.getTime() - action.timestamp!.getTime()
                       )
                     : "N/A"
                 }`,
                 `**Reason**: ${action.reason || "No reason provided"}`,
                 `**Timestamp**: <t:${Math.floor(
-                  action.timestamp!.getTime() / 1000,
+                  action.timestamp!.getTime() / 1000
                 )}:f>`,
               ].join("\n"),
             },
@@ -507,7 +473,7 @@ export default {
                 `**Moderator**: <@${action.moderatorID}>`,
                 `**Reason**: ${action.reason || "No reason provided"}`,
                 `**Timestamp**: <t:${Math.floor(
-                  action.timestamp!.getTime() / 1000,
+                  action.timestamp!.getTime() / 1000
                 )}:f>`,
               ].join("\n"),
             },
@@ -545,15 +511,12 @@ export default {
       // Change the page when the user clicks a button for 5 minutes
       let page = 0;
       let expired = false;
-      setTimeout(
-        () => {
-          reply.edit({
-            components: [],
-          });
-          expired = true;
-        },
-        1000 * 60 * 5,
-      );
+      setTimeout(() => {
+        reply.edit({
+          components: [],
+        });
+        expired = true;
+      }, 1000 * 60 * 5);
       while (!expired) {
         page = await changePage(
           reply,
@@ -561,7 +524,7 @@ export default {
           embeds,
           page,
           backId,
-          nextId,
+          nextId
         );
       }
     } catch (err) {
@@ -578,7 +541,7 @@ async function changePage(
   embeds: EmbedBuilder[],
   page: number,
   backId: string,
-  nextId: string,
+  nextId: string
 ) {
   const button = await msg.awaitMessageComponent({
     filter: (i) => i.user.id === user.id,
