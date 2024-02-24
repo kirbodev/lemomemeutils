@@ -143,7 +143,7 @@ export default {
               }), which is higher or equal to your highest role. (Position: ${
                 (interaction.member?.roles as GuildMemberRoleManager).highest
                   .position
-              })`,
+              })`
             )
             .setColor(EmbedColors.error)
             .setFooter({
@@ -202,13 +202,13 @@ export default {
           new EmbedBuilder()
             .setTitle(Errors.ErrorUserMuted)
             .setDescription(
-              `<@${member.id}> is already muted. Unmute them first.`,
+              `<@${member.id}> is already muted. Unmute them first.`
             )
             .setFields([
               {
                 name: "Expires At",
                 value: `<t:${Math.floor(
-                  member.communicationDisabledUntilTimestamp / 1000,
+                  member.communicationDisabledUntilTimestamp / 1000
                 )}:f>`,
               },
             ])
@@ -227,7 +227,7 @@ export default {
       const mute = await muteMember(
         member,
         new Date(Date.now() + timeMs),
-        reason || "No reason provided",
+        reason || "No reason provided"
       );
       if (!mute) {
         return interaction.followUp({
@@ -252,7 +252,7 @@ export default {
             new EmbedBuilder()
               .setTitle("You have been muted")
               .setDescription(
-                `You have been muted in \`${interaction.guild!.name}\``,
+                `You have been muted in \`${interaction.guild!.name}\``
               )
               .setFields([
                 {
@@ -266,11 +266,6 @@ export default {
                 {
                   name: "Expires At",
                   value: `<t:${Math.floor(mute.getTime() / 1000)}:f>`,
-                },
-                {
-                  name: "Appeal",
-                  value:
-                    "You can appeal by joining the appeal server. https://discord.gg/EUsVK5E",
                 },
               ])
               .setColor(EmbedColors.warning)
@@ -299,7 +294,7 @@ export default {
         .setDescription(
           `Muted <@${user.id}> for \`${reason || "No reason provided"}\`. ${
             dmSent ? "They have been notified." : "They could not be notified."
-          }`,
+          }`
         )
         .setFields([
           {
@@ -342,7 +337,7 @@ export default {
     let user: User;
     try {
       user = await interaction.client.users.fetch(
-        rawUser.replace(/[<@!>]/g, ""),
+        rawUser.replace(/[<@!>]/g, "")
       );
     } catch (e) {
       return interaction.reply({
@@ -440,7 +435,7 @@ export default {
               }), which is higher or equal to your highest role. (Position: ${
                 (interaction.member?.roles as GuildMemberRoleManager).highest
                   .position
-              })`,
+              })`
             )
             .setColor(EmbedColors.error)
             .setFooter({
@@ -496,13 +491,13 @@ export default {
           new EmbedBuilder()
             .setTitle(Errors.ErrorUserMuted)
             .setDescription(
-              `<@${member.id}> is already muted. Unmute them first.`,
+              `<@${member.id}> is already muted. Unmute them first.`
             )
             .setFields([
               {
                 name: "Expires At",
                 value: `<t:${Math.floor(
-                  member.communicationDisabledUntilTimestamp / 1000,
+                  member.communicationDisabledUntilTimestamp / 1000
                 )}:f>`,
               },
             ])
@@ -520,7 +515,7 @@ export default {
       const mute = await muteMember(
         member,
         new Date(Date.now() + timeMs),
-        reason || "No reason provided",
+        reason || "No reason provided"
       );
       if (!mute) {
         return interaction.reply({
@@ -545,7 +540,7 @@ export default {
             new EmbedBuilder()
               .setTitle("You have been muted")
               .setDescription(
-                `You have been muted in \`${interaction.guild!.name}\``,
+                `You have been muted in \`${interaction.guild!.name}\``
               )
               .setFields([
                 {
@@ -559,11 +554,6 @@ export default {
                 {
                   name: "Expires At",
                   value: `<t:${Math.floor(mute.getTime() / 1000)}:f>`,
-                },
-                {
-                  name: "Appeal",
-                  value:
-                    "You can appeal by joining the appeal server. https://discord.gg/EUsVK5E",
                 },
               ])
               .setColor(EmbedColors.warning)
@@ -592,7 +582,7 @@ export default {
         .setDescription(
           `Muted <@${user.id}> for \`${reason || "No reason provided"}\`. ${
             dmSent ? "They have been notified." : "They could not be notified."
-          }`,
+          }`
         )
         .setFields([
           {

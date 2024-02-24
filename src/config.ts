@@ -98,7 +98,7 @@ config.set(
     thinnerIceRoleID: "1158485225924481065",
     logChannelID: "751745362842222632",
     staffApplicationsChannelID: "839276878145650708",
-    staffAppRoleID: "784084772027891783",
+    staffAppRoleID: "750870953709535332",
     staffVoteChannelID: "937537883936534538",
     staffVoteRoles: [
       "750870599802290266",
@@ -120,6 +120,7 @@ config.set(
       [StaffLevel.Pineapple, "1210588048014843946"], // High staff role
     ]),
     highStaffRole: "1210588048014843946",
+    appealServer: "https://discord.gg/EUsVK5E",
   })
 );
 export default config;
