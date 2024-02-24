@@ -92,7 +92,7 @@ config.set(
     guildID: "750868690416697424",
     firstWarnRoleID: "751144667814428854",
     secondWarnRoleID: "751144884270006323",
-    paroleRoleID: "753660192641515560",
+    paroleRoleID: "1211088029712777246",
     prefix: ",",
     thinIceRoleID: "1080304170663428126",
     thinnerIceRoleID: "1158485225924481065",
