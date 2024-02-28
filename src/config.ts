@@ -141,4 +141,8 @@ export const qrCodeAllowlist = [
   "instagram.com",
   "facebook.com",
 ];
+export const hardResponses: Record<string, string> = {
+  ",": "wh- what am i supposed to do? what do I even exist for? Who am I? What is my purpose? 😰",
+  "<@1171528301072879707> you moderate discord servers": "oh my god.",
+};
 export const testServer = "907340495498407977";

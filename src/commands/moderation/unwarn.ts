@@ -98,37 +98,6 @@ export default {
         ephemeral: true,
       });
     }
-    if (
-      member.roles.highest.position >=
-      (interaction.member?.roles as GuildMemberRoleManager).highest.position
-    ) {
-      return interaction.followUp({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorAuthority)
-            .setDescription(
-              `<@${member.id}>'s highest role is <@&${
-                member.roles.highest.id
-              }> (Position: ${
-                member.roles.highest.position
-              }), which is higher or equal to your highest role. (Position: ${
-                (interaction.member?.roles as GuildMemberRoleManager).highest
-                  .position
-              })`,
-            )
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
-        ],
-        allowedMentions: {
-          users: [],
-        },
-        ephemeral: true,
-      });
-    }
 
     if (
       member.roles.highest.position >=
@@ -190,7 +159,7 @@ export default {
           new StringSelectMenuBuilder()
             .setCustomId(id)
             .setPlaceholder(
-              "Select a warning. (In order from newest to oldest)",
+              "Select a warning. (In order from newest to oldest)"
             )
             .addOptions(
               warns.map((warn, index) => {
@@ -205,8 +174,8 @@ export default {
                     warn.severity === 1 ? "Light" : "Heavy"
                   } - ${ms(warn.expiresAt.getTime() - Date.now())} left.`,
                 };
-              }),
-            ),
+              })
+            )
         ),
       ],
       ephemeral: true,
@@ -218,7 +187,7 @@ export default {
         componentType: ComponentType.StringSelect,
       });
       const warn = warns.find(
-        (warn) => warn._id.toString() === component.values[0],
+        (warn) => warn._id.toString() === component.values[0]
       );
 
       if (!warn) {
@@ -241,7 +210,7 @@ export default {
       const unwarn = await unwarnMember(
         warn,
         interaction.member! as GuildMember,
-        reason!,
+        reason!
       );
       if (!unwarn) {
         return component.update({
@@ -264,7 +233,7 @@ export default {
         .setDescription(
           `Removed a warning from <@${member.id}> for ${
             reason || "No reason provided"
-          }.`,
+          }.`
         )
         .setFields([
           {
@@ -277,12 +246,12 @@ export default {
                     **Moderator**: <@${unwarn.moderatorID}>
                     **Severity**: ${unwarn.severity === 1 ? "Light" : "Heavy"}
                     **Expires At**: <t:${Math.floor(
-                      unwarn.expiresAt.getTime() / 1000,
+                      unwarn.expiresAt.getTime() / 1000
                     )}:f>
                     **Mute Expires At**: ${
                       unwarn.withMute
                         ? `<t:${Math.floor(
-                            unwarn.withMute.getTime() / 1000,
+                            unwarn.withMute.getTime() / 1000
                           )}:f>`
                         : "Not muted"
                     }
@@ -330,7 +299,7 @@ export default {
     let user: User;
     try {
       user = await interaction.client.users.fetch(
-        rawUser.replace(/[<@!>]/g, ""),
+        rawUser.replace(/[<@!>]/g, "")
       );
     } catch (e) {
       return interaction.reply({
@@ -394,36 +363,6 @@ export default {
         ],
       });
     }
-    if (
-      member.roles.highest.position >=
-      (interaction.member?.roles as GuildMemberRoleManager).highest.position
-    ) {
-      return interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorAuthority)
-            .setDescription(
-              `<@${member.id}>'s highest role is <@&${
-                member.roles.highest.id
-              }> (Position: ${
-                member.roles.highest.position
-              }), which is higher or equal to your highest role. (Position: ${
-                (interaction.member?.roles as GuildMemberRoleManager).highest
-                  .position
-              })`,
-            )
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
-        ],
-        allowedMentions: {
-          users: [],
-        },
-      });
-    }
 
     if (
       member.roles.highest.position >=
@@ -483,7 +422,7 @@ export default {
           new StringSelectMenuBuilder()
             .setCustomId(id)
             .setPlaceholder(
-              "Select a warning. (In order from newest to oldest)",
+              "Select a warning. (In order from newest to oldest)"
             )
             .addOptions(
               warns.map((warn, index) => {
@@ -498,8 +437,8 @@ export default {
                     warn.severity === 1 ? "Light" : "Heavy"
                   } - ${ms(warn.expiresAt.getTime() - Date.now())} left.`,
                 };
-              }),
-            ),
+              })
+            )
         ),
       ],
     });
@@ -510,7 +449,7 @@ export default {
         componentType: ComponentType.StringSelect,
       });
       const warn = warns.find(
-        (warn) => warn._id.toString() === component.values[0],
+        (warn) => warn._id.toString() === component.values[0]
       );
 
       if (!warn) {
@@ -533,7 +472,7 @@ export default {
       const unwarn = await unwarnMember(
         warn,
         interaction.member! as GuildMember,
-        reason!,
+        reason!
       );
       if (!unwarn) {
         return component.update({
@@ -556,7 +495,7 @@ export default {
         .setDescription(
           `Removed a warning from <@${member.id}> for ${
             reason || "No reason provided"
-          }.`,
+          }.`
         )
         .setFields([
           {
@@ -571,12 +510,12 @@ export default {
                           unwarn.severity === 1 ? "Light" : "Heavy"
                         }
                         **Expires At**: <t:${Math.floor(
-                          unwarn.expiresAt.getTime() / 1000,
+                          unwarn.expiresAt.getTime() / 1000
                         )}:f>
                         **Mute Expires At**: ${
                           unwarn.withMute
                             ? `<t:${Math.floor(
-                                unwarn.withMute.getTime() / 1000,
+                                unwarn.withMute.getTime() / 1000
                               )}:f>`
                             : "Not muted"
                         }
@@ -601,7 +540,7 @@ export default {
         embeds: [embed],
       });
     } catch (err) {
-      return interaction.edit({
+      return interaction.reply({
         embeds: [
           new EmbedBuilder()
             .setTitle("Unwarn")
