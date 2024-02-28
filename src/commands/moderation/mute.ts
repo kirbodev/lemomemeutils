@@ -56,6 +56,10 @@ export default {
 
     const member = interaction.guild!.members.cache.get(user.id);
 
+    const force = interaction.memberPermissions?.has(
+      PermissionsBitField.Flags.Administrator
+    );
+
     if (!user) {
       return interaction.followUp({
         embeds: [
@@ -129,7 +133,9 @@ export default {
     }
     if (
       member.roles.highest.position >=
-      (interaction.member?.roles as GuildMemberRoleManager).highest.position
+        (interaction.member?.roles as GuildMemberRoleManager).highest
+          .position &&
+      !force
     ) {
       return interaction.followUp({
         embeds: [
@@ -362,6 +368,10 @@ export default {
 
     const member = interaction.guild!.members.cache.get(user.id);
 
+    const force = interaction.member?.permissions.has(
+      PermissionsBitField.Flags.Administrator
+    );
+
     if (!member) {
       return interaction.reply({
         embeds: [
@@ -421,7 +431,9 @@ export default {
     }
     if (
       member.roles.highest.position >=
-      (interaction.member?.roles as GuildMemberRoleManager).highest.position
+        (interaction.member?.roles as GuildMemberRoleManager).highest
+          .position &&
+      !force
     ) {
       return interaction.reply({
         embeds: [

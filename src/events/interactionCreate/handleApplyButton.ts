@@ -32,7 +32,7 @@ export default async (client: Client, interaction: Interaction) => {
         new EmbedBuilder()
           .setTitle(Errors.ErrorCommand)
           .setDescription(
-            "This server does not have a staff applications channel set.",
+            "This server does not have a staff applications channel set."
           )
           .setColor(EmbedColors.error)
           .setFooter({
@@ -63,7 +63,7 @@ export default async (client: Client, interaction: Interaction) => {
   if (
     config.staffAppRoleID &&
     !(interaction.member?.roles as GuildMemberRoleManager).cache.has(
-      config.staffAppRoleID,
+      config.staffAppRoleID
     )
   )
     return interaction.reply({
@@ -71,7 +71,7 @@ export default async (client: Client, interaction: Interaction) => {
         new EmbedBuilder()
           .setTitle(Errors.ErrorUser)
           .setDescription(
-            `You do not have permission to apply for staff. You need <@&${config.staffAppRoleID}> to apply for staff.`,
+            `You do not have permission to apply for staff. You need <@&${config.staffAppRoleID}> to apply for staff.`
           )
           .setColor(EmbedColors.error)
           .setFooter({
@@ -97,8 +97,8 @@ export default async (client: Client, interaction: Interaction) => {
           .setDescription(
             `You can use this command again in ${ms(
               staff.appliedAt.getTime() + 1000 * 60 * 60 * 24 * 14 - Date.now(),
-              { long: true },
-            )}`,
+              { long: true }
+            )}`
           )
           .setColor(EmbedColors.info)
           .setFooter({
@@ -159,13 +159,13 @@ export default async (client: Client, interaction: Interaction) => {
           .setRequired(true)
           .setCustomId(`${id}-why`)
           .setStyle(TextInputStyle.Paragraph),
-      ]),
+      ])
     );
   await interaction.showModal(modal);
   try {
     // collect the response
     const response = await interaction.awaitModalSubmit({
-      time: 1000 * 60 * 5,
+      time: 1000 * 60 * 10,
       filter: (i) => i.customId === id,
     });
     const age = response.fields.getTextInputValue(`${id}-age`);
@@ -196,7 +196,7 @@ export default async (client: Client, interaction: Interaction) => {
           new EmbedBuilder()
             .setTitle(Errors.ErrorUser)
             .setDescription(
-              "You did not fill out the form correctly. Age and level must be numbers.",
+              "You did not fill out the form correctly. Age and level must be numbers."
             )
             .setColor(EmbedColors.error)
             .setFooter({
@@ -214,7 +214,7 @@ export default async (client: Client, interaction: Interaction) => {
           new EmbedBuilder()
             .setTitle(Errors.ErrorUser)
             .setDescription(
-              "You did not fill out the form correctly. 2fa must be y (yes) or n (no).",
+              "You did not fill out the form correctly. 2fa must be y (yes) or n (no)."
             )
             .setColor(EmbedColors.error)
             .setFooter({
@@ -255,7 +255,7 @@ export default async (client: Client, interaction: Interaction) => {
         new EmbedBuilder()
           .setTitle("Staff Application")
           .setDescription(
-            "Thank you for applying for staff. Your application has been submitted.",
+            "Thank you for applying for staff. Your application has been submitted."
           )
           .setColor(EmbedColors.success)
           .setFooter({
@@ -300,13 +300,13 @@ export default async (client: Client, interaction: Interaction) => {
     });
     // send the application
     const voteChannel = interaction.guild!.channels.cache.get(
-      config.staffVoteChannelID!,
+      config.staffVoteChannelID!
     );
     if (!voteChannel) return;
     const embed = new EmbedBuilder()
       .setTitle("Staff Application")
       .setDescription(
-        `<@${interaction.user.id}> has applied for staff. **Reply** with \`r${config.prefix}<reason>\` to add a reason.`,
+        `<@${interaction.user.id}> has applied for staff. **Reply** with \`r${config.prefix}<reason>\` to add a reason.`
       )
       .setFields([
         {
@@ -379,7 +379,7 @@ export default async (client: Client, interaction: Interaction) => {
     await interaction.followUp({
       embeds: [
         new EmbedBuilder()
-          .setTitle(Errors.ErrorCommand)
+          .setTitle(Errors.ErrorGeneric)
           .setDescription("You did not respond in time.")
           .setColor(EmbedColors.error)
           .setFooter({
