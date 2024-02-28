@@ -54,6 +54,7 @@ export default {
     },
   ],
   permissionsRequired: [PermissionsBitField.Flags.ManageMessages],
+  requiresHighStaff: true,
   async slash(interaction: ChatInputCommandInteraction) {
     // Don't defer reply, we need to send the modal
     const type = interaction.options.getString("type", true) as
