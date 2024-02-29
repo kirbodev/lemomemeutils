@@ -376,20 +376,6 @@ export default async (client: Client, interaction: Interaction) => {
       await newStaff.save();
     }
   } catch (err) {
-    await interaction.followUp({
-      embeds: [
-        new EmbedBuilder()
-          .setTitle(Errors.ErrorGeneric)
-          .setDescription("You did not respond in time.")
-          .setColor(EmbedColors.error)
-          .setFooter({
-            text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
-      ],
-      components: [],
-      ephemeral: true,
-    });
+    // Do nothing
   }
 };

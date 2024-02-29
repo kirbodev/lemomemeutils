@@ -45,7 +45,7 @@ export default {
     const commandName = interaction.options.getString("command");
     if (commandName) {
       const command = localCommands.find(
-        (command) => command.name === commandName,
+        (command) => command.name === commandName
       );
       if (!command) {
         return interaction.followUp({
@@ -77,7 +77,7 @@ export default {
                 value:
                   command.permissionsRequired
                     ?.map(
-                      (permission) => `\`${getPermissionName(permission)}\``,
+                      (permission) => `\`${getPermissionName(permission)}\``
                     )
                     .join(", ") ?? "None",
               },
@@ -85,18 +85,49 @@ export default {
                 name: "Syntax (Message)",
                 value: command.message
                   ? command.syntax
-                    ? `${command.syntax.replaceAll("prefix", config.prefix || ",")}`
-                    : `${config.prefix || ","}${command.name} ${command.options?.map((option) => `${option.required ? `<${option.name}>` : `[${option.name}]`}`).join(" ") ?? ""}`
+                    ? `${command.syntax.replaceAll(
+                        "prefix",
+                        config.prefix || ","
+                      )}`
+                    : `${config.prefix || ","}${command.name} ${
+                        command.options
+                          ?.map(
+                            (option) =>
+                              `${
+                                option.required
+                                  ? `<${option.name}>`
+                                  : `[${option.name}]`
+                              }`
+                          )
+                          .join(" ") ?? ""
+                      }`
                   : "This command is slash only.",
               },
               {
                 name: "Syntax (Slash)",
                 // Slash syntax doesn't use command.syntax because it's already in the command options
-                value: `/${command.name} ${command.options?.map((option) => `${option.required ? `<${option.name}>` : `[${option.name}]`}`).join(" ") ?? ""}`,
+                value: command.slash
+                  ? `/${command.name} ${
+                      command.options
+                        ?.map(
+                          (option) =>
+                            `${
+                              option.required
+                                ? `<${option.name}>`
+                                : `[${option.name}]`
+                            }`
+                        )
+                        .join(" ") ?? ""
+                    }`
+                  : "This command is message only.",
               },
               {
                 name: "Supported Methods",
-                value: `**Slash:** Yes\n**Message:** ${command.message ? "Yes" : "No"}\n**ContextMenu:** ${command.contextMenu ? "Yes" : "No"}`,
+                value: `**Slash:** ${
+                  command.slash ? "Yes" : "No"
+                }\n**Message:** ${
+                  command.message ? "Yes" : "No"
+                }\n**ContextMenu:** ${command.contextMenu ? "Yes" : "No"}`,
               },
               {
                 name: "Dev Only",
@@ -121,7 +152,7 @@ export default {
                   (command.testOnly && interaction.guildId !== testServer) ||
                   (command.permissionsRequired &&
                     !interaction.memberPermissions?.has(
-                      command.permissionsRequired,
+                      command.permissionsRequired
                     ))
                     ? "No"
                     : "Yes",
@@ -142,7 +173,7 @@ export default {
                 localCommands.map((command) => ({
                   label: command.name,
                   value: command.name,
-                })),
+                }))
               ),
           ]) as ActionRowBuilder<StringSelectMenuBuilder>,
         ],
@@ -164,7 +195,7 @@ export default {
       collector?.on("collect", async (interaction) => {
         if (interaction.customId !== selectMenuId) return;
         const command = localCommands.find(
-          (command) => command.name === interaction.values[0],
+          (command) => command.name === interaction.values[0]
         );
         if (!command) {
           interaction.followUp({
@@ -197,19 +228,57 @@ export default {
                   value:
                     command.permissionsRequired
                       ?.map(
-                        (permission) => `\`${getPermissionName(permission)}\``,
+                        (permission) => `\`${getPermissionName(permission)}\``
                       )
                       .join(", ") ?? "None",
                 },
                 {
                   name: "Syntax (Message)",
-                  value: command.syntax
-                    ? `${command.syntax.replaceAll("prefix", config.prefix || ",")}`
-                    : `${config.prefix || ","}${command.name} ${command.options?.map((option) => `${option.required ? `<${option.name}>` : `[${option.name}]`}`).join(" ") ?? ""}`,
+                  value: command.message
+                    ? command.syntax
+                      ? `${command.syntax.replaceAll(
+                          "prefix",
+                          config.prefix || ","
+                        )}`
+                      : `${config.prefix || ","}${command.name} ${
+                          command.options
+                            ?.map(
+                              (option) =>
+                                `${
+                                  option.required
+                                    ? `<${option.name}>`
+                                    : `[${option.name}]`
+                                }`
+                            )
+                            .join(" ") ?? ""
+                        }`
+                    : "This command is slash only.",
+                },
+                {
+                  name: "Syntax (Slash)",
+                  // Slash syntax doesn't use command.syntax because it's already in the command options
+                  value: command.slash
+                    ? `/${command.name} ${
+                        command.options
+                          ?.map(
+                            (option) =>
+                              `${
+                                option.required
+                                  ? `<${option.name}>`
+                                  : `[${option.name}]`
+                              }`
+                          )
+                          .join(" ") ?? ""
+                      }`
+                    : "This command is message only.",
                 },
                 {
                   name: "Supported Methods",
-                  value: `**Slash:** Yes\n**Message:** ${command.message ? "Yes" : "No"}\n**ContextMenu:** ${command.contextMenu ? "Yes" : "No"}`,
+                  value: `**Slash:** ${
+                    command.slash ? "Yes" : "No"
+                  }\n**Message:** ${
+                    command.message ? "Yes" : "No"
+                  }\n**ContextMenu:** ${command.contextMenu ? "Yes" : "No"}`,
                 },
                 {
                   name: "Dev Only",
@@ -235,7 +304,7 @@ export default {
                     (command.testOnly && interaction.guildId !== testServer) ||
                     (command.permissionsRequired &&
                       !interaction.memberPermissions?.has(
-                        command.permissionsRequired,
+                        command.permissionsRequired
                       ))
                       ? "No"
                       : "Yes",
@@ -258,7 +327,7 @@ export default {
     const commandName = args[0];
     if (commandName) {
       const command = localCommands.find(
-        (command) => command.name === commandName,
+        (command) => command.name === commandName
       );
       if (!command) {
         return interaction.reply({
@@ -289,7 +358,7 @@ export default {
                 value:
                   command.permissionsRequired
                     ?.map(
-                      (permission) => `\`${getPermissionName(permission)}\``,
+                      (permission) => `\`${getPermissionName(permission)}\``
                     )
                     .join(", ") ?? "None",
               },
@@ -297,18 +366,45 @@ export default {
                 name: "Syntax (Message)",
                 value: command.message
                   ? command.syntax
-                    ? `${command.syntax.replaceAll("prefix", config.prefix || ",")}`
-                    : `${config.prefix || ","}${command.name} ${command.options?.map((option) => `${option.required ? `<${option.name}>` : `[${option.name}]`}`).join(" ") ?? ""}`
+                    ? `${command.syntax.replaceAll(
+                        "prefix",
+                        config.prefix || ","
+                      )}`
+                    : `${config.prefix || ","}${command.name} ${
+                        command.options
+                          ?.map(
+                            (option) =>
+                              `${
+                                option.required
+                                  ? `<${option.name}>`
+                                  : `[${option.name}]`
+                              }`
+                          )
+                          .join(" ") ?? ""
+                      }`
                   : "This command is slash only.",
               },
               {
                 name: "Syntax (Slash)",
                 // Slash syntax doesn't use command.syntax because it's already in the command options
-                value: `/${command.name} ${command.options?.map((option) => `${option.required ? `<${option.name}>` : `[${option.name}]`}`).join(" ") ?? ""}`,
+                value: `/${command.name} ${
+                  command.options
+                    ?.map(
+                      (option) =>
+                        `${
+                          option.required
+                            ? `<${option.name}>`
+                            : `[${option.name}]`
+                        }`
+                    )
+                    .join(" ") ?? ""
+                }`,
               },
               {
                 name: "Supported Methods",
-                value: `**Slash:** Yes\n**Message:** ${command.message ? "Yes" : "No"}\n**ContextMenu:** ${command.contextMenu ? "Yes" : "No"}`,
+                value: `**Slash:** Yes\n**Message:** ${
+                  command.message ? "Yes" : "No"
+                }\n**ContextMenu:** ${command.contextMenu ? "Yes" : "No"}`,
               },
               {
                 name: "Dev Only",
@@ -333,7 +429,7 @@ export default {
                   (command.testOnly && interaction.guildId !== testServer) ||
                   (command.permissionsRequired &&
                     !interaction.member!.permissions?.has(
-                      command.permissionsRequired,
+                      command.permissionsRequired
                     ))
                     ? "No"
                     : "Yes",
@@ -353,7 +449,7 @@ export default {
                 localCommands.map((command) => ({
                   label: command.name,
                   value: command.name,
-                })),
+                }))
               ),
           ]) as ActionRowBuilder<StringSelectMenuBuilder>,
         ],
@@ -374,7 +470,7 @@ export default {
       collector?.on("collect", async (interaction) => {
         if (interaction.customId !== selectMenuId) return;
         const command = localCommands.find(
-          (command) => command.name === interaction.values[0],
+          (command) => command.name === interaction.values[0]
         );
         if (!command) {
           interaction.followUp({
@@ -407,19 +503,35 @@ export default {
                   value:
                     command.permissionsRequired
                       ?.map(
-                        (permission) => `\`${getPermissionName(permission)}\``,
+                        (permission) => `\`${getPermissionName(permission)}\``
                       )
                       .join(", ") ?? "None",
                 },
                 {
                   name: "Syntax (Message)",
                   value: command.syntax
-                    ? `${command.syntax.replaceAll("prefix", config.prefix || ",")}`
-                    : `${config.prefix || ","}${command.name} ${command.options?.map((option) => `${option.required ? `<${option.name}>` : `[${option.name}]`}`).join(" ") ?? ""}`,
+                    ? `${command.syntax.replaceAll(
+                        "prefix",
+                        config.prefix || ","
+                      )}`
+                    : `${config.prefix || ","}${command.name} ${
+                        command.options
+                          ?.map(
+                            (option) =>
+                              `${
+                                option.required
+                                  ? `<${option.name}>`
+                                  : `[${option.name}]`
+                              }`
+                          )
+                          .join(" ") ?? ""
+                      }`,
                 },
                 {
                   name: "Supported Methods",
-                  value: `**Slash:** Yes\n**Message:** ${command.message ? "Yes" : "No"}\n**ContextMenu:** ${command.contextMenu ? "Yes" : "No"}`,
+                  value: `**Slash:** Yes\n**Message:** ${
+                    command.message ? "Yes" : "No"
+                  }\n**ContextMenu:** ${command.contextMenu ? "Yes" : "No"}`,
                 },
                 {
                   name: "Dev Only",
@@ -445,7 +557,7 @@ export default {
                     (command.testOnly && interaction.guildId !== testServer) ||
                     (command.permissionsRequired &&
                       !interaction.memberPermissions?.has(
-                        command.permissionsRequired,
+                        command.permissionsRequired
                       ))
                       ? "No"
                       : "Yes",

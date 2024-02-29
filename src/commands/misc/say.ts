@@ -17,6 +17,8 @@ import type Command from "../../structures/commandInterface";
 import EmbedColors from "../../structures/embedColors";
 import Errors from "../../structures/errors";
 import { nanoid } from "nanoid";
+import { KV } from "../../db";
+import kvInterface from "../../structures/kvInterface";
 
 export default {
   name: "say",
@@ -149,6 +151,27 @@ export default {
           filter: (i) => i.customId === modalId,
         });
         const message = modal.fields.getTextInputValue("message");
+        let msgid: string | undefined;
+        if (channel) {
+          if (msg) {
+            const botmsg = await msg.reply(message);
+            msgid = botmsg.id;
+          } else {
+            const botmsg = await (channel as GuildTextBasedChannel).send(
+              message
+            );
+            msgid = botmsg.id;
+          }
+        } else {
+          const botmsg = await interaction.channel!.send(message);
+          msgid = botmsg.id;
+        }
+        if (!msgid) return;
+        const kv = new KV<kvInterface>({
+          key: `botmsg-${msgid}`,
+          value: interaction.user.id,
+        });
+        await kv.save();
         modal.reply({
           embeds: [
             new EmbedBuilder()
@@ -163,12 +186,6 @@ export default {
           ],
           ephemeral: true,
         });
-        if (channel) {
-          if (msg) return msg.reply(message);
-          return (channel as GuildTextBasedChannel).send(message);
-        } else {
-          return interaction.channel!.send(message);
-        }
       } catch (err) {
         return interaction.followUp({
           embeds: [
@@ -255,27 +272,61 @@ export default {
           filter: (i) => i.customId === modalId,
         });
         const title = modal.fields.getTextInputValue("title");
-        const description = modal.fields.getTextInputValue("description");
-        const color = modal.fields.getTextInputValue(
-          "color"
-        ) as ColorResolvable;
-        const field1 = modal.fields.getTextInputValue("field1");
-        const image = modal.fields.getTextInputValue("image");
-        const message = new EmbedBuilder()
-          .setTitle(title)
-          .setDescription(description)
-          .setColor(color)
-          .setImage(image)
-          .setTimestamp(Date.now())
-          .setFooter({
-            text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL(),
-          });
-        if (field1) {
-          const [name, value] = field1.split(":");
-          message.setFields({
-            name: name,
-            value: value,
+        const description =
+          modal.fields.getTextInputValue("description") || null;
+        const color =
+          (modal.fields.getTextInputValue("color") as ColorResolvable | null) ||
+          EmbedColors.info;
+        const field1 = modal.fields.getTextInputValue("field1") || null;
+        const image = modal.fields.getTextInputValue("image") || null;
+        try {
+          const message = new EmbedBuilder()
+            .setTitle(title)
+            .setDescription(description)
+            .setColor(color)
+            .setImage(image)
+            .setTimestamp(Date.now())
+            .setFooter({
+              text: `Requested by ${interaction.user.tag}`,
+              iconURL: interaction.user.displayAvatarURL(),
+            });
+          if (field1) {
+            const [name, value] = field1.split(":");
+            message.setFields({
+              name: name,
+              value: value,
+            });
+          }
+          if (channel) {
+            if (msg) {
+              msg.reply({
+                embeds: [message],
+              });
+            } else {
+              (channel as GuildTextBasedChannel).send({
+                embeds: [message],
+              });
+            }
+          } else {
+            interaction.channel!.send({
+              embeds: [message],
+            });
+          }
+        } catch (err) {
+          return modal.reply({
+            embeds: [
+              new EmbedBuilder()
+                .setTitle(Errors.ErrorUser)
+                .setDescription(
+                  "Something went wrong while sending the embed. You probably didn't send a [valid embed](https://discord.com/developers/docs/resources/channel#embed-object) according to Discord's API."
+                )
+                .setColor(EmbedColors.error)
+                .setFooter({
+                  text: `Requested by ${interaction.user.tag}`,
+                  iconURL: interaction.user.displayAvatarURL(),
+                })
+                .setTimestamp(Date.now()),
+            ],
           });
         }
         modal.reply({
@@ -291,19 +342,6 @@ export default {
           ],
           ephemeral: true,
         });
-        if (channel) {
-          if (msg)
-            return msg.reply({
-              embeds: [message],
-            });
-          return (channel as GuildTextBasedChannel).send({
-            embeds: [message],
-          });
-        } else {
-          return interaction.channel!.send({
-            embeds: [message],
-          });
-        }
       } catch (err) {
         return interaction.followUp({
           embeds: [
