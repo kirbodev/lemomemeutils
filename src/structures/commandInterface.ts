@@ -20,15 +20,15 @@ export default interface Command {
   aliases?: string[]; // Only works for message commands
   syntax?: string; // Use to override the default syntax inherited from the options property, will replace "prefix" with the actual prefix
   contextName?: string; // Set the context menu name
-  slash: (
+  slash?: (
     interaction: ChatInputCommandInteraction,
-    m?: ModalSubmitInteraction,
+    m?: ModalSubmitInteraction
   ) => void | Promise<any>;
   message?: (
     interaction: Message,
-    options: { alias: string; args?: string[] },
+    options: { alias: string; args?: string[] }
   ) => void | Promise<any>;
   contextMenu?: (
-    interaction: ContextMenuCommandInteraction,
+    interaction: ContextMenuCommandInteraction
   ) => void | Promise<any>;
 }

@@ -6,7 +6,7 @@ import type { ApplicationCommandOptionData } from "discord.js";
 export default async (client: Client) => {
   try {
     const commands = (await client.application?.commands.fetch())?.filter(
-      (cmd) => cmd.type === ApplicationCommandType.ChatInput,
+      (cmd) => cmd.type === ApplicationCommandType.ChatInput
     );
     if (!commands) {
       logger.error("Could not fetch commands");
@@ -15,6 +15,7 @@ export default async (client: Client) => {
     const localCommands = await getLocalCommands();
     for (const localCommand of localCommands) {
       if (!localCommand) continue;
+      if (!localCommand.slash) continue;
       const { name, description, options } = localCommand;
       const existingCommand = commands.find((command) => command.name === name);
       if (existingCommand) {
@@ -41,7 +42,7 @@ export default async (client: Client) => {
     for (const command of commands) {
       if (!command) continue;
       const localCommand = localCommands.find(
-        (cmd) => cmd.name === command[1].name,
+        (cmd) => cmd.name === command[1].name
       );
       if (!localCommand) {
         await command[1].delete();

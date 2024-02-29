@@ -26,7 +26,7 @@ export default async (client: Client, interaction: Interaction) => {
   if (!interaction.guild) return;
   const localCommands = await getLocalCommands();
   const command = localCommands.find(
-    (command) => command.name === interaction.commandName,
+    (command) => command.name === interaction.commandName
   );
   if (!command) return;
   const config = configs.get(interaction.guildId!);
@@ -39,7 +39,7 @@ export default async (client: Client, interaction: Interaction) => {
           .setDescription(
             process.env.NODE_ENV
               ? "This is the testing bot, commands are not available to you."
-              : "The bot is currently in maintainance mode, try again later.",
+              : "The bot is currently in maintainance mode, try again later."
           )
           .setColor(EmbedColors.error)
           .setFooter({
@@ -82,7 +82,7 @@ export default async (client: Client, interaction: Interaction) => {
   if (
     command.permissionsRequired &&
     !(interaction.member?.permissions as PermissionsBitField).has(
-      command.permissionsRequired,
+      command.permissionsRequired
     )
   )
     return interaction.reply({
@@ -92,7 +92,7 @@ export default async (client: Client, interaction: Interaction) => {
           .setDescription(
             `You need the following permissions to use this command: ${command.permissionsRequired
               .map((permission) => `\`${getPermissionName(permission)}\``)
-              .join(", ")}`,
+              .join(", ")}`
           )
           .setColor(EmbedColors.error)
           .setFooter({
@@ -107,10 +107,10 @@ export default async (client: Client, interaction: Interaction) => {
     if (!config?.highStaffRole) return;
     if (
       !(interaction.member!.roles as GuildMemberRoleManager).cache.has(
-        config.highStaffRole,
+        config.highStaffRole
       ) &&
       !(interaction.member?.permissions as PermissionsBitField).has(
-        "Administrator",
+        "Administrator"
       )
     )
       return interaction.reply({
@@ -137,7 +137,7 @@ export default async (client: Client, interaction: Interaction) => {
           .setDescription(
             `You can use this command again in ${ms(cooldown - Date.now(), {
               long: true,
-            })}.`,
+            })}.`
           )
           .setColor(EmbedColors.info)
           .setFooter({
@@ -152,7 +152,7 @@ export default async (client: Client, interaction: Interaction) => {
     // Check if user has OTP enabled
     const dev = await Dev.findOne({ id: interaction.user.id });
     const otpCommand = client.application?.commands.cache.find(
-      (command) => command.name === "otp",
+      (command) => command.name === "otp"
     )?.id;
     if (!dev)
       return interaction.reply({
@@ -162,7 +162,7 @@ export default async (client: Client, interaction: Interaction) => {
             .setDescription(
               `You need to enable OTP to use this command. You can enable OTP by using the ${
                 otpCommand ? `</otp:${otpCommand}>` : "/otp"
-              } command.`,
+              } command.`
             )
             .setColor(EmbedColors.error)
             .setFooter({
@@ -181,7 +181,7 @@ export default async (client: Client, interaction: Interaction) => {
           new EmbedBuilder()
             .setTitle(Errors.ErrorOTPExpired)
             .setDescription(
-              "Your OTP has expired. Enter your OTP from your authenticator app to use this command.",
+              "Your OTP has expired. Enter your OTP from your authenticator app to use this command."
             )
             .setColor(EmbedColors.error)
             .setFooter({
@@ -195,7 +195,7 @@ export default async (client: Client, interaction: Interaction) => {
             new ButtonBuilder()
               .setLabel("Enter OTP Code")
               .setStyle(ButtonStyle.Primary)
-              .setCustomId(id),
+              .setCustomId(id)
           ),
         ],
         ephemeral: true,
@@ -240,7 +240,7 @@ export default async (client: Client, interaction: Interaction) => {
             components: [],
           });
         try {
-          await command.slash(interaction, m);
+          await command.slash!(interaction, m);
         } catch (e) {
           const embed = new EmbedBuilder()
             .setTitle(Errors.ErrorServer)
@@ -284,7 +284,7 @@ export default async (client: Client, interaction: Interaction) => {
   try {
     if (interaction.replied) return;
     setCooldown(interaction.user.id, command.name);
-    await command.slash(interaction);
+    await command.slash!(interaction);
   } catch (e) {
     const embed = new EmbedBuilder()
       .setTitle(Errors.ErrorServer)

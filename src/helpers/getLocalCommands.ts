@@ -24,8 +24,7 @@ export default async function getLocalCommands() {
       if (
         !command.default ||
         !command.default.name ||
-        !command.default.description ||
-        !command.default.slash
+        !command.default.description
       ) {
         logger.warn(`Invalid command file: ${commandFile}`);
         continue;
