@@ -1,12 +1,10 @@
 export default {
-  name: "Bug Fixes",
-  date: new Date(2024, 1, 29),
-  version: "1.5.3",
-  description: "Whois is now a command! Say has also been fixed.",
+  name: "AFK Command",
+  date: new Date(2024, 2, 1),
+  version: "1.5.4",
+  description: "Since when do we have daily updates?",
   changelog: [
-    ",whois will let you see who sent a message via the bot.",
-    "The embed part of the say command has been fixed. Errors are also clearer.",
-    "Staff apps will be rewritten in 1.6.0! (Sorry, not in this update.)",
+    "Set your AFK using /afk or ,afk, this is a drop-in replacement for Dyno's AFK command, but better and with more features. Try /help afk for more information.",
   ],
 } satisfies {
   name: string;
