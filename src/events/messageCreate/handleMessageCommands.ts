@@ -6,7 +6,12 @@ import {
   GuildMemberRoleManager,
 } from "discord.js";
 import getLocalCommands from "../../helpers/getLocalCommands";
-import configs, { devs, hardResponses, testServer } from "../../config";
+import configs, {
+  devs,
+  hardResponses,
+  maintainanceMode,
+  testServer,
+} from "../../config";
 import logger from "../../helpers/logger";
 import Errors from "../../structures/errors";
 import EmbedColors from "../../structures/embedColors";
@@ -18,7 +23,21 @@ export default async (client: Client, message: Message) => {
   if (!message.guild) return;
   const config = configs.get(message.guild.id);
   if (!config) return;
-  const res = hardResponses[message.content];
+  let res;
+  for (const resp in hardResponses) {
+    if (resp.startsWith("regex:")) {
+      const regex = new RegExp(resp.slice(6));
+      if (regex.test(message.content.toLowerCase())) {
+        res = hardResponses[resp];
+        break;
+      }
+      continue;
+    }
+    if (resp === message.content.toLowerCase()) {
+      res = hardResponses[resp];
+      break;
+    }
+  }
   if (res) return message.reply(res);
   const prefix = config?.prefix || ",";
   if (!message.content.startsWith(prefix) || message.author.bot) return;
@@ -52,6 +71,28 @@ export default async (client: Client, message: Message) => {
       ],
     });
   }
+  if (
+    maintainanceMode &&
+    !devs.includes(message.author.id) &&
+    message.guildId !== testServer
+  )
+    return message.reply({
+      embeds: [
+        new EmbedBuilder()
+          .setTitle(Errors.ErrorMaintainanceMode)
+          .setDescription(
+            process.env.NODE_ENV
+              ? "This is the testing bot, commands are not available to you."
+              : "The bot is currently in maintainance mode, try again later."
+          )
+          .setColor(EmbedColors.error)
+          .setFooter({
+            text: `Requested by ${message.author.tag}`,
+            iconURL: message.author.displayAvatarURL(),
+          })
+          .setTimestamp(Date.now()),
+      ],
+    });
   if (command.devOnly && !devs.includes(message.author.id))
     return message.reply({
       embeds: [

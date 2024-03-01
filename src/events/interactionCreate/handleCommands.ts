@@ -31,7 +31,11 @@ export default async (client: Client, interaction: Interaction) => {
   if (!command) return;
   const config = configs.get(interaction.guildId!);
 
-  if (maintainanceMode && !devs.includes(interaction.user.id))
+  if (
+    maintainanceMode &&
+    !devs.includes(interaction.user.id) &&
+    interaction.guildId !== testServer
+  )
     return interaction.reply({
       embeds: [
         new EmbedBuilder()

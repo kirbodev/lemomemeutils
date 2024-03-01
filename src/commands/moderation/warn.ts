@@ -373,7 +373,6 @@ export default {
       });
     }
     if (!alias || alias === "warn") alias = "w";
-    console.log(alias, args);
     // Reason will either be args[1] and forwards or args[2] and forwards depending on the alias
     const reason =
       alias === "w" ? args.slice(1).join(" ") : args.slice(2).join(" ");
