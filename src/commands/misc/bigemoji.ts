@@ -22,7 +22,7 @@ export default {
   permissionsRequired: [PermissionsBitField.Flags.SendMessages],
   async slash(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ ephemeral: true });
-    const emoji = interaction.options.getString("emoji", true);
+    const emoji = interaction.options.getString("emojis", true);
     const emojiRegex = /<a?:(?:[^:]+):(?<id>\d+)>/gm;
     const matches = emoji.matchAll(emojiRegex);
     const matchesarr = [
