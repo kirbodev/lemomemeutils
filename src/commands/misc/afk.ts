@@ -122,14 +122,14 @@ export default {
   async message(interaction, { args }) {
     args = args ?? [];
     const expiresraw = args[args.length - 1];
-    const expires = expiresraw ? ms(expiresraw) : undefined;
+    let expires = expiresraw ? ms(expiresraw) : undefined;
+    if (isNaN(expires)) expires = null;
     const message =
-      args.slice(0, expiresraw ? args.length - 1 : args.length).join(" ") ||
+      args.slice(0, expires ? args.length - 1 : args.length).join(" ") ||
       undefined;
     if (
-      expiresraw &&
+      expires &&
       (!expires ||
-        isNaN(expires) ||
         expires < 10000 ||
         expires > 1000 * 60 * 60 * 24 * 14)
     ) {
