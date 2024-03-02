@@ -23,6 +23,12 @@ export default {
       required: false,
     },
     {
+      name: "attachment",
+      description: "The attachment to display when someone mentions you.",
+      type: ApplicationCommandOptionType.Attachment,
+      required: false,
+    },
+    {
       name: "expires",
       description: "How long until you are no longer AFK.",
       type: ApplicationCommandOptionType.String,
@@ -31,9 +37,12 @@ export default {
   ],
   async slash(interaction) {
     await interaction.deferReply({ ephemeral: true });
-    const message = interaction.options.getString("message");
+    let message = interaction.options.getString("message");
     const expiresraw = interaction.options.getString("expires");
     const expires = expiresraw ? ms(expiresraw) : undefined;
+    const attachment = interaction.options.getAttachment("attachment")?.url;
+
+    if (attachment) message = `${attachment} ${message || ""}`;
 
     if (
       expiresraw &&
@@ -123,15 +132,15 @@ export default {
     args = args ?? [];
     const expiresraw = args[args.length - 1];
     let expires = expiresraw ? ms(expiresraw) : undefined;
-    if (isNaN(expires)) expires = null;
-    const message =
+    if (expires && isNaN(expires)) expires = undefined;
+    let message =
       args.slice(0, expires ? args.length - 1 : args.length).join(" ") ||
       undefined;
+    const attachment = interaction.attachments.first()?.url;
+    if (attachment) message = `${attachment} ${message || ""}`;
     if (
       expires &&
-      (!expires ||
-        expires < 10000 ||
-        expires > 1000 * 60 * 60 * 24 * 14)
+      (!expires || expires < 10000 || expires > 1000 * 60 * 60 * 24 * 14)
     ) {
       return interaction.reply({
         embeds: [

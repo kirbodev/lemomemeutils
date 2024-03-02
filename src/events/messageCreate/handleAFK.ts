@@ -38,7 +38,7 @@ export default async (client: Client, message: Message) => {
             }),
         ],
       });
-      deleteAfterRead(msg, 1);
+      deleteAfterRead(msg);
     }
   }
 
@@ -51,7 +51,7 @@ export default async (client: Client, message: Message) => {
     : message.mentions.parsedUsers;
   mentioned.delete(message.author.id);
 
-  const afks = [];
+  const afks: HydratedDocument<afkInterface>[] = [];
   for (const user of mentioned) {
     const Afk: HydratedDocument<afkInterface> | null = await afk.findOne({
       userID: user[0],
@@ -69,7 +69,9 @@ export default async (client: Client, message: Message) => {
   if (afks.length === 1) {
     const Afk = afks[0];
     const user = await client.users.fetch(Afk.userID).catch(() => null);
-    const extract = Afk.message ? extractLink(Afk.message) : [null, ""];
+    const extract: [string | null, string] = Afk.message
+      ? extractLink(Afk.message)
+      : [null, ""];
 
     const embed = new EmbedBuilder()
       .setTitle("AFK")
@@ -89,7 +91,7 @@ export default async (client: Client, message: Message) => {
     const msg = await message.reply({
       embeds: [embed],
     });
-    deleteAfterRead(msg, 1);
+    deleteAfterRead(msg, extract[1], !!extract[0]);
   } else {
     const embed = new EmbedBuilder()
       .setTitle("AFK")
@@ -115,21 +117,35 @@ export default async (client: Client, message: Message) => {
     const msg = await message.reply({
       embeds: [embed],
     });
-    deleteAfterRead(msg, afks.length);
+    deleteAfterRead(
+      msg,
+      afks
+        .map((afk) => (afk.message ? extractLink(afk.message)[1] : ""))
+        .join(" ")
+    );
   }
 };
 
-const deleteAfterRead = async (message: Message, afks: number) => {
+const deleteAfterRead = async (
+  message: Message,
+  text?: string,
+  hasAttachment?: boolean
+) => {
+  const afkchars = text?.length ?? 50;
+  let time = afkchars * 75;
+  time = Math.floor(ease(time / 30000) * 30000);
+  if (hasAttachment) time += 5000;
+  if (time < 5000) time = 5000;
+  time = Math.min(time, 30000);
   setTimeout(() => {
     message.delete().catch(() => null);
-  }, afks * 10000);
+  }, time);
 };
 
 const urlregex =
-  /(https:\/\/media\.discordapp\.net\/attachments\/[0-9]{18,}\/[0-9]{18,}\/.+\..{2,})/i;
+  /(https:\/\/(media|cdn)\.discordapp\.(net|com)\/(attachments|ephemeral-attachments).+(?=\s))/i;
 const extractLink = (text: string): [string | null, string] => {
   const urls = text.match(urlregex);
-  console.log(urls, text);
   if (!urls) return [null, text];
   try {
     new URL(urls[0]);
@@ -140,4 +156,18 @@ const extractLink = (text: string): [string | null, string] => {
   let newText = text.replace(urls[0], "");
   newText = newText.trim();
   return [urls[0], newText];
+};
+
+const ease = (x: number): number => {
+  // cubic-bezier: 0.2, 0.6, 0.6, 1
+  const p0 = 0.2;
+  const p1 = 0.6;
+  const p2 = 0.6;
+  const p3 = 1;
+
+  const cX = 3 * (p1 - p0);
+  const bX = 3 * (p2 - p1) - cX;
+  const aX = p3 - p0 - cX - bX;
+
+  return ((aX * x + bX) * x + cX) * x + p0;
 };
