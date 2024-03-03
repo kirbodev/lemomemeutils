@@ -18,7 +18,7 @@ export default async (client: Client, message: Message) => {
     if (userAfk.expiresAt && userAfk.expiresAt.getTime() < Date.now()) {
       await userAfk.deleteOne();
     } else if (
-      !message.content.endsWith("--afk") &&
+      !message.content.endsWith("--afk" || "—afk") &&
       !message.content.startsWith(`${config.prefix}afk`)
     ) {
       await userAfk.deleteOne();
