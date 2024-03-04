@@ -1,12 +1,12 @@
 import { Client, Message } from "discord.js";
-import SnipedMessage from "../../db/models/snipe";
+import Snipe from "../../db/index";
 export default async (client: Client, oldMessage: Message, newMessage: Message) => {
   if (!newMessage.guild) return;
   if (newMessage.partial) await newMessage.fetch().catch(() => null); // Fetch if the message is partial
   // Ignore if there's no change in content or if the message now has no content
   if (oldMessage.content === newMessage.content || !newMessage.content) return;
 
-  const snipedMessage = new SnipedMessage({
+  const snipedMessage = new Snipe({
     messageId: newMessage.id,
     authorId: newMessage.author.id,
     guildId: newMessage.guild.id,
