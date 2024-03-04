@@ -1,4 +1,3 @@
-// src/events/messageUpdate.ts
 import { Client, Message } from "discord.js";
 import SnipedMessage from "../../db/models/snipe";
 export default async (client: Client, oldMessage: Message, newMessage: Message) => {
