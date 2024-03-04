@@ -1,6 +1,8 @@
-import { Client, Message, EmbedBuilder } from "discord.js";
+import { Client, Message, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
+import configs from "../../config";
+import { banMember } from "../../helpers/banMember";
 import EmbedColors from "../../structures/embedColors";
 
 dotenv.config();
@@ -11,18 +13,17 @@ export default async (client: Client, message: Message) => {
   if (!message.guild) return;
   if (message.author.bot) return;
 
-  // Simple URL detection
   const urlPattern = /https?:\/\/[^\s]+/g;
   const urls = message.content.match(urlPattern);
 
   if (urls) {
     for (const url of urls) {
-      await scanUrlWithVirusTotal(url, message);
+      await scanUrlWithVirusTotal(url, message, client);
     }
   }
 };
 
-const scanUrlWithVirusTotal = async (url: string, message: Message) => {
+const scanUrlWithVirusTotal = async (url: string, message: Message, client: Client) => {
   const options = {
     method: 'POST',
     headers: {
@@ -38,12 +39,33 @@ const scanUrlWithVirusTotal = async (url: string, message: Message) => {
     const data = await response.json();
 
     if (data.data && data.data.attributes.last_analysis_stats.malicious > 0) {
+      await message.delete();
+
+      const logChannel = client.channels.cache.get(configs.logChannelId);
+      if (!logChannel || !logChannel.isText()) return;
+
       const embed = new EmbedBuilder()
         .setTitle("Malicious URL Detected")
-        .setDescription(`A potentially malicious URL was detected and should be avoided: ${url}`)
+        .setDescription(`A potentially malicious URL was detected in a message sent by ${message.author.tag} and has been deleted.\nURL: ${url}`)
         .setColor(EmbedColors.warning);
 
-      await message.reply({ embeds: [embed] });
+      const banButton = new ButtonBuilder()
+        .setCustomId('ban-user-' + message.author.id)
+        .setLabel('Ban User')
+        .setStyle(ButtonStyle.Danger);
+
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(banButton);
+
+      await logChannel.send({ embeds: [embed], components: [row] });
+
+      client.on('interactionCreate', async (interaction) => {
+        if (!interaction.isButton()) return;
+        const [action, userId] = interaction.customId.split('-');
+        if (action === 'ban-user') {
+          await banMember(userId, interaction.guildId!, interaction.user);
+          await interaction.update({ content: 'User has been banned.', components: [] });
+        }
+      });
     }
   } catch (err) {
     console.error('Error scanning URL with VirusTotal:', err);
