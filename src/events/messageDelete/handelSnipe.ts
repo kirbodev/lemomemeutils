@@ -1,5 +1,5 @@
 import { Client, Message } from "discord.js";
-import SnipedMessage from "../../db/models/snipe";
+import snipe from "../../db/index";
 
 export default async (client: Client, message: Message) => {
   if (!message.guild) return;
