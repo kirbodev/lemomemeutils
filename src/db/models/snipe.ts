@@ -16,7 +16,7 @@ const snipeSchema = new mongoose.Schema<snipeInterface>({
   },
   channelId: {
     type: String,
-    required: false,
+    required: true,
   },
   methodType: {
     type: String,
