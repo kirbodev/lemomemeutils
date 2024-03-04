@@ -1,6 +1,6 @@
 import { APIApplicationCommandOption, ChatInputCommandInteraction } from 'discord.js';
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
-import SnipedMessage from '../../db/models/snipe';
+import Snipe from '../../db/index';
 
 export default {
   name: 'snipe',
