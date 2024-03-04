@@ -6,7 +6,7 @@ export default async (client: Client, message: Message) => {
   if (message.partial) await message.fetch().catch(() => null); // Fetch if the message is partial
   if (!message.content && !message.attachments.size) return; // Ignore if there's no content or attachments
 
-  const snipedMessage = new SnipedMessage({
+  const snipedMessage = new snipe({
     messageId: message.id,
     authorId: message.author.id,
     guildId: message.guild.id,
