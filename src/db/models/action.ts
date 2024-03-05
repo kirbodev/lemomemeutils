@@ -45,5 +45,5 @@ const actionSchema = new mongoose.Schema<actionInterface>({
   },
 });
 
-export default mongoose.models.action ||
+export default (mongoose.models.action as mongoose.Model<actionInterface>) ||
   mongoose.model<actionInterface>("action", actionSchema, "actions");

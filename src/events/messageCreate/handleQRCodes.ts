@@ -4,10 +4,12 @@ import { qrCodeAllowlist } from "../../config";
 import EmbedColors from "../../structures/embedColors";
 
 import { readBarcodesFromImageFile } from "zxing-wasm";
+import analytics from "../../db/models/analytics";
 
 export default async (client: Client, message: Message) => {
   if (!message.guild) return;
   if (!message.attachments.size) return;
+  const now = performance.now();
   message.attachments.forEach(async (attachment) => {
     if (!attachment.contentType?.startsWith("image")) return;
     if (!attachment.height || !attachment.width) return;
@@ -32,6 +34,14 @@ export default async (client: Client, message: Message) => {
 
     const qr = await getQRCode(image);
     if (!qr) return;
+    const analytic = new analytics({
+      name: "qrCode",
+      guildID: message.guild?.id,
+      userID: message.author.id,
+      responseTime: performance.now() - now,
+      type: "other",
+    });
+    analytic.save();
     let qrURL: URL;
     try {
       qrURL = new URL(qr);

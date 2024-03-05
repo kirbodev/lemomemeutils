@@ -19,24 +19,13 @@ export default async (client: Client, message: Message) => {
   staff.decision.reason = reason;
   await staff.save();
   const embed = new EmbedBuilder(reply.embeds[0] as APIEmbed);
-  // Find a field with the name "Reason"
-  const field = embed.data.fields!.find((field) => field.name === "Reason");
-  if (field) {
-    embed.setFields([
-      ...embed.data.fields!.filter((field) => field.name !== "Reason"),
-      {
-        name: "Reason",
-        value: reason,
-      },
-    ]);
-  } else {
-    embed.addFields([
-      {
-        name: "Reason",
-        value: reason,
-      },
-    ]);
-  }
+  embed.setFields([
+    ...embed.data.fields!.filter((field) => field.name !== "Reason"),
+    {
+      name: "Reason",
+      value: reason,
+    },
+  ]);
   embed.setTimestamp();
   await reply.edit({
     embeds: [embed],

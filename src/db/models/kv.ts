@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Model } from "mongoose";
 import kvInterface from "../../structures/kvInterface";
 
 const kvSchema = new mongoose.Schema<kvInterface>({
@@ -13,5 +13,5 @@ const kvSchema = new mongoose.Schema<kvInterface>({
   },
 });
 
-export default mongoose.models.kv ||
+export default (mongoose.models.kv as Model<kvInterface>) ||
   mongoose.model<kvInterface>("kv", kvSchema, "kv");

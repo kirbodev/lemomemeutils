@@ -20,6 +20,7 @@ import { nanoid } from "nanoid";
 import showOTPModal from "../../helpers/showOTPModal";
 import { getCooldown, setCooldown } from "../../handlers/cooldownHandler";
 import ms from "ms";
+import analytics from "../../db/models/analytics";
 
 export default async (client: Client, interaction: Interaction) => {
   if (!interaction.isChatInputCommand()) return;
@@ -288,7 +289,16 @@ export default async (client: Client, interaction: Interaction) => {
   try {
     if (interaction.replied) return;
     setCooldown(interaction.user.id, command.name);
+    const now = performance.now();
     await command.slash!(interaction);
+    const analytic = new analytics({
+      name: command.name,
+      responseTime: performance.now() - now,
+      type: "command",
+      userID: interaction.user.id,
+      guildID: interaction.guildId!,
+    });
+    analytic.save();
   } catch (e) {
     const embed = new EmbedBuilder()
       .setTitle(Errors.ErrorServer)

@@ -1,5 +1,5 @@
 // Create a dev model to be used to store OTP secrets, id must be in "devs" from config.ts
-import mongoose from "mongoose";
+import mongoose, { Model } from "mongoose";
 import devInterface from "../../structures/devInterface";
 
 const devSchema = new mongoose.Schema<devInterface>({
@@ -22,5 +22,5 @@ const devSchema = new mongoose.Schema<devInterface>({
   },
 });
 
-export default mongoose.models.dev ||
+export default (mongoose.models.dev as Model<devInterface>) ||
   mongoose.model<devInterface>("dev", devSchema, "devs");

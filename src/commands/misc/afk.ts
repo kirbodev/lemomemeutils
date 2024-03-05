@@ -39,17 +39,15 @@ export default {
     await interaction.deferReply({ ephemeral: true });
     let message = interaction.options.getString("message");
     const expiresraw = interaction.options.getString("expires");
-    const expires = expiresraw ? ms(expiresraw) : undefined;
+    let expires = expiresraw ? ms(expiresraw) : undefined;
+    if (expires && expires < 10000) expires = undefined;
     const attachment = interaction.options.getAttachment("attachment")?.url;
 
     if (attachment) message = `${attachment} ${message || ""}`;
 
     if (
       expiresraw &&
-      (!expires ||
-        isNaN(expires) ||
-        expires < 10000 ||
-        expires > 1000 * 60 * 60 * 24 * 14)
+      (!expires || isNaN(expires) || expires > 1000 * 60 * 60 * 24 * 14)
     ) {
       return interaction.editReply({
         embeds: [
@@ -111,7 +109,7 @@ export default {
               message ? ` with the message: "${message}"` : ""
             }${
               expiresAt
-                ? ` until <t:${Math.floor(Afk.expiresAt.getTime() / 1000)}:f>`
+                ? ` until <t:${Math.floor(Afk.expiresAt!.getTime() / 1000)}:f>`
                 : ""
             }.${
               existingAfk
@@ -133,15 +131,13 @@ export default {
     const expiresraw = args[args.length - 1];
     let expires = expiresraw ? ms(expiresraw) : undefined;
     if (expires && isNaN(expires)) expires = undefined;
+    if (expires && expires < 10000) expires = undefined;
     let message =
       args.slice(0, expires ? args.length - 1 : args.length).join(" ") ||
       undefined;
     const attachment = interaction.attachments.first()?.url;
     if (attachment) message = `${attachment} ${message || ""}`;
-    if (
-      expires &&
-      (!expires || expires < 10000 || expires > 1000 * 60 * 60 * 24 * 14)
-    ) {
+    if (expires && (!expires || expires > 1000 * 60 * 60 * 24 * 14)) {
       return interaction.reply({
         embeds: [
           new EmbedBuilder()
@@ -202,7 +198,7 @@ export default {
               message ? ` with the message: "${message}"` : ""
             }${
               expiresAt
-                ? ` until <t:${Math.floor(Afk.expiresAt.getTime() / 1000)}:f>`
+                ? ` until <t:${Math.floor(Afk.expiresAt!.getTime() / 1000)}:f>`
                 : ""
             }.${
               existingAfk
