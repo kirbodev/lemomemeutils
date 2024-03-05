@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Model } from "mongoose";
 import warnInterface from "../../structures/warnInterface";
 
 const unwarnInterface = new mongoose.Schema({
@@ -56,5 +56,5 @@ const warnSchema = new mongoose.Schema<warnInterface>({
   },
 });
 
-export default mongoose.models.warn ||
+export default (mongoose.models.warn as Model<warnInterface>) ||
   mongoose.model("warn", warnSchema, "warns");

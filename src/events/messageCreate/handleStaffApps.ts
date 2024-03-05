@@ -9,7 +9,7 @@ export default async (client: Client, message: Message) => {
   const config = configs.get(message.guild.id);
   if (!config || !config.staffApplicationsChannelID) return;
   if (message.channelId !== config.staffApplicationsChannelID) return;
-  if (message.interaction) return;
+  if (message.interaction || message.reference) return;
   if (
     message.components[0]?.components[0]?.customId ===
     `apply-${message.guildId}`
@@ -19,19 +19,16 @@ export default async (client: Client, message: Message) => {
     { key: `staffAppsMessage-${message.guildId}` }
   );
   if (!applyMessageId) return;
-  let applyMessage: Message;
-  try {
-    applyMessage = await message.channel.messages.fetch(applyMessageId.value);
-  } catch (e) {
-    return;
-  }
+  const applyMessage = await message.channel.messages
+    .fetch(applyMessageId.value)
+    .catch(() => null);
   if (!applyMessage) return;
   const msg = await message.channel.send({
     content: applyMessage.content,
     embeds: applyMessage.embeds,
     components: applyMessage.components,
   });
-  await applyMessage.delete();
+  await applyMessage.delete().catch(() => null);
 
   applyMessageId.value = msg.id;
   await applyMessageId.save();

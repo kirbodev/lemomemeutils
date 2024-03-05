@@ -7,7 +7,7 @@ import staffInterface from "../../structures/staffInterface";
 export default async (
   client: Client,
   reaction: MessageReaction,
-  user: User,
+  user: User
 ) => {
   if (!reaction.message || !reaction.message.guild) return;
   if (user.bot) return;
@@ -20,7 +20,7 @@ export default async (
       voteMessage: reaction.message.id,
       guildID: reaction.message.guild.id,
       "decision.decisionAt": undefined,
-    },
+    }
   );
   if (!staffApp) return;
   const voteType = reaction.emoji.name === "✅";

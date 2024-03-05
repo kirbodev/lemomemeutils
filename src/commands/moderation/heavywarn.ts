@@ -43,7 +43,7 @@ export default {
       required: false,
     },
   ],
-  aliases: ["heavy-warn, heavywarn, hwm"],
+  aliases: ["heavy-warn", "heavywarn", "hwm"],
   syntax: "prefixhw <user> [reason] || prefixhwm <user> <mute> [reason]",
   cooldown: 10000,
   permissionsRequired: [PermissionsBitField.Flags.ManageMessages],

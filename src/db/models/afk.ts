@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Model } from "mongoose";
 import afkInterface from "../../structures/afkInterface";
 
 const afkSchema = new mongoose.Schema<afkInterface>({
@@ -24,5 +24,5 @@ const afkSchema = new mongoose.Schema<afkInterface>({
   },
 });
 
-export default mongoose.models.afk ||
+export default (mongoose.models.afk as Model<afkInterface>) ||
   mongoose.model<afkInterface>("afk", afkSchema, "afk");

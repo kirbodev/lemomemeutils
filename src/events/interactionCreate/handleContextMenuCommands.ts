@@ -13,6 +13,7 @@ import EmbedColors from "../../structures/embedColors";
 import getPermissionName from "../../helpers/getPermissionName";
 import { getCooldown, setCooldown } from "../../handlers/cooldownHandler";
 import ms from "ms";
+import analytics from "../../db/models/analytics";
 
 export default async (client: Client, interaction: Interaction) => {
   if (!interaction.isContextMenuCommand()) return;
@@ -20,7 +21,7 @@ export default async (client: Client, interaction: Interaction) => {
   const command = localCommands.find(
     (command) =>
       command.contextName === interaction.commandName ||
-      command.name === interaction.commandName,
+      command.name === interaction.commandName
   );
   if (!command) return;
   const config = configs.get(interaction.guildId!);
@@ -32,7 +33,7 @@ export default async (client: Client, interaction: Interaction) => {
           .setDescription(
             process.env.NODE_ENV
               ? "This is the testing bot, commands are not available to you."
-              : "The bot is currently in maintainance mode, try again later.",
+              : "The bot is currently in maintainance mode, try again later."
           )
           .setColor(EmbedColors.error)
           .setFooter({
@@ -75,10 +76,10 @@ export default async (client: Client, interaction: Interaction) => {
   if (
     command.permissionsRequired &&
     !(interaction.member?.permissions as PermissionsBitField).has(
-      command.permissionsRequired,
+      command.permissionsRequired
     ) &&
     !(interaction.member?.permissions as PermissionsBitField).has(
-      "Administrator",
+      "Administrator"
     )
   )
     return interaction.reply({
@@ -88,7 +89,7 @@ export default async (client: Client, interaction: Interaction) => {
           .setDescription(
             `You need the following permissions to use this command: ${command.permissionsRequired
               .map((permission) => `\`${getPermissionName(permission)}\``)
-              .join(", ")}`,
+              .join(", ")}`
           )
           .setColor(EmbedColors.error)
           .setFooter({
@@ -103,7 +104,7 @@ export default async (client: Client, interaction: Interaction) => {
     if (!config?.highStaffRole) return;
     if (
       !(interaction.member!.roles as GuildMemberRoleManager).cache.has(
-        config.highStaffRole,
+        config.highStaffRole
       )
     )
       return interaction.reply({
@@ -130,7 +131,7 @@ export default async (client: Client, interaction: Interaction) => {
           .setDescription(
             `You can use this command again in ${ms(cooldown - Date.now(), {
               long: true,
-            })}`,
+            })}`
           )
           .setColor(EmbedColors.info)
           .setFooter({
@@ -142,8 +143,18 @@ export default async (client: Client, interaction: Interaction) => {
       ephemeral: true,
     });
   try {
+    if (interaction.replied) return;
     setCooldown(interaction.user.id, command.name);
+    const now = performance.now();
     await command.contextMenu!(interaction);
+    const analytic = new analytics({
+      name: command.name,
+      responseTime: performance.now() - now,
+      type: "contextMenu",
+      userID: interaction.user.id,
+      guildID: interaction.guildId!,
+    });
+    analytic.save();
   } catch (e) {
     const embed = new EmbedBuilder()
       .setTitle(Errors.ErrorServer)
@@ -168,7 +179,7 @@ export default async (client: Client, interaction: Interaction) => {
     }
     logger.error(
       e,
-      `Error while executing contextMenu command ${command.name}`,
+      `Error while executing contextMenu command ${command.name}`
     );
   }
 };

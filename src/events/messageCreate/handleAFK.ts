@@ -70,9 +70,11 @@ export default async (client: Client, message: Message) => {
   if (afks.length === 1) {
     const Afk = afks[0];
     const user = await client.users.fetch(Afk.userID).catch(() => null);
-    const extract: [string | null, string] = Afk.message
-      ? extractLink(Afk.message)
-      : [null, ""];
+    const extract = Afk.message
+      ? await extractLink(Afk.message)
+      : {
+          text: "",
+        };
 
     const embed = new EmbedBuilder()
       .setTitle("AFK")
@@ -81,18 +83,24 @@ export default async (client: Client, message: Message) => {
           user?.tag || "Unknown name"
         }) has been AFK since ${ms(Date.now() - Afk.timestamp!.getTime(), {
           long: true,
-        })} ago${extract[1] ? ` with the message: "${extract[1]}"` : ""}${
+        })} ago${extract.text ? ` with the message: "${extract.text}"` : ""}${
           Afk.expiresAt
             ? ` until <t:${Math.floor(Afk.expiresAt.getTime() / 1000)}:f>`
             : ""
         }.`
       )
       .setColor(EmbedColors.info);
-    if (extract[0]) embed.setImage(extract[0]);
+    if (extract.attachment && extract.filePlacement === "embed") {
+      embed.setImage(extract.attachment);
+    }
     const msg = await message.reply({
       embeds: [embed],
+      files:
+        extract.attachment && extract.filePlacement === "message"
+          ? [extract.attachment]
+          : undefined,
     });
-    deleteAfterRead(msg, extract[1], !!extract[0]);
+    deleteAfterRead(msg, extract.text, !!extract.attachment);
   } else {
     const embed = new EmbedBuilder()
       .setTitle("AFK")
@@ -121,7 +129,9 @@ export default async (client: Client, message: Message) => {
     deleteAfterRead(
       msg,
       afks
-        .map((afk) => (afk.message ? extractLink(afk.message)[1] : ""))
+        .map(async (afk) =>
+          afk.message ? (await extractLink(afk.message)).text : ""
+        )
         .join(" ")
     );
   }
@@ -135,7 +145,7 @@ const deleteAfterRead = async (
   const afkchars = text?.length ?? 50;
   let time = afkchars * 75;
   time = Math.floor(ease(time / 30000) * 30000);
-  if (hasAttachment) time += 5000;
+  if (hasAttachment) time += 15000;
   if (time < 5000) time = 5000;
   time = Math.min(time, 30000);
   setTimeout(() => {
@@ -144,19 +154,54 @@ const deleteAfterRead = async (
 };
 
 const urlregex =
-  /(https:\/\/(media|cdn)\.discordapp\.(net|com)\/(attachments|ephemeral-attachments).+(?=\s))/i;
-const extractLink = (text: string): [string | null, string] => {
+  /https:\/\/(?<subdomain>media|cdn)\.?(?<hostname>dis(?:cord)?app)\.(?<tld>com|net)\/[\w/.-]*\.(?<extension>[^.?]+)(?=[?])[\w?&=]+/i;
+const extractLink = async (
+  text: string
+): Promise<{
+  text: string;
+  attachment?: string;
+  filePlacement?: "embed" | "message" | "unallowed";
+}> => {
   const urls = text.match(urlregex);
-  if (!urls) return [null, text];
+  if (!urls)
+    return {
+      text,
+    };
   try {
     new URL(urls[0]);
   } catch {
-    return [null, text];
+    return {
+      text,
+    };
   }
+  const ext = urls.groups?.extension;
+  let placement: "embed" | "message" | "unallowed" = "embed";
+  if (!ext)
+    return {
+      text,
+    };
+  if (ext === "mp4" || ext === "mov" || ext === "webm") {
+    placement = "message";
+  } else if (
+    ext === "png" ||
+    ext === "jpg" ||
+    ext === "jpeg" ||
+    ext === "gif" ||
+    ext === "webp"
+  ) {
+    placement = "embed";
+  } else {
+    placement = "unallowed";
+  }
+
   // Replace the urls with an empty string
   let newText = text.replace(urls[0], "");
   newText = newText.trim();
-  return [urls[0], newText];
+  return {
+    text: newText,
+    attachment: urls[0],
+    filePlacement: placement,
+  };
 };
 
 const ease = (x: number): number => {

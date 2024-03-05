@@ -18,6 +18,7 @@ import EmbedColors from "../../structures/embedColors";
 import getPermissionName from "../../helpers/getPermissionName";
 import { getCooldown, setCooldown } from "../../handlers/cooldownHandler";
 import ms from "ms";
+import analytics from "../../db/models/analytics";
 
 export default async (client: Client, message: Message) => {
   if (!message.guild) return;
@@ -216,10 +217,19 @@ export default async (client: Client, message: Message) => {
   try {
     // Call the message command with the parameters: message and the alias used
     setCooldown(message.author.id, command.name);
+    const now = performance.now();
     await command.message(message, {
       alias: message.content.slice(prefix.length).split(" ")[0],
       args: options,
     });
+    const analytic = new analytics({
+      name: command.name,
+      responseTime: performance.now() - now,
+      type: "message",
+      userID: message.author.id,
+      guildID: message.guild.id,
+    });
+    analytic.save();
   } catch (e) {
     message.reply("An error occurred while executing this command");
     logger.error(e, `Error while executing command ${command.name}`);
