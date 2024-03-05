@@ -2,7 +2,7 @@ import { Client, Message, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonS
 import fetch from "node-fetch";
 import dotenv from "dotenv";
 import configs from "../../config";
-import { banMember } from "../../helpers/banMember";
+import getBanButton from "../../helpers/handleBanButton";
 import EmbedColors from "../../structures/embedColors";
 
 dotenv.config();
@@ -41,8 +41,8 @@ const scanUrlWithVirusTotal = async (url: string, message: Message, client: Clie
     if (data.data && data.data.attributes.last_analysis_stats.malicious > 0) {
       await message.delete();
 
-      const logChannel = client.channels.cache.get(configs.logChannelId);
-      if (!logChannel || !logChannel.isText()) return;
+      const logChannel = client.guild.channels.cache.get(configs.logChannelId);
+      if (!logChannel) return;
 
       const embed = new EmbedBuilder()
         .setTitle("Malicious URL Detected")

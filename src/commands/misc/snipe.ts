@@ -43,7 +43,7 @@ export default {
       return;
     }
 
-    const snipedMessages = await SnipedMessage.find({
+    const snipedMessages = await Snipe.find({
       channelId: channelOption.id,
       methodType: messageType,
     }).sort({ timestamp: -1 }).limit(amount);
@@ -54,7 +54,7 @@ export default {
     }
 
     const embed = new EmbedBuilder()
-      .setTitle(`Sniped Messages in #${channelOption.name}`)
+      .setTitle(`Sniped Messages in ${channelOption}`)
       .setColor('#0099ff');
 
     snipedMessages.forEach((msg, index) => {
