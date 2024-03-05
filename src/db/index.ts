@@ -4,6 +4,7 @@ import warn from "./models/warn";
 import action from "./models/action";
 import staff from "./models/staff";
 import kv from "./models/kv";
+import snipe from "./models/snipe";
 
 mongoose.connect(process.env.MONGO_CONNECTION as string);
 
@@ -19,4 +20,5 @@ export const Warn = warn;
 export const Action = action;
 export const Staff = staff;
 export const KV = kv;
+export const Snipe = snipe;
 export default mongoose;

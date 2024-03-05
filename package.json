@@ -35,7 +35,8 @@
     "qrcode": "^1.5.3",
     "sharp": "^0.33.2",
     "speakeasy": "^2.0.0",
-    "zxing-wasm": "^1.2.3"
+    "zxing-wasm": "^1.2.3",
+    "node-fetch": "3.3.2"
   },
   "devDependencies": {
     "@types/ms": "^0.7.34",
