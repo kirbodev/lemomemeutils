@@ -145,7 +145,7 @@ export const hardResponses: Record<string, string> = {
   ",": "wh- what am i supposed to do? what do I even exist for? Who am I? What is my purpose? 😰",
   "<@1171528301072879707> you moderate discord servers": "oh my god.",
   "regex:^\\?afk.*":
-    "I see you're using dyno's afk command. It sucks. Try using </afk:1213262685450276944> instead! Dyno's afk will be phased out <t:1709985600:R>.",
+    "I see you're using dyno's afk command. Sorry, but that's not available anymore! Use </afk:1213262685450276944> instead!",
   "regex:fuck pomegranate": "hey fuck you too buddy",
 };
 export const testServer = "907340495498407977";
