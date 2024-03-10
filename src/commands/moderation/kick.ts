@@ -36,6 +36,7 @@ export default {
   ],
   cooldown: 10000,
   permissionsRequired: [PermissionsBitField.Flags.ManageMessages],
+  aliases: ["k"],
   contextName: "Kick user",
   slash: async (interaction: ChatInputCommandInteraction) => {
     await interaction.deferReply();
@@ -118,7 +119,7 @@ export default {
               }), which is higher or equal to your highest role. (Position: ${
                 (interaction.member?.roles as GuildMemberRoleManager).highest
                   .position
-              })`,
+              })`
             )
             .setColor(EmbedColors.error)
             .setFooter({
@@ -173,7 +174,7 @@ export default {
       const kick = await kickMember(
         member,
         interaction.member as GuildMember,
-        reason || "No reason provided",
+        reason || "No reason provided"
       );
       if (!kick.success) {
         return interaction.followUp({
@@ -181,7 +182,7 @@ export default {
             new EmbedBuilder()
               .setTitle(Errors.ErrorGeneric)
               .setDescription(
-                `Something went wrong while kicking <@${user.id}>.`,
+                `Something went wrong while kicking <@${user.id}>.`
               )
               .setColor(EmbedColors.error)
               .setFooter({
@@ -199,7 +200,7 @@ export default {
             kick.dmSent
               ? "They have been notified."
               : "They could not be notified."
-          }`,
+          }`
         )
         .setColor(EmbedColors.success)
         .setFooter({
@@ -236,7 +237,7 @@ export default {
     let user: User;
     try {
       user = await interaction.client.users.fetch(
-        rawUser.replace(/[<@!>]/g, ""),
+        rawUser.replace(/[<@!>]/g, "")
       );
     } catch (e) {
       return interaction.reply({
@@ -316,7 +317,7 @@ export default {
               }), which is higher or equal to your highest role. (Position: ${
                 (interaction.member?.roles as GuildMemberRoleManager).highest
                   .position
-              })`,
+              })`
             )
             .setColor(EmbedColors.error)
             .setFooter({
@@ -368,7 +369,7 @@ export default {
       const kick = await kickMember(
         member,
         interaction.member as GuildMember,
-        reason || "No reason provided",
+        reason || "No reason provided"
       );
       if (!kick.success) {
         return interaction.reply({
@@ -376,7 +377,7 @@ export default {
             new EmbedBuilder()
               .setTitle(Errors.ErrorGeneric)
               .setDescription(
-                `Something went wrong while kicking <@${user.id}>.`,
+                `Something went wrong while kicking <@${user.id}>.`
               )
               .setColor(EmbedColors.error)
               .setFooter({
@@ -394,7 +395,7 @@ export default {
             kick.dmSent
               ? "They have been notified."
               : "They could not be notified."
-          }`,
+          }`
         )
         .setColor(EmbedColors.success)
         .setFooter({

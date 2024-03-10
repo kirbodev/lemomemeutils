@@ -34,6 +34,7 @@ export default {
     },
   ],
   contextName: "Case logs",
+  aliases: ["cases", "modlogs"],
   permissionsRequired: [PermissionsBitField.Flags.SendMessages],
   async slash(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();

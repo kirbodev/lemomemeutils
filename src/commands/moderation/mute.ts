@@ -44,6 +44,7 @@ export default {
   ],
   cooldown: 10000,
   permissionsRequired: [PermissionsBitField.Flags.ManageMessages],
+  aliases: ["m", "shutup"],
   contextName: "Mute user",
   slash: async (interaction: ChatInputCommandInteraction) => {
     await interaction.deferReply();

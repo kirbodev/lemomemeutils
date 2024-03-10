@@ -57,6 +57,7 @@ export default {
   cooldown: 10000,
   syntax: "<user> [parole (true/false)] [ice (thin/thinner)] [reason]",
   permissionsRequired: [PermissionsBitField.Flags.ManageRoles],
+  aliases: ["ub"],
   requiresHighStaff: true,
   slash: async (interaction: ChatInputCommandInteraction) => {
     await interaction.deferReply();
