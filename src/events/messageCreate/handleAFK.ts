@@ -19,6 +19,7 @@ export default async (client: Client, message: Message) => {
       await userAfk.deleteOne();
     } else if (
       !message.content.endsWith("--afk") &&
+      !message.content.endsWith("—afk") &&
       !message.content.startsWith(`${config.prefix}afk`)
     ) {
       await userAfk.deleteOne();
