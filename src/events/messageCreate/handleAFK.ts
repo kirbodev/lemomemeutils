@@ -5,6 +5,7 @@ import afkInterface from "../../structures/afkInterface";
 import EmbedColors from "../../structures/embedColors";
 import ms from "ms";
 import configs from "../../config";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default async (client: Client, message: Message) => {
   if (!message.guild) return;
@@ -25,18 +26,20 @@ export default async (client: Client, message: Message) => {
       await userAfk.deleteOne();
       const msg = await message.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle("AFK")
-            .setDescription(
-              `You are no longer AFK, welcome back! You were AFK for ${ms(
-                Date.now() - userAfk.timestamp!.getTime(),
-                { long: true }
-              )}.`
-            )
-            .setColor(EmbedColors.info)
-            .setFooter({
-              text: "Psss... you can stop this from happening by ending your message with --afk!",
-            }),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle("AFK")
+              .setDescription(
+                `You are no longer AFK, welcome back! You were AFK for ${ms(
+                  Date.now() - userAfk.timestamp!.getTime(),
+                  { long: true }
+                )}.`
+              )
+              .setColor(EmbedColors.info)
+              .setFooter({
+                text: "Psss... you can stop this from happening by ending your message with --afk!",
+              })
+          ),
         ],
       });
       deleteAfterRead(msg);
@@ -76,20 +79,22 @@ export default async (client: Client, message: Message) => {
           text: "",
         };
 
-    const embed = new EmbedBuilder()
-      .setTitle("AFK")
-      .setDescription(
-        `<@${Afk.userID}> (${
-          user?.tag || "Unknown name"
-        }) has been AFK since ${ms(Date.now() - Afk.timestamp!.getTime(), {
-          long: true,
-        })} ago${extract.text ? ` with the message: "${extract.text}"` : ""}${
-          Afk.expiresAt
-            ? ` until <t:${Math.floor(Afk.expiresAt.getTime() / 1000)}:f>`
-            : ""
-        }.`
-      )
-      .setColor(EmbedColors.info);
+    const embed = safeEmbed(
+      new EmbedBuilder()
+        .setTitle("AFK")
+        .setDescription(
+          `<@${Afk.userID}> (${
+            user?.tag || "Unknown name"
+          }) has been AFK since ${ms(Date.now() - Afk.timestamp!.getTime(), {
+            long: true,
+          })} ago${extract.text ? ` with the message: "${extract.text}"` : ""}${
+            Afk.expiresAt
+              ? ` until <t:${Math.floor(Afk.expiresAt.getTime() / 1000)}:f>`
+              : ""
+          }.`
+        )
+        .setColor(EmbedColors.info)
+    );
     if (extract.attachment && extract.filePlacement === "embed") {
       embed.setImage(extract.attachment);
     }
@@ -102,10 +107,12 @@ export default async (client: Client, message: Message) => {
     });
     deleteAfterRead(msg, extract.text, !!extract.attachment);
   } else {
-    const embed = new EmbedBuilder()
-      .setTitle("AFK")
-      .setDescription("Multiple users you pinged are AFK.")
-      .setColor(EmbedColors.info);
+    const embed = safeEmbed(
+      new EmbedBuilder()
+        .setTitle("AFK")
+        .setDescription("Multiple users you pinged are AFK.")
+        .setColor(EmbedColors.info)
+    );
     for (const Afk of afks) {
       const user = await client.users.fetch(Afk.userID).catch(() => null);
       embed.addFields([

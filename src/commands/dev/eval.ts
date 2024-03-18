@@ -7,6 +7,7 @@ import {
 import type Command from "../../structures/commandInterface";
 import EmbedColors from "../../structures/embedColors";
 import { inspect } from "util";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default {
   name: "eval",
@@ -23,7 +24,7 @@ export default {
   ],
   async slash(
     ogInteraction: ChatInputCommandInteraction,
-    interaction: ModalSubmitInteraction | ChatInputCommandInteraction,
+    interaction: ModalSubmitInteraction | ChatInputCommandInteraction
   ) {
     // When using otpRequired, there will sometimes be the original interaction with all original data, and interaction which is the modal interaction which should be used for replying.
     // For simplicity, we will just use the modal interaction if it exists, otherwise we will use the original interaction so don't use modal-specific methods.
@@ -32,34 +33,38 @@ export default {
     try {
       const result = inspect(
         await eval(ogInteraction.options.getString("code")!),
-        { depth: 1 },
+        { depth: 1 }
       );
       interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle("Eval | Success")
-            .setDescription(`\`\`\`js\n${result}\n\`\`\``)
-            .setColor(EmbedColors.success)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle("Eval | Success")
+              .setDescription(`\`\`\`js\n${result}\n\`\`\``)
+              .setColor(EmbedColors.success)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         ephemeral: true,
       });
     } catch (err) {
       interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle("Eval | Error")
-            .setDescription(`\`\`\`js\n${err}\n\`\`\``)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle("Eval | Error")
+              .setDescription(`\`\`\`js\n${err}\n\`\`\``)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         ephemeral: true,
       });

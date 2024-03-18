@@ -19,6 +19,7 @@ import Errors from "../../structures/errors";
 import { nanoid } from "nanoid";
 import { KV } from "../../db";
 import kvInterface from "../../structures/kvInterface";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default {
   name: "say",
@@ -68,15 +69,19 @@ export default {
     if (replyId && !channel) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUser)
-            .setDescription("You must specify a channel to reply to a message.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUser)
+              .setDescription(
+                "You must specify a channel to reply to a message."
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         ephemeral: true,
       });
@@ -88,17 +93,19 @@ export default {
       if (!ch || channel?.type !== ChannelType.GuildText) {
         return interaction.reply({
           embeds: [
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorChannelNotFound)
-              .setDescription(
-                "The specified channel was not found or is invalid."
-              )
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.user.tag}`,
-                iconURL: interaction.user.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now()),
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle(Errors.ErrorChannelNotFound)
+                .setDescription(
+                  "The specified channel was not found or is invalid."
+                )
+                .setColor(EmbedColors.error)
+                .setFooter({
+                  text: `Requested by ${interaction.user.tag}`,
+                  iconURL: interaction.user.displayAvatarURL(),
+                })
+                .setTimestamp(Date.now())
+            ),
           ],
           ephemeral: true,
         });
@@ -111,15 +118,17 @@ export default {
         .catch(() => {
           return interaction.reply({
             embeds: [
-              new EmbedBuilder()
-                .setTitle(Errors.ErrorUser)
-                .setDescription("The specified message was not found.")
-                .setColor(EmbedColors.error)
-                .setFooter({
-                  text: `Requested by ${interaction.user.tag}`,
-                  iconURL: interaction.user.displayAvatarURL(),
-                })
-                .setTimestamp(Date.now()),
+              safeEmbed(
+                new EmbedBuilder()
+                  .setTitle(Errors.ErrorUser)
+                  .setDescription("The specified message was not found.")
+                  .setColor(EmbedColors.error)
+                  .setFooter({
+                    text: `Requested by ${interaction.user.tag}`,
+                    iconURL: interaction.user.displayAvatarURL(),
+                  })
+                  .setTimestamp(Date.now())
+              ),
             ],
             ephemeral: true,
           });
@@ -175,30 +184,34 @@ export default {
         await kv.save();
         modal.reply({
           embeds: [
-            new EmbedBuilder()
-              .setTitle("Message Sent")
-              .setDescription(message)
-              .setColor(EmbedColors.success)
-              .setFooter({
-                text: `Requested by ${interaction.user.tag}`,
-                iconURL: interaction.user.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now()),
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle("Message Sent")
+                .setDescription(message)
+                .setColor(EmbedColors.success)
+                .setFooter({
+                  text: `Requested by ${interaction.user.tag}`,
+                  iconURL: interaction.user.displayAvatarURL(),
+                })
+                .setTimestamp(Date.now())
+            ),
           ],
           ephemeral: true,
         });
       } catch (err) {
         return interaction.followUp({
           embeds: [
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorGeneric)
-              .setDescription("You took too long to respond.")
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.user.tag}`,
-                iconURL: interaction.user.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now()),
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle(Errors.ErrorGeneric)
+                .setDescription("You took too long to respond.")
+                .setColor(EmbedColors.error)
+                .setFooter({
+                  text: `Requested by ${interaction.user.tag}`,
+                  iconURL: interaction.user.displayAvatarURL(),
+                })
+                .setTimestamp(Date.now())
+            ),
           ],
           ephemeral: true,
         });
@@ -310,51 +323,57 @@ export default {
             }
           } else {
             interaction.channel!.send({
-              embeds: [message],
+              embeds: [safeEmbed(message)],
             });
           }
         } catch (err) {
           return modal.reply({
             embeds: [
-              new EmbedBuilder()
-                .setTitle(Errors.ErrorUser)
-                .setDescription(
-                  "Something went wrong while sending the embed. You probably didn't send a [valid embed](https://discord.com/developers/docs/resources/channel#embed-object) according to Discord's API."
-                )
-                .setColor(EmbedColors.error)
-                .setFooter({
-                  text: `Requested by ${interaction.user.tag}`,
-                  iconURL: interaction.user.displayAvatarURL(),
-                })
-                .setTimestamp(Date.now()),
+              safeEmbed(
+                new EmbedBuilder()
+                  .setTitle(Errors.ErrorUser)
+                  .setDescription(
+                    "Something went wrong while sending the embed. You probably didn't send a [valid embed](https://discord.com/developers/docs/resources/channel#embed-object) according to Discord's API."
+                  )
+                  .setColor(EmbedColors.error)
+                  .setFooter({
+                    text: `Requested by ${interaction.user.tag}`,
+                    iconURL: interaction.user.displayAvatarURL(),
+                  })
+                  .setTimestamp(Date.now())
+              ),
             ],
           });
         }
         modal.reply({
           embeds: [
-            new EmbedBuilder()
-              .setTitle("Embed Sent")
-              .setColor(EmbedColors.success)
-              .setFooter({
-                text: `Requested by ${interaction.user.tag}`,
-                iconURL: interaction.user.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now()),
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle("Embed Sent")
+                .setColor(EmbedColors.success)
+                .setFooter({
+                  text: `Requested by ${interaction.user.tag}`,
+                  iconURL: interaction.user.displayAvatarURL(),
+                })
+                .setTimestamp(Date.now())
+            ),
           ],
           ephemeral: true,
         });
       } catch (err) {
         return interaction.followUp({
           embeds: [
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorGeneric)
-              .setDescription("You took too long to respond.")
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.user.tag}`,
-                iconURL: interaction.user.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now()),
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle(Errors.ErrorGeneric)
+                .setDescription("You took too long to respond.")
+                .setColor(EmbedColors.error)
+                .setFooter({
+                  text: `Requested by ${interaction.user.tag}`,
+                  iconURL: interaction.user.displayAvatarURL(),
+                })
+                .setTimestamp(Date.now())
+            ),
           ],
           ephemeral: true,
         });

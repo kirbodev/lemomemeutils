@@ -19,6 +19,7 @@ import getPermissionName from "../../helpers/getPermissionName";
 import { getCooldown, setCooldown } from "../../handlers/cooldownHandler";
 import ms from "ms";
 import analytics from "../../db/models/analytics";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default async (client: Client, message: Message) => {
   if (!message.guild) return;
@@ -58,17 +59,19 @@ export default async (client: Client, message: Message) => {
   if (!command.message) {
     return message.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle(Errors.ErrorCommand)
-          .setDescription(
-            `The command \`${command.name}\` does not support message commands.`
-          )
-          .setColor(EmbedColors.error)
-          .setFooter({
-            text: `Requested by ${message.author.tag}`,
-            iconURL: message.author.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle(Errors.ErrorCommand)
+            .setDescription(
+              `The command \`${command.name}\` does not support message commands.`
+            )
+            .setColor(EmbedColors.error)
+            .setFooter({
+              text: `Requested by ${message.author.tag}`,
+              iconURL: message.author.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
       ],
     });
   }
@@ -79,45 +82,51 @@ export default async (client: Client, message: Message) => {
   )
     return message.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle(Errors.ErrorMaintainanceMode)
-          .setDescription(
-            process.env.NODE_ENV
-              ? "This is the testing bot, commands are not available to you."
-              : "The bot is currently in maintainance mode, try again later."
-          )
-          .setColor(EmbedColors.error)
-          .setFooter({
-            text: `Requested by ${message.author.tag}`,
-            iconURL: message.author.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle(Errors.ErrorMaintainanceMode)
+            .setDescription(
+              process.env.NODE_ENV
+                ? "This is the testing bot, commands are not available to you."
+                : "The bot is currently in maintainance mode, try again later."
+            )
+            .setColor(EmbedColors.error)
+            .setFooter({
+              text: `Requested by ${message.author.tag}`,
+              iconURL: message.author.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
       ],
     });
   if (command.devOnly && !devs.includes(message.author.id))
     return message.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle(Errors.ErrorDevOnly)
-          .setColor(EmbedColors.error)
-          .setFooter({
-            text: `Requested by ${message.author.tag}`,
-            iconURL: message.author.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle(Errors.ErrorDevOnly)
+            .setColor(EmbedColors.error)
+            .setFooter({
+              text: `Requested by ${message.author.tag}`,
+              iconURL: message.author.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
       ],
     });
   if (command.testOnly && message.guildId !== testServer)
     return message.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle(Errors.ErrorTestOnly)
-          .setColor(EmbedColors.error)
-          .setFooter({
-            text: `Requested by ${message.author.tag}`,
-            iconURL: message.author.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle(Errors.ErrorTestOnly)
+            .setColor(EmbedColors.error)
+            .setFooter({
+              text: `Requested by ${message.author.tag}`,
+              iconURL: message.author.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
       ],
     });
   // Check if user has any of the required permissions
@@ -129,19 +138,21 @@ export default async (client: Client, message: Message) => {
   )
     return message.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle(Errors.ErrorPermissions)
-          .setDescription(
-            `You need the following permissions to use this command: ${command.permissionsRequired
-              .map((permission) => `\`${getPermissionName(permission)}\``)
-              .join(", ")}`
-          )
-          .setColor(EmbedColors.error)
-          .setFooter({
-            text: `Requested by ${message.author.tag}`,
-            iconURL: message.author.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle(Errors.ErrorPermissions)
+            .setDescription(
+              `You need the following permissions to use this command: ${command.permissionsRequired
+                .map((permission) => `\`${getPermissionName(permission)}\``)
+                .join(", ")}`
+            )
+            .setColor(EmbedColors.error)
+            .setFooter({
+              text: `Requested by ${message.author.tag}`,
+              iconURL: message.author.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
       ],
     });
   if (command.requiresHighStaff) {
@@ -156,15 +167,19 @@ export default async (client: Client, message: Message) => {
     )
       return message.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorPermissions)
-            .setDescription("You need the High Staff role to use this command.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${message.author.tag}`,
-              iconURL: message.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorPermissions)
+              .setDescription(
+                "You need the High Staff role to use this command."
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${message.author.tag}`,
+                iconURL: message.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
   }
@@ -172,19 +187,24 @@ export default async (client: Client, message: Message) => {
   if (cooldown && cooldown > Date.now())
     return message.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle(Errors.ErrorCooldown)
-          .setDescription(
-            `You can use this command again in ${ms(cooldown - Date.now(), {
-              long: true,
-            })}.`
-          )
-          .setColor(EmbedColors.info)
-          .setFooter({
-            text: `Requested by ${message.author.tag}`,
-            iconURL: message.author.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle(Errors.ErrorCooldown)
+            .setDescription(
+              `You can use this command again in ${ms(cooldown - Date.now(), {
+                long: true,
+              })}.`
+            )
+            .setColor(EmbedColors.info)
+            .setFooter({
+              text: `Requested by ${message.author.tag}`,
+              iconURL: message.author.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now()),
+          {
+            withSystemMessages: false,
+          }
+        ),
       ],
     });
   const options = message.content.slice(prefix.length).split(" ");
@@ -193,24 +213,29 @@ export default async (client: Client, message: Message) => {
   if (requiredOptions && requiredOptions.length > options.length)
     return message.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle(Errors.ErrorUser)
-          .setDescription(
-            `The correct syntax for this command is:\n \`\`\`${
-              command.syntax?.replaceAll("prefix", prefix) ||
-              `${prefix}${command.name} ${command.options
-                ?.map((option) =>
-                  option.required ? `<${option.name}>` : `[${option.name}]`
-                )
-                .join(" ")}`
-            }\`\`\``
-          )
-          .setColor(EmbedColors.error)
-          .setFooter({
-            text: `Requested by ${message.author.tag}`,
-            iconURL: message.author.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle(Errors.ErrorUser)
+            .setDescription(
+              `The correct syntax for this command is:\n \`\`\`${
+                command.syntax?.replaceAll("prefix", prefix) ||
+                `${prefix}${command.name} ${command.options
+                  ?.map((option) =>
+                    option.required ? `<${option.name}>` : `[${option.name}]`
+                  )
+                  .join(" ")}`
+              }\`\`\``
+            )
+            .setColor(EmbedColors.error)
+            .setFooter({
+              text: `Requested by ${message.author.tag}`,
+              iconURL: message.author.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now()),
+          {
+            withSystemMessages: false,
+          }
+        ),
       ],
     });
 
@@ -229,7 +254,7 @@ export default async (client: Client, message: Message) => {
       userID: message.author.id,
       guildID: message.guild.id,
     });
-    analytic.save();
+    await analytic.save();
   } catch (e) {
     message.reply("An error occurred while executing this command");
     logger.error(e, `Error while executing command ${command.name}`);

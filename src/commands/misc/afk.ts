@@ -10,6 +10,7 @@ import EmbedColors from "../../structures/embedColors";
 import afk from "../../db/models/afk";
 import afkInterface from "../../structures/afkInterface";
 import { HydratedDocument } from "mongoose";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default {
   name: "afk",
@@ -51,30 +52,36 @@ export default {
     ) {
       return interaction.editReply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorInvalidTime)
-            .setDescription("The time must be between 10 seconds and 14 days.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorInvalidTime)
+              .setDescription(
+                "The time must be between 10 seconds and 14 days."
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (message && message.length > 1024) {
       return interaction.editReply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUser)
-            .setDescription("The message must be less than 1024 characters.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUser)
+              .setDescription("The message must be less than 1024 characters.")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -102,27 +109,31 @@ export default {
 
     return interaction.editReply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle("AFK Set")
-          .setDescription(
-            `You are now AFK${
-              message ? ` with the message: "${message}"` : ""
-            }${
-              expiresAt
-                ? ` until <t:${Math.floor(Afk.expiresAt!.getTime() / 1000)}:f>`
-                : ""
-            }.${
-              existingAfk
-                ? " Your previous AFK status has been overwritten."
-                : ""
-            }`
-          )
-          .setColor(EmbedColors.success)
-          .setFooter({
-            text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setTimestamp(),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle("AFK Set")
+            .setDescription(
+              `You are now AFK${
+                message ? ` with the message: "${message}"` : ""
+              }${
+                expiresAt
+                  ? ` until <t:${Math.floor(
+                      Afk.expiresAt!.getTime() / 1000
+                    )}:f>`
+                  : ""
+              }.${
+                existingAfk
+                  ? " Your previous AFK status has been overwritten."
+                  : ""
+              }`
+            )
+            .setColor(EmbedColors.success)
+            .setFooter({
+              text: `Requested by ${interaction.user.tag}`,
+              iconURL: interaction.user.displayAvatarURL(),
+            })
+            .setTimestamp()
+        ),
       ],
     });
   },
@@ -140,30 +151,36 @@ export default {
     if (expires && (!expires || expires > 1000 * 60 * 60 * 24 * 14)) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorInvalidTime)
-            .setDescription("The time must be between 10 seconds and 14 days.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorInvalidTime)
+              .setDescription(
+                "The time must be between 10 seconds and 14 days."
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (message && message.length > 1024) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUser)
-            .setDescription("The message must be less than 1024 characters.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUser)
+              .setDescription("The message must be less than 1024 characters.")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -191,27 +208,31 @@ export default {
 
     return interaction.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle("AFK Set")
-          .setDescription(
-            `You are now AFK${
-              message ? ` with the message: "${message}"` : ""
-            }${
-              expiresAt
-                ? ` until <t:${Math.floor(Afk.expiresAt!.getTime() / 1000)}:f>`
-                : ""
-            }.${
-              existingAfk
-                ? " Your previous AFK status has been overwritten."
-                : ""
-            }`
-          )
-          .setColor(EmbedColors.success)
-          .setFooter({
-            text: `Requested by ${interaction.author.tag}`,
-            iconURL: interaction.author.displayAvatarURL(),
-          })
-          .setTimestamp(),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle("AFK Set")
+            .setDescription(
+              `You are now AFK${
+                message ? ` with the message: "${message}"` : ""
+              }${
+                expiresAt
+                  ? ` until <t:${Math.floor(
+                      Afk.expiresAt!.getTime() / 1000
+                    )}:f>`
+                  : ""
+              }.${
+                existingAfk
+                  ? " Your previous AFK status has been overwritten."
+                  : ""
+              }`
+            )
+            .setColor(EmbedColors.success)
+            .setFooter({
+              text: `Requested by ${interaction.author.tag}`,
+              iconURL: interaction.author.displayAvatarURL(),
+            })
+            .setTimestamp()
+        ),
       ],
     });
   },

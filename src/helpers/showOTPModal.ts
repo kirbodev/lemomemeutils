@@ -12,10 +12,11 @@ import { nanoid } from "nanoid";
 import verifyOTP from "./verifyOTP";
 import Errors from "../structures/errors";
 import EmbedColors from "../structures/embedColors";
+import safeEmbed from "../utils/safeEmbed";
 
 export default async function showOTPModal(
   interaction: ChatInputCommandInteraction | ButtonInteraction,
-  secret: string,
+  secret: string
 ) {
   const id = nanoid();
   interaction.showModal(
@@ -29,10 +30,10 @@ export default async function showOTPModal(
             .setPlaceholder("Enter OTP Code")
             .setMinLength(6)
             .setMaxLength(6)
-            .setStyle(TextInputStyle.Short),
-        ),
+            .setStyle(TextInputStyle.Short)
+        )
       )
-      .setCustomId(id),
+      .setCustomId(id)
   );
   try {
     const m = await interaction.awaitModalSubmit({
@@ -55,15 +56,20 @@ export default async function showOTPModal(
     } else {
       m.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUser)
-            .setDescription("The OTP code you entered is invalid.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUser)
+              .setDescription("The OTP code you entered is invalid.")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now()),
+            {
+              withSystemMessages: false,
+            }
+          ),
         ],
         components: [],
         ephemeral: true,

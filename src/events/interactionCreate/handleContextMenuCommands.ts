@@ -14,6 +14,7 @@ import getPermissionName from "../../helpers/getPermissionName";
 import { getCooldown, setCooldown } from "../../handlers/cooldownHandler";
 import ms from "ms";
 import analytics from "../../db/models/analytics";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default async (client: Client, interaction: Interaction) => {
   if (!interaction.isContextMenuCommand()) return;
@@ -28,47 +29,53 @@ export default async (client: Client, interaction: Interaction) => {
   if (maintainanceMode && !devs.includes(interaction.user.id))
     return interaction.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle(Errors.ErrorMaintainanceMode)
-          .setDescription(
-            process.env.NODE_ENV
-              ? "This is the testing bot, commands are not available to you."
-              : "The bot is currently in maintainance mode, try again later."
-          )
-          .setColor(EmbedColors.error)
-          .setFooter({
-            text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle(Errors.ErrorMaintainanceMode)
+            .setDescription(
+              process.env.NODE_ENV
+                ? "This is the testing bot, commands are not available to you."
+                : "The bot is currently in maintainance mode, try again later."
+            )
+            .setColor(EmbedColors.error)
+            .setFooter({
+              text: `Requested by ${interaction.user.tag}`,
+              iconURL: interaction.user.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
       ],
       ephemeral: true,
     });
   if (command.devOnly && !devs.includes(interaction.user.id))
     return interaction.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle(Errors.ErrorDevOnly)
-          .setColor(EmbedColors.error)
-          .setFooter({
-            text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle(Errors.ErrorDevOnly)
+            .setColor(EmbedColors.error)
+            .setFooter({
+              text: `Requested by ${interaction.user.tag}`,
+              iconURL: interaction.user.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
       ],
       ephemeral: true,
     });
   if (command.testOnly && interaction.guildId !== testServer)
     return interaction.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle(Errors.ErrorTestOnly)
-          .setColor(EmbedColors.error)
-          .setFooter({
-            text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle(Errors.ErrorTestOnly)
+            .setColor(EmbedColors.error)
+            .setFooter({
+              text: `Requested by ${interaction.user.tag}`,
+              iconURL: interaction.user.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
       ],
       ephemeral: true,
     });
@@ -84,19 +91,21 @@ export default async (client: Client, interaction: Interaction) => {
   )
     return interaction.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle(Errors.ErrorPermissions)
-          .setDescription(
-            `You need the following permissions to use this command: ${command.permissionsRequired
-              .map((permission) => `\`${getPermissionName(permission)}\``)
-              .join(", ")}`
-          )
-          .setColor(EmbedColors.error)
-          .setFooter({
-            text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle(Errors.ErrorPermissions)
+            .setDescription(
+              `You need the following permissions to use this command: ${command.permissionsRequired
+                .map((permission) => `\`${getPermissionName(permission)}\``)
+                .join(", ")}`
+            )
+            .setColor(EmbedColors.error)
+            .setFooter({
+              text: `Requested by ${interaction.user.tag}`,
+              iconURL: interaction.user.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
       ],
       ephemeral: true,
     });
@@ -109,15 +118,22 @@ export default async (client: Client, interaction: Interaction) => {
     )
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorPermissions)
-            .setDescription("You need the High Staff role to use this command.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorPermissions)
+              .setDescription(
+                "You need the High Staff role to use this command."
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now()),
+            {
+              withSystemMessages: false,
+            }
+          ),
         ],
         ephemeral: true,
       });
@@ -126,19 +142,24 @@ export default async (client: Client, interaction: Interaction) => {
   if (cooldown && cooldown > Date.now())
     return interaction.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle(Errors.ErrorCooldown)
-          .setDescription(
-            `You can use this command again in ${ms(cooldown - Date.now(), {
-              long: true,
-            })}`
-          )
-          .setColor(EmbedColors.info)
-          .setFooter({
-            text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle(Errors.ErrorCooldown)
+            .setDescription(
+              `You can use this command again in ${ms(cooldown - Date.now(), {
+                long: true,
+              })}`
+            )
+            .setColor(EmbedColors.info)
+            .setFooter({
+              text: `Requested by ${interaction.user.tag}`,
+              iconURL: interaction.user.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now()),
+          {
+            withSystemMessages: false,
+          }
+        ),
       ],
       ephemeral: true,
     });
@@ -154,17 +175,19 @@ export default async (client: Client, interaction: Interaction) => {
       userID: interaction.user.id,
       guildID: interaction.guildId!,
     });
-    analytic.save();
+    await analytic.save();
   } catch (e) {
-    const embed = new EmbedBuilder()
-      .setTitle(Errors.ErrorServer)
-      .setDescription("An error occurred while executing this command.")
-      .setColor(EmbedColors.error)
-      .setFooter({
-        text: `Requested by ${interaction.user.tag}`,
-        iconURL: interaction.user.displayAvatarURL(),
-      })
-      .setTimestamp(Date.now());
+    const embed = safeEmbed(
+      new EmbedBuilder()
+        .setTitle(Errors.ErrorServer)
+        .setDescription("An error occurred while executing this command.")
+        .setColor(EmbedColors.error)
+        .setFooter({
+          text: `Requested by ${interaction.user.tag}`,
+          iconURL: interaction.user.displayAvatarURL(),
+        })
+        .setTimestamp(Date.now())
+    );
     try {
       interaction.reply({
         embeds: [embed],

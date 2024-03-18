@@ -13,6 +13,7 @@ import { HydratedDocument } from "mongoose";
 import staffInterface, { StaffLevel } from "../../structures/staffInterface";
 import EmbedColors from "../../structures/embedColors";
 import setStaffLevel from "../../helpers/setStaffLevel";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default async (
   client: Client,
@@ -101,12 +102,43 @@ export default async (
     if (userDM) {
       await userDM.send({
         embeds: [
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle("Staff Application Approved")
+              .setDescription(
+                `Your staff application for ${
+                  reaction.message.guild!.name
+                } has been approved!`
+              )
+              .setFields([
+                {
+                  name: "Decision",
+                  value: "Approved by majority vote",
+                },
+                {
+                  name: "Reason",
+                  value: staffApp.decision.reason || "No reason provided",
+                },
+              ])
+              .setColor(EmbedColors.success)
+              .setTimestamp()
+          ),
+        ],
+      });
+    }
+
+    // Notify the staff app channel
+    const staffAppChannel = await reaction.message.guild.channels
+      .fetch(config.staffApplicationsChannelID!)
+      .catch(() => null);
+    if (!staffAppChannel) return;
+    await (staffAppChannel as GuildTextBasedChannel).send({
+      embeds: [
+        safeEmbed(
           new EmbedBuilder()
             .setTitle("Staff Application Approved")
             .setDescription(
-              `Your staff application for ${
-                reaction.message.guild!.name
-              } has been approved!`
+              `<@${staffApp.userID}>'s (${staffApp.userID}) staff application has been approved!`
             )
             .setFields([
               {
@@ -119,35 +151,8 @@ export default async (
               },
             ])
             .setColor(EmbedColors.success)
-            .setTimestamp(),
-        ],
-      });
-    }
-
-    // Notify the staff app channel
-    const staffAppChannel = await reaction.message.guild.channels
-      .fetch(config.staffApplicationsChannelID!)
-      .catch(() => null);
-    if (!staffAppChannel) return;
-    await (staffAppChannel as GuildTextBasedChannel).send({
-      embeds: [
-        new EmbedBuilder()
-          .setTitle("Staff Application Approved")
-          .setDescription(
-            `<@${staffApp.userID}>'s (${staffApp.userID}) staff application has been approved!`
-          )
-          .setFields([
-            {
-              name: "Decision",
-              value: "Approved by majority vote",
-            },
-            {
-              name: "Reason",
-              value: staffApp.decision.reason || "No reason provided",
-            },
-          ])
-          .setColor(EmbedColors.success)
-          .setTimestamp(),
+            .setTimestamp(Date.now())
+        ),
       ],
     });
   } else if (noVotes >= majority) {
@@ -192,12 +197,43 @@ export default async (
     if (userDM) {
       await userDM.send({
         embeds: [
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle("Staff Application Denied")
+              .setDescription(
+                `Your staff application for ${
+                  reaction.message.guild!.name
+                } has been denied.`
+              )
+              .setFields([
+                {
+                  name: "Decision",
+                  value: "Denied by majority vote",
+                },
+                {
+                  name: "Reason",
+                  value: staffApp.decision.reason || "No reason provided",
+                },
+              ])
+              .setColor(EmbedColors.error)
+              .setTimestamp()
+          ),
+        ],
+      });
+    }
+
+    // Notify the staff app channel
+    const staffAppChannel = await reaction.message.guild.channels
+      .fetch(config.staffApplicationsChannelID!)
+      .catch(() => null);
+    if (!staffAppChannel) return;
+    await (staffAppChannel as GuildTextBasedChannel).send({
+      embeds: [
+        safeEmbed(
           new EmbedBuilder()
             .setTitle("Staff Application Denied")
             .setDescription(
-              `Your staff application for ${
-                reaction.message.guild!.name
-              } has been denied.`
+              `<@${staffApp.userID}>'s (${staffApp.userID}) staff application has been denied.`
             )
             .setFields([
               {
@@ -210,35 +246,8 @@ export default async (
               },
             ])
             .setColor(EmbedColors.error)
-            .setTimestamp(),
-        ],
-      });
-    }
-
-    // Notify the staff app channel
-    const staffAppChannel = await reaction.message.guild.channels
-      .fetch(config.staffApplicationsChannelID!)
-      .catch(() => null);
-    if (!staffAppChannel) return;
-    await (staffAppChannel as GuildTextBasedChannel).send({
-      embeds: [
-        new EmbedBuilder()
-          .setTitle("Staff Application Denied")
-          .setDescription(
-            `<@${staffApp.userID}>'s (${staffApp.userID}) staff application has been denied.`
-          )
-          .setFields([
-            {
-              name: "Decision",
-              value: "Denied by majority vote",
-            },
-            {
-              name: "Reason",
-              value: staffApp.decision.reason || "No reason provided",
-            },
-          ])
-          .setColor(EmbedColors.error)
-          .setTimestamp(),
+            .setTimestamp(Date.now())
+        ),
       ],
     });
   }

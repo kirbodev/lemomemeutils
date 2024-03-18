@@ -4,6 +4,7 @@ import { Action, Warn } from "../db";
 import { HydratedDocument } from "mongoose";
 import warnInterface from "../structures/warnInterface";
 import configs from "../config";
+import safeEmbed from "../utils/safeEmbed";
 
 export default async function banMember(
   member: GuildMember | User,
@@ -24,52 +25,57 @@ export default async function banMember(
   try {
     await member.send({
       embeds: [
-        new EmbedBuilder()
-          .setTitle("You have been banned")
-          .setDescription(`You have been banned from \`${mod.guild.name}\``)
-          .setFields([
-            {
-              name: "Reason",
-              value: reason,
-            },
-            {
-              name: "Moderator",
-              value: mod.user.tag,
-            },
-            {
-              name: "Active warnings",
-              value: warns
-                .map(
-                  (warn) =>
-                    `<t:${Math.floor(warn.timestamp.getTime() / 1000)}:f> - ${
-                      warn.reason
-                    } - Issued by <@${warn.moderatorID}>`
-                )
-                .join("\n"),
-            },
-            {
-              name: "Parole",
-              value: withParole ? "Yes" : "No",
-            },
-            {
-              name: "Expires At",
-              value: expiresAt
-                ? `<t:${Math.floor(expiresAt.getTime() / 1000)}:f>`
-                : "Never",
-            },
-            {
-              name: "Appeal",
-              value: `You can appeal by joining the appeal server. ${
-                config.appealServer ?? "https://discord.gg/EUsVK5E"
-              }`,
-            },
-          ])
-          .setColor(EmbedColors.warning)
-          .setFooter({
-            text: `Banned by ${mod.user.tag}`,
-            iconURL: mod.user.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle("You have been banned")
+            .setDescription(`You have been banned from \`${mod.guild.name}\``)
+            .setFields([
+              {
+                name: "Reason",
+                value: reason,
+              },
+              {
+                name: "Moderator",
+                value: mod.user.tag,
+              },
+              {
+                name: "Active warnings",
+                value: warns
+                  .map(
+                    (warn) =>
+                      `<t:${Math.floor(warn.timestamp.getTime() / 1000)}:f> - ${
+                        warn.reason
+                      } - Issued by <@${warn.moderatorID}>`
+                  )
+                  .join("\n"),
+              },
+              {
+                name: "Parole",
+                value: withParole ? "Yes" : "No",
+              },
+              {
+                name: "Expires At",
+                value: expiresAt
+                  ? `<t:${Math.floor(expiresAt.getTime() / 1000)}:f>`
+                  : "Never",
+              },
+              {
+                name: "Appeal",
+                value: `You can appeal by joining the appeal server. ${
+                  config.appealServer ?? "https://discord.gg/EUsVK5E"
+                }`,
+              },
+            ])
+            .setColor(EmbedColors.warning)
+            .setFooter({
+              text: `Banned by ${mod.user.tag}`,
+              iconURL: mod.user.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now()),
+          {
+            withSystemMessages: false,
+          }
+        ),
       ],
     });
     dmSent = true;

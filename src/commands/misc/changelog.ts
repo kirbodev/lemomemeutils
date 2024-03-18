@@ -7,6 +7,7 @@ import {
 import type Command from "../../structures/commandInterface";
 import changelog from "../../changelog";
 import EmbedColors from "../../structures/embedColors";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default {
   name: "changelog",
@@ -18,50 +19,54 @@ export default {
     const changes = changelog.changelog.map((change) => `- ${change}`);
     interaction.followUp({
       embeds: [
-        new EmbedBuilder()
-          .setTitle(`${changelog.version} | ${changelog.name}`)
-          .setDescription(changelog.description)
-          .setFields([
-            {
-              name: "Release Date",
-              value: `<t:${Math.floor(changelog.date.getTime() / 1000)}:d>`,
-            },
-            {
-              name: "Changes",
-              value: changes.join("\n"),
-            },
-          ])
-          .setColor(EmbedColors.info)
-          .setFooter({
-            text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle(`${changelog.version} | ${changelog.name}`)
+            .setDescription(changelog.description)
+            .setFields([
+              {
+                name: "Release Date",
+                value: `<t:${Math.floor(changelog.date.getTime() / 1000)}:d>`,
+              },
+              {
+                name: "Changes",
+                value: changes.join("\n"),
+              },
+            ])
+            .setColor(EmbedColors.info)
+            .setFooter({
+              text: `Requested by ${interaction.user.tag}`,
+              iconURL: interaction.user.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
       ],
     });
   },
   message(interaction: Message) {
     interaction.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle(`${changelog.version} | ${changelog.name}`)
-          .setDescription(changelog.description)
-          .setFields([
-            {
-              name: "Release Date",
-              value: `<t:${Math.floor(changelog.date.getTime() / 1000)}:d>`,
-            },
-            {
-              name: "Changes",
-              value: changelog.changelog.join("\n"),
-            },
-          ])
-          .setColor(EmbedColors.info)
-          .setFooter({
-            text: `Requested by ${interaction.author.tag}`,
-            iconURL: interaction.author.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle(`${changelog.version} | ${changelog.name}`)
+            .setDescription(changelog.description)
+            .setFields([
+              {
+                name: "Release Date",
+                value: `<t:${Math.floor(changelog.date.getTime() / 1000)}:d>`,
+              },
+              {
+                name: "Changes",
+                value: changelog.changelog.join("\n"),
+              },
+            ])
+            .setColor(EmbedColors.info)
+            .setFooter({
+              text: `Requested by ${interaction.author.tag}`,
+              iconURL: interaction.author.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
       ],
     });
   },

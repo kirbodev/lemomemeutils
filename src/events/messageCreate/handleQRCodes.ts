@@ -5,6 +5,7 @@ import EmbedColors from "../../structures/embedColors";
 
 import { readBarcodesFromImageFile } from "zxing-wasm";
 import analytics from "../../db/models/analytics";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default async (client: Client, message: Message) => {
   if (!message.guild) return;
@@ -41,23 +42,25 @@ export default async (client: Client, message: Message) => {
       responseTime: performance.now() - now,
       type: "other",
     });
-    analytic.save();
+    await analytic.save();
     let qrURL: URL;
     try {
       qrURL = new URL(qr);
     } catch (e) {
       await message.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle("QR Code")
-            .setDescription(
-              "I found a QR code in this image, but it's not a valid URL. Your message has been deleted."
-            )
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Sender: ${message.author.tag} (${message.author.id})`,
-            })
-            .setTimestamp(),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle("QR Code")
+              .setDescription(
+                "I found a QR code in this image, but it's not a valid URL. Your message has been deleted."
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Sender: ${message.author.tag} (${message.author.id})`,
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
       return message.deletable && message.delete();
@@ -66,32 +69,36 @@ export default async (client: Client, message: Message) => {
       if (message.guild!.safetyAlertsChannel) {
         message.guild!.safetyAlertsChannel.send({
           embeds: [
-            new EmbedBuilder()
-              .setTitle("Unsafe QR Code")
-              .setDescription(
-                `An unsafe QR code was found in ${message.author.tag}'s (${message.author.id}) message. The message has been deleted.`
-              )
-              .setFields({ name: "URL", value: qrURL.href })
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: "Please be careful when visiting this link.",
-              })
-              .setTimestamp(),
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle("Unsafe QR Code")
+                .setDescription(
+                  `An unsafe QR code was found in ${message.author.tag}'s (${message.author.id}) message. The message has been deleted.`
+                )
+                .setFields({ name: "URL", value: qrURL.href })
+                .setColor(EmbedColors.error)
+                .setFooter({
+                  text: "Please be careful when visiting this link.",
+                })
+                .setTimestamp(Date.now())
+            ),
           ],
         });
       }
       await message.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle("QR Code")
-            .setDescription(
-              "An unsafe QR code was found in this image. Your message has been deleted."
-            )
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Sender: ${message.author.tag} (${message.author.id})`,
-            })
-            .setTimestamp(),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle("QR Code")
+              .setDescription(
+                "An unsafe QR code was found in this image. Your message has been deleted."
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Sender: ${message.author.tag} (${message.author.id})`,
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
       return message.deletable && message.delete();
@@ -100,47 +107,53 @@ export default async (client: Client, message: Message) => {
       if (message.guild!.safetyAlertsChannel) {
         message.guild!.safetyAlertsChannel.send({
           embeds: [
-            new EmbedBuilder()
-              .setTitle("QR Code")
-              .setDescription(
-                `An unallowed QR code was found in ${message.author.tag}'s (${message.author.id}) message. The message has been deleted.`
-              )
-              .setFields({ name: "URL", value: qrURL.href })
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: "Please be careful when visiting this link.",
-              })
-              .setTimestamp(),
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle("QR Code")
+                .setDescription(
+                  `An unallowed QR code was found in ${message.author.tag}'s (${message.author.id}) message. The message has been deleted.`
+                )
+                .setFields({ name: "URL", value: qrURL.href })
+                .setColor(EmbedColors.error)
+                .setFooter({
+                  text: "Please be careful when visiting this link.",
+                })
+                .setTimestamp(Date.now())
+            ),
           ],
         });
       }
       await message.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle("QR Code")
-            .setDescription(
-              "An unallowed QR code was found in this image. Your message has been deleted. Only youtube, twitch, instagram and facebook links are allowed."
-            )
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Sender: ${message.author.tag} (${message.author.id})`,
-            })
-            .setTimestamp(),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle("QR Code")
+              .setDescription(
+                "An unallowed QR code was found in this image. Your message has been deleted. Only youtube, twitch, instagram and facebook links are allowed."
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Sender: ${message.author.tag} (${message.author.id})`,
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
       return message.deletable && message.delete();
     }
     message.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle("QR Code")
-          .setDescription("I found a QR code in this image!")
-          .setFields({ name: "URL", value: qrURL.href })
-          .setColor(EmbedColors.warning)
-          .setFooter({
-            text: "Please be careful when visiting this link.",
-          })
-          .setTimestamp(),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle("QR Code")
+            .setDescription("I found a QR code in this image!")
+            .setFields({ name: "URL", value: qrURL.href })
+            .setColor(EmbedColors.warning)
+            .setFooter({
+              text: "Please be careful when visiting this link.",
+            })
+            .setTimestamp(Date.now())
+        ),
       ],
     });
   });

@@ -1,6 +1,7 @@
 import { APIEmbed, Client, EmbedBuilder, Message } from "discord.js";
 import configs from "../../config";
 import { Staff } from "../../db";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default async (client: Client, message: Message) => {
   if (!message.guild) return;
@@ -28,7 +29,7 @@ export default async (client: Client, message: Message) => {
   ]);
   embed.setTimestamp();
   await reply.edit({
-    embeds: [embed],
+    embeds: [safeEmbed(embed)],
   });
   await message.delete();
 };

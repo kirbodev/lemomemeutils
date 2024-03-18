@@ -23,6 +23,7 @@ import { Warn } from "../../db";
 import { nanoid } from "nanoid";
 import ms from "ms";
 import configs from "../../config";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default {
   name: "unwarn",
@@ -55,15 +56,17 @@ export default {
     if (!member) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorMemberNotFound)
-            .setDescription(`<@${user.id}> is not a member of this server.`)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorMemberNotFound)
+              .setDescription(`<@${user.id}> is not a member of this server.`)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         ephemeral: true,
       });
@@ -71,14 +74,16 @@ export default {
     if (member.id === interaction.user.id) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorSelf)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorSelf)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         ephemeral: true,
       });
@@ -86,14 +91,16 @@ export default {
     if (member.id === interaction.client.user.id) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorBot)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorBot)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         ephemeral: true,
       });
@@ -106,14 +113,16 @@ export default {
     ) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorBotAuthority)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorBotAuthority)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         ephemeral: true,
       });
@@ -128,15 +137,17 @@ export default {
     if (warns.length === 0) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUser)
-            .setDescription(`<@${member.id}> has no active warns.`)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUser)
+              .setDescription(`<@${member.id}> has no active warns.`)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         ephemeral: true,
       });
@@ -144,15 +155,17 @@ export default {
     const id = nanoid();
     const idInteraction = await interaction.followUp({
       embeds: [
-        new EmbedBuilder()
-          .setTitle("Unwarn")
-          .setDescription("Select a warning to remove.")
-          .setColor(EmbedColors.info)
-          .setFooter({
-            text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle("Unwarn")
+            .setDescription("Select a warning to remove.")
+            .setColor(EmbedColors.info)
+            .setFooter({
+              text: `Requested by ${interaction.user.tag}`,
+              iconURL: interaction.user.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
       ],
       components: [
         new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
@@ -193,15 +206,17 @@ export default {
       if (!warn) {
         return component.update({
           embeds: [
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorGeneric)
-              .setDescription("The warning you selected was not found.")
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.user.tag}`,
-                iconURL: interaction.user.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now()),
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle(Errors.ErrorGeneric)
+                .setDescription("The warning you selected was not found.")
+                .setColor(EmbedColors.error)
+                .setFooter({
+                  text: `Requested by ${interaction.user.tag}`,
+                  iconURL: interaction.user.displayAvatarURL(),
+                })
+                .setTimestamp(Date.now())
+            ),
           ],
           components: [],
         });
@@ -215,34 +230,37 @@ export default {
       if (!unwarn) {
         return component.update({
           embeds: [
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorGeneric)
-              .setDescription("The warning you selected was not found.")
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.user.tag}`,
-                iconURL: interaction.user.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now()),
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle(Errors.ErrorGeneric)
+                .setDescription("The warning you selected was not found.")
+                .setColor(EmbedColors.error)
+                .setFooter({
+                  text: `Requested by ${interaction.user.tag}`,
+                  iconURL: interaction.user.displayAvatarURL(),
+                })
+                .setTimestamp(Date.now())
+            ),
           ],
           components: [],
         });
       }
-      const embed = new EmbedBuilder()
-        .setTitle("Unwarned")
-        .setDescription(
-          `Removed a warning from <@${member.id}> for ${
-            reason || "No reason provided"
-          }.`
-        )
-        .setFields([
-          {
-            name: "Reason",
-            value: reason || "No reason provided",
-          },
-          {
-            name: "Warn Info",
-            value: `
+      const embed = safeEmbed(
+        new EmbedBuilder()
+          .setTitle("Unwarned")
+          .setDescription(
+            `Removed a warning from <@${member.id}> for ${
+              reason || "No reason provided"
+            }.`
+          )
+          .setFields([
+            {
+              name: "Reason",
+              value: reason || "No reason provided",
+            },
+            {
+              name: "Warn Info",
+              value: `
                     **Moderator**: <@${unwarn.moderatorID}>
                     **Severity**: ${unwarn.severity === 1 ? "Light" : "Heavy"}
                     **Expires At**: <t:${Math.floor(
@@ -256,14 +274,15 @@ export default {
                         : "Not muted"
                     }
                     `,
-          },
-        ])
-        .setColor(EmbedColors.success)
-        .setFooter({
-          text: `Requested by ${interaction.user.tag}`,
-          iconURL: interaction.user.displayAvatarURL(),
-        })
-        .setTimestamp(Date.now());
+            },
+          ])
+          .setColor(EmbedColors.success)
+          .setFooter({
+            text: `Requested by ${interaction.user.tag}`,
+            iconURL: interaction.user.displayAvatarURL(),
+          })
+          .setTimestamp(Date.now())
+      );
       interaction.editReply({
         components: [],
       });
@@ -278,15 +297,17 @@ export default {
     } catch (err) {
       return interaction.editReply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle("Unwarn")
-            .setDescription("You took too long to respond.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle("Unwarn")
+              .setDescription("You took too long to respond.")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         components: [],
       });
@@ -304,15 +325,17 @@ export default {
     } catch (e) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUserNotFound)
-            .setDescription("Please provide a valid user.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUserNotFound)
+              .setDescription("Please provide a valid user.")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -323,43 +346,49 @@ export default {
     if (!member) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorMemberNotFound)
-            .setDescription(`<@${user.id}> is not a member of this server.`)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorMemberNotFound)
+              .setDescription(`<@${user.id}> is not a member of this server.`)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (member.id === interaction.author.id) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorSelf)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorSelf)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (member.id === interaction.client.user.id) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorBot)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorBot)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -371,14 +400,16 @@ export default {
     ) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorBotAuthority)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorBotAuthority)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -392,30 +423,34 @@ export default {
     if (warns.length === 0) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUser)
-            .setDescription(`<@${member.id}> has no active warns.`)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUser)
+              .setDescription(`<@${member.id}> has no active warns.`)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     const id = nanoid();
     const idInteraction = await interaction.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle("Unwarn")
-          .setDescription("Select a warning to remove.")
-          .setColor(EmbedColors.info)
-          .setFooter({
-            text: `Requested by ${interaction.author.tag}`,
-            iconURL: interaction.author.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle("Unwarn")
+            .setDescription("Select a warning to remove.")
+            .setColor(EmbedColors.info)
+            .setFooter({
+              text: `Requested by ${interaction.author.tag}`,
+              iconURL: interaction.author.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
       ],
       components: [
         new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
@@ -455,15 +490,17 @@ export default {
       if (!warn) {
         return component.update({
           embeds: [
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorGeneric)
-              .setDescription("The warning you selected was not found.")
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.author.tag}`,
-                iconURL: interaction.author.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now()),
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle(Errors.ErrorGeneric)
+                .setDescription("The warning you selected was not found.")
+                .setColor(EmbedColors.error)
+                .setFooter({
+                  text: `Requested by ${interaction.author.tag}`,
+                  iconURL: interaction.author.displayAvatarURL(),
+                })
+                .setTimestamp(Date.now())
+            ),
           ],
           components: [],
         });
@@ -477,34 +514,37 @@ export default {
       if (!unwarn) {
         return component.update({
           embeds: [
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorGeneric)
-              .setDescription("The warning you selected was not found.")
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.author.tag}`,
-                iconURL: interaction.author.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now()),
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle(Errors.ErrorGeneric)
+                .setDescription("The warning you selected was not found.")
+                .setColor(EmbedColors.error)
+                .setFooter({
+                  text: `Requested by ${interaction.author.tag}`,
+                  iconURL: interaction.author.displayAvatarURL(),
+                })
+                .setTimestamp(Date.now())
+            ),
           ],
           components: [],
         });
       }
-      const embed = new EmbedBuilder()
-        .setTitle("Unwarned")
-        .setDescription(
-          `Removed a warning from <@${member.id}> for ${
-            reason || "No reason provided"
-          }.`
-        )
-        .setFields([
-          {
-            name: "Reason",
-            value: reason || "No reason provided",
-          },
-          {
-            name: "Warn Info",
-            value: `
+      const embed = safeEmbed(
+        new EmbedBuilder()
+          .setTitle("Unwarned")
+          .setDescription(
+            `Removed a warning from <@${member.id}> for ${
+              reason || "No reason provided"
+            }.`
+          )
+          .setFields([
+            {
+              name: "Reason",
+              value: reason || "No reason provided",
+            },
+            {
+              name: "Warn Info",
+              value: `
                         **Moderator**: <@${unwarn.moderatorID}>
                         **Severity**: ${
                           unwarn.severity === 1 ? "Light" : "Heavy"
@@ -520,14 +560,15 @@ export default {
                             : "Not muted"
                         }
                         `,
-          },
-        ])
-        .setColor(EmbedColors.success)
-        .setFooter({
-          text: `Requested by ${interaction.author.tag}`,
-          iconURL: interaction.author.displayAvatarURL(),
-        })
-        .setTimestamp(Date.now());
+            },
+          ])
+          .setColor(EmbedColors.success)
+          .setFooter({
+            text: `Requested by ${interaction.author.tag}`,
+            iconURL: interaction.author.displayAvatarURL(),
+          })
+          .setTimestamp(Date.now())
+      );
       idInteraction.edit({
         components: [],
       });
@@ -542,15 +583,17 @@ export default {
     } catch (err) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle("Unwarn")
-            .setDescription("You took too long to respond.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle("Unwarn")
+              .setDescription("You took too long to respond.")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         components: [],
       });

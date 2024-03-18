@@ -11,6 +11,7 @@ import staffInterface, { StaffLevel } from "../structures/staffInterface";
 import configs from "../config";
 import setStaffLevel from "../helpers/setStaffLevel";
 import EmbedColors from "../structures/embedColors";
+import safeEmbed from "../utils/safeEmbed";
 
 export default {
   every: "1 hour",
@@ -38,23 +39,25 @@ export default {
           vote.decision.approved = true;
           await vote.save();
           await setStaffLevel(vote, StaffLevel.Farmer);
-          const embed = new EmbedBuilder()
-            .setTitle("Staff Application Approved")
-            .setDescription(
-              `Your staff application for ${guild.name} has been approved!`
-            )
-            .setFields([
-              {
-                name: "Decision",
-                value: "Approved by timeout",
-              },
-              {
-                name: "Reason",
-                value: vote.decision.reason || "No reason provided",
-              },
-            ])
-            .setColor(EmbedColors.success)
-            .setTimestamp();
+          const embed = safeEmbed(
+            new EmbedBuilder()
+              .setTitle("Staff Application Approved")
+              .setDescription(
+                `Your staff application for ${guild.name} has been approved!`
+              )
+              .setFields([
+                {
+                  name: "Decision",
+                  value: "Approved by timeout",
+                },
+                {
+                  name: "Reason",
+                  value: vote.decision.reason || "No reason provided",
+                },
+              ])
+              .setColor(EmbedColors.success)
+              .setTimestamp()
+          );
           const userDM = await client.users
             .fetch(vote.userID)
             .catch(() => null);
@@ -92,23 +95,25 @@ export default {
             if (!staffChannel) continue;
             (staffChannel as GuildTextBasedChannel).send({
               embeds: [
-                new EmbedBuilder()
-                  .setTitle("Staff Application Approved")
-                  .setDescription(
-                    `<@${vote.userID}>'s (${vote.userID}) staff application has been approved!`
-                  )
-                  .setFields([
-                    {
-                      name: "Decision",
-                      value: "Approved by timeout",
-                    },
-                    {
-                      name: "Reason",
-                      value: vote.decision.reason || "No reason provided",
-                    },
-                  ])
-                  .setColor(EmbedColors.success)
-                  .setTimestamp(),
+                safeEmbed(
+                  new EmbedBuilder()
+                    .setTitle("Staff Application Approved")
+                    .setDescription(
+                      `<@${vote.userID}>'s (${vote.userID}) staff application has been approved!`
+                    )
+                    .setFields([
+                      {
+                        name: "Decision",
+                        value: "Approved by timeout",
+                      },
+                      {
+                        name: "Reason",
+                        value: vote.decision.reason || "No reason provided",
+                      },
+                    ])
+                    .setColor(EmbedColors.success)
+                    .setTimestamp()
+                ),
               ],
             });
           } catch (e) {
@@ -118,23 +123,25 @@ export default {
           vote.decision.decisionAt = new Date();
           vote.decision.approved = false;
           await vote.save();
-          const embed = new EmbedBuilder()
-            .setTitle("Staff Application Declined")
-            .setDescription(
-              `Your staff application for ${guild.name} has been declined.`
-            )
-            .setFields([
-              {
-                name: "Decision",
-                value: "Denied by timeout",
-              },
-              {
-                name: "Reason",
-                value: vote.decision.reason || "No reason provided",
-              },
-            ])
-            .setColor(EmbedColors.error)
-            .setTimestamp();
+          const embed = safeEmbed(
+            new EmbedBuilder()
+              .setTitle("Staff Application Declined")
+              .setDescription(
+                `Your staff application for ${guild.name} has been declined.`
+              )
+              .setFields([
+                {
+                  name: "Decision",
+                  value: "Denied by timeout",
+                },
+                {
+                  name: "Reason",
+                  value: vote.decision.reason || "No reason provided",
+                },
+              ])
+              .setColor(EmbedColors.error)
+              .setTimestamp()
+          );
 
           const userDM = await client.users
             .fetch(vote.userID)
@@ -172,23 +179,25 @@ export default {
             if (!staffChannel) continue;
             (staffChannel as GuildTextBasedChannel).send({
               embeds: [
-                new EmbedBuilder()
-                  .setTitle("Staff Application Declined")
-                  .setDescription(
-                    `<@${vote.userID}> (${vote.userID})'s staff application has been declined.`
-                  )
-                  .setFields([
-                    {
-                      name: "Decision",
-                      value: "Denied by timeout",
-                    },
-                    {
-                      name: "Reason",
-                      value: vote.decision.reason || "No reason provided",
-                    },
-                  ])
-                  .setColor(EmbedColors.error)
-                  .setTimestamp(),
+                safeEmbed(
+                  new EmbedBuilder()
+                    .setTitle("Staff Application Declined")
+                    .setDescription(
+                      `<@${vote.userID}> (${vote.userID})'s staff application has been declined.`
+                    )
+                    .setFields([
+                      {
+                        name: "Decision",
+                        value: "Denied by timeout",
+                      },
+                      {
+                        name: "Reason",
+                        value: vote.decision.reason || "No reason provided",
+                      },
+                    ])
+                    .setColor(EmbedColors.error)
+                    .setTimestamp()
+                ),
               ],
             });
           } catch (e) {

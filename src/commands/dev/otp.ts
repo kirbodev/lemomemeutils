@@ -15,6 +15,7 @@ import EmbedColors from "../../structures/embedColors";
 import qrcode from "qrcode";
 import { nanoid } from "nanoid";
 import showOTPModal from "../../helpers/showOTPModal";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default {
   name: "otp",
@@ -30,17 +31,19 @@ export default {
       const id = nanoid();
       await interaction.editReply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle("OTP Secret")
-            .setDescription(
-              `Are you sure you want to generate an OTP secret? You will only be able to generate one once. If you lose your secret, you will have to contact a developer to reset it.`,
-            )
-            .setColor(EmbedColors.warning)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle("OTP Secret")
+              .setDescription(
+                `Are you sure you want to generate an OTP secret? You will only be able to generate one once. If you lose your secret, you will have to contact a developer to reset it.`
+              )
+              .setColor(EmbedColors.warning)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         components: [
           new ActionRowBuilder<ButtonBuilder>()
@@ -48,13 +51,13 @@ export default {
               new ButtonBuilder()
                 .setLabel("Yes")
                 .setStyle(ButtonStyle.Success)
-                .setCustomId(`${id}0`),
+                .setCustomId(`${id}0`)
             )
             .addComponents(
               new ButtonBuilder()
                 .setLabel("No")
                 .setStyle(ButtonStyle.Secondary)
-                .setCustomId(`${id}1`),
+                .setCustomId(`${id}1`)
             ),
         ],
       });
@@ -77,24 +80,26 @@ export default {
           });
           await i.reply({
             embeds: [
-              new EmbedBuilder()
-                .setTitle("OTP Secret")
-                .setDescription(
-                  `Use an OTP app such as Google Authenticator to scan the QR code below. Alternatively, you can enter the secret manually into your OTP app.`,
-                )
-                .addFields([
-                  {
-                    name: "Secret (Hold to copy)",
-                    value: `${secret.base32}`,
-                  },
-                ])
-                .setImage(`attachment://${qrid}.png`)
-                .setColor(EmbedColors.success)
-                .setFooter({
-                  text: `Requested by ${interaction.user.tag}`,
-                  iconURL: interaction.user.displayAvatarURL(),
-                })
-                .setTimestamp(Date.now()),
+              safeEmbed(
+                new EmbedBuilder()
+                  .setTitle("OTP Secret")
+                  .setDescription(
+                    `Use an OTP app such as Google Authenticator to scan the QR code below. Alternatively, you can enter the secret manually into your OTP app.`
+                  )
+                  .addFields([
+                    {
+                      name: "Secret (Hold to copy)",
+                      value: `${secret.base32}`,
+                    },
+                  ])
+                  .setImage(`attachment://${qrid}.png`)
+                  .setColor(EmbedColors.success)
+                  .setFooter({
+                    text: `Requested by ${interaction.user.tag}`,
+                    iconURL: interaction.user.displayAvatarURL(),
+                  })
+                  .setTimestamp(Date.now())
+              ),
             ],
             components: [
               // Create a button which then pops up a modal to enter the OTP code
@@ -102,7 +107,7 @@ export default {
                 new ButtonBuilder()
                   .setCustomId(id2)
                   .setLabel("Enter OTP Code")
-                  .setStyle(ButtonStyle.Primary),
+                  .setStyle(ButtonStyle.Primary)
               ),
             ],
             files: [attachment],
@@ -119,51 +124,57 @@ export default {
             if (m === "timeout") {
               i.editReply({
                 embeds: [
-                  new EmbedBuilder()
-                    .setTitle("OTP Secret")
-                    .setDescription(
-                      `You took too long to enter your OTP code. You can delete the secret from your OTP app and try again.`,
-                    )
-                    .setColor(EmbedColors.error)
-                    .setFooter({
-                      text: `Requested by ${interaction.user.tag}`,
-                      iconURL: interaction.user.displayAvatarURL(),
-                    })
-                    .setTimestamp(Date.now()),
+                  safeEmbed(
+                    new EmbedBuilder()
+                      .setTitle("OTP Secret")
+                      .setDescription(
+                        `You took too long to enter your OTP code. You can delete the secret from your OTP app and try again.`
+                      )
+                      .setColor(EmbedColors.error)
+                      .setFooter({
+                        text: `Requested by ${interaction.user.tag}`,
+                        iconURL: interaction.user.displayAvatarURL(),
+                      })
+                      .setTimestamp(Date.now())
+                  ),
                 ],
                 files: [],
               });
             } else if (m === "invalid") {
               i.editReply({
                 embeds: [
-                  new EmbedBuilder()
-                    .setTitle("OTP Secret")
-                    .setDescription(
-                      `Your OTP code was invalid. You can delete the secret from your OTP app and try again.`,
-                    )
-                    .setColor(EmbedColors.error)
-                    .setFooter({
-                      text: `Requested by ${interaction.user.tag}`,
-                      iconURL: interaction.user.displayAvatarURL(),
-                    })
-                    .setTimestamp(Date.now()),
+                  safeEmbed(
+                    new EmbedBuilder()
+                      .setTitle("OTP Secret")
+                      .setDescription(
+                        `Your OTP code was invalid. You can delete the secret from your OTP app and try again.`
+                      )
+                      .setColor(EmbedColors.error)
+                      .setFooter({
+                        text: `Requested by ${interaction.user.tag}`,
+                        iconURL: interaction.user.displayAvatarURL(),
+                      })
+                      .setTimestamp(Date.now())
+                  ),
                 ],
                 files: [],
               });
             } else {
               m.reply({
                 embeds: [
-                  new EmbedBuilder()
-                    .setTitle("OTP Secret")
-                    .setDescription(
-                      `Your OTP secret has been verified. You can now use commands that require OTP authentication.`,
-                    )
-                    .setColor(EmbedColors.success)
-                    .setFooter({
-                      text: `Requested by ${interaction.user.tag}`,
-                      iconURL: interaction.user.displayAvatarURL(),
-                    })
-                    .setTimestamp(Date.now()),
+                  safeEmbed(
+                    new EmbedBuilder()
+                      .setTitle("OTP Secret")
+                      .setDescription(
+                        `Your OTP secret has been verified. You can now use commands that require OTP authentication.`
+                      )
+                      .setColor(EmbedColors.success)
+                      .setFooter({
+                        text: `Requested by ${interaction.user.tag}`,
+                        iconURL: interaction.user.displayAvatarURL(),
+                      })
+                      .setTimestamp(Date.now())
+                  ),
                 ],
                 ephemeral: true,
               });
@@ -178,17 +189,19 @@ export default {
           } catch (e) {
             i.editReply({
               embeds: [
-                new EmbedBuilder()
-                  .setTitle("OTP Secret")
-                  .setDescription(
-                    `You took too long to enter your OTP code. You can delete the secret from your OTP app and try again.`,
-                  )
-                  .setColor(EmbedColors.error)
-                  .setFooter({
-                    text: `Requested by ${interaction.user.tag}`,
-                    iconURL: interaction.user.displayAvatarURL(),
-                  })
-                  .setTimestamp(Date.now()),
+                safeEmbed(
+                  new EmbedBuilder()
+                    .setTitle("OTP Secret")
+                    .setDescription(
+                      `You took too long to enter your OTP code. You can delete the secret from your OTP app and try again.`
+                    )
+                    .setColor(EmbedColors.error)
+                    .setFooter({
+                      text: `Requested by ${interaction.user.tag}`,
+                      iconURL: interaction.user.displayAvatarURL(),
+                    })
+                    .setTimestamp(Date.now())
+                ),
               ],
               components: [],
             });
@@ -199,51 +212,42 @@ export default {
         } else {
           interaction.editReply({
             embeds: [
-              new EmbedBuilder()
-                .setTitle("OTP Secret")
-                .setDescription(
-                  `You have chosen not to generate an OTP secret.`,
-                )
-                .setColor(EmbedColors.warning)
-                .setFooter({
-                  text: `Requested by ${interaction.user.tag}`,
-                  iconURL: interaction.user.displayAvatarURL(),
-                })
-                .setTimestamp(Date.now()),
+              safeEmbed(
+                new EmbedBuilder()
+                  .setTitle("OTP Secret")
+                  .setDescription(
+                    `You have chosen not to generate an OTP secret.`
+                  )
+                  .setColor(EmbedColors.warning)
+                  .setFooter({
+                    text: `Requested by ${interaction.user.tag}`,
+                    iconURL: interaction.user.displayAvatarURL(),
+                  })
+                  .setTimestamp(Date.now())
+              ),
             ],
             components: [],
           });
         }
       } catch (e) {
-        interaction.editReply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle("OTP Secret")
-              .setDescription(`You took too long to respond.`)
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.user.tag}`,
-                iconURL: interaction.user.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now()),
-          ],
-          components: [],
-        });
+        // Timeout
       }
     } else {
       interaction.editReply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle("OTP Secret")
-            .setDescription(
-              `You have already generated an OTP secret. For security reasons, you are not allowed to generate another one. If you have lost your secret, please contact a developer.`,
-            )
-            .setColor(EmbedColors.warning)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle("OTP Secret")
+              .setDescription(
+                `You have already generated an OTP secret. For security reasons, you are not allowed to generate another one. If you have lost your secret, please contact a developer.`
+              )
+              .setColor(EmbedColors.warning)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }

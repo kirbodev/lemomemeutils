@@ -17,6 +17,7 @@ import configs from "../../config";
 import muteMember from "../../helpers/muteMember";
 import ms from "ms";
 import { Action } from "../../db";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default {
   name: "mute",
@@ -64,71 +65,81 @@ export default {
     if (!user) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUserNotFound)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUserNotFound)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (!member) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorMemberNotFound)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorMemberNotFound)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (!time || !timeMs || timeMs < 0 || timeMs > 3.1536e10 /* 1 year */) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorInvalidTime)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorInvalidTime)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (user.id === interaction.user.id) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorSelf)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorSelf)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (user.id === interaction.client.user.id) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorBot)
-            .setDescription("What have I done wrong? :(")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorBot)
+              .setDescription("What have I done wrong? :(")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -140,24 +151,26 @@ export default {
     ) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorAuthority)
-            .setDescription(
-              `<@${member.id}>'s highest role is <@&${
-                member.roles.highest.id
-              }> (Position: ${
-                member.roles.highest.position
-              }), which is higher or equal to your highest role. (Position: ${
-                (interaction.member?.roles as GuildMemberRoleManager).highest
-                  .position
-              })`
-            )
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorAuthority)
+              .setDescription(
+                `<@${member.id}>'s highest role is <@&${
+                  member.roles.highest.id
+                }> (Position: ${
+                  member.roles.highest.position
+                }), which is higher or equal to your highest role. (Position: ${
+                  (interaction.member?.roles as GuildMemberRoleManager).highest
+                    .position
+                })`
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         allowedMentions: {
           users: [],
@@ -172,14 +185,16 @@ export default {
     ) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorBotAuthority)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorBotAuthority)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         ephemeral: true,
       });
@@ -187,15 +202,17 @@ export default {
     if (!member.manageable) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUser)
-            .setDescription(`<@${member.id}> is not muteable.`)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUser)
+              .setDescription(`<@${member.id}> is not muteable.`)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         ephemeral: true,
       });
@@ -206,25 +223,27 @@ export default {
     ) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUserMuted)
-            .setDescription(
-              `<@${member.id}> is already muted. Unmute them first.`
-            )
-            .setFields([
-              {
-                name: "Expires At",
-                value: `<t:${Math.floor(
-                  member.communicationDisabledUntilTimestamp / 1000
-                )}:f>`,
-              },
-            ])
-            .setColor(EmbedColors.info)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUserMuted)
+              .setDescription(
+                `<@${member.id}> is already muted. Unmute them first.`
+              )
+              .setFields([
+                {
+                  name: "Expires At",
+                  value: `<t:${Math.floor(
+                    member.communicationDisabledUntilTimestamp / 1000
+                  )}:f>`,
+                },
+              ])
+              .setColor(EmbedColors.info)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         ephemeral: true,
       });
@@ -239,15 +258,17 @@ export default {
       if (!mute) {
         return interaction.followUp({
           embeds: [
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorGeneric)
-              .setDescription("Something went wrong while muting the user.")
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.user.tag}`,
-                iconURL: interaction.user.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now()),
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle(Errors.ErrorGeneric)
+                .setDescription("Something went wrong while muting the user.")
+                .setColor(EmbedColors.error)
+                .setFooter({
+                  text: `Requested by ${interaction.user.tag}`,
+                  iconURL: interaction.user.displayAvatarURL(),
+                })
+                .setTimestamp(Date.now())
+            ),
           ],
         });
       }
@@ -256,31 +277,33 @@ export default {
       try {
         await user.send({
           embeds: [
-            new EmbedBuilder()
-              .setTitle("You have been muted")
-              .setDescription(
-                `You have been muted in \`${interaction.guild!.name}\``
-              )
-              .setFields([
-                {
-                  name: "Reason",
-                  value: reason || "No reason provided",
-                },
-                {
-                  name: "Moderator",
-                  value: interaction.user.tag,
-                },
-                {
-                  name: "Expires At",
-                  value: `<t:${Math.floor(mute.getTime() / 1000)}:f>`,
-                },
-              ])
-              .setColor(EmbedColors.warning)
-              .setFooter({
-                text: `Muted by ${interaction.user.tag}`,
-                iconURL: interaction.user.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now()),
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle("You have been muted")
+                .setDescription(
+                  `You have been muted in \`${interaction.guild!.name}\``
+                )
+                .setFields([
+                  {
+                    name: "Reason",
+                    value: reason || "No reason provided",
+                  },
+                  {
+                    name: "Moderator",
+                    value: interaction.user.tag,
+                  },
+                  {
+                    name: "Expires At",
+                    value: `<t:${Math.floor(mute.getTime() / 1000)}:f>`,
+                  },
+                ])
+                .setColor(EmbedColors.warning)
+                .setFooter({
+                  text: `Muted by ${interaction.user.tag}`,
+                  iconURL: interaction.user.displayAvatarURL(),
+                })
+                .setTimestamp(Date.now())
+            ),
           ],
         });
         dmSent = true;
@@ -296,25 +319,29 @@ export default {
         expiresAt: new Date(Date.now() + timeMs),
       });
       await action.save();
-      const embed = new EmbedBuilder()
-        .setTitle("Muted")
-        .setDescription(
-          `Muted <@${user.id}> for \`${reason || "No reason provided"}\`. ${
-            dmSent ? "They have been notified." : "They could not be notified."
-          }`
-        )
-        .setFields([
-          {
-            name: "Expires",
-            value: `<t:${Math.floor(mute.getTime() / 1000)}:f>`,
-          },
-        ])
-        .setColor(EmbedColors.success)
-        .setFooter({
-          text: `Requested by ${interaction.user.tag}`,
-          iconURL: interaction.user.displayAvatarURL(),
-        })
-        .setTimestamp(Date.now());
+      const embed = safeEmbed(
+        new EmbedBuilder()
+          .setTitle("Muted")
+          .setDescription(
+            `Muted <@${user.id}> for \`${reason || "No reason provided"}\`. ${
+              dmSent
+                ? "They have been notified."
+                : "They could not be notified."
+            }`
+          )
+          .setFields([
+            {
+              name: "Expires",
+              value: `<t:${Math.floor(mute.getTime() / 1000)}:f>`,
+            },
+          ])
+          .setColor(EmbedColors.success)
+          .setFooter({
+            text: `Requested by ${interaction.user.tag}`,
+            iconURL: interaction.user.displayAvatarURL(),
+          })
+          .setTimestamp(Date.now())
+      );
       if (interaction.channel !== config.logChannel)
         config.log({ embeds: [embed] });
       return interaction.followUp({
@@ -324,15 +351,17 @@ export default {
       logger.warn(`Mute command failed to mute user. ${e}`);
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorGeneric)
-            .setDescription("Something went wrong while muting the user.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorGeneric)
+              .setDescription("Something went wrong while muting the user.")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -349,15 +378,17 @@ export default {
     } catch (e) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUserNotFound)
-            .setDescription("Please provide a valid user.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUserNotFound)
+              .setDescription("Please provide a valid user.")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -376,57 +407,65 @@ export default {
     if (!member) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorMemberNotFound)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorMemberNotFound)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (!time || !timeMs || timeMs < 0 || timeMs > 3.1536e10 /* 1 year */) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorInvalidTime)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorInvalidTime)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (user.id === interaction.author.id) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorSelf)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorSelf)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (user.id === interaction.client.user.id) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorBot)
-            .setDescription("What have I done wrong? :(")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorBot)
+              .setDescription("What have I done wrong? :(")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -438,24 +477,26 @@ export default {
     ) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorAuthority)
-            .setDescription(
-              `<@${member.id}>'s highest role is <@&${
-                member.roles.highest.id
-              }> (Position: ${
-                member.roles.highest.position
-              }), which is higher or equal to your highest role. (Position: ${
-                (interaction.member?.roles as GuildMemberRoleManager).highest
-                  .position
-              })`
-            )
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorAuthority)
+              .setDescription(
+                `<@${member.id}>'s highest role is <@&${
+                  member.roles.highest.id
+                }> (Position: ${
+                  member.roles.highest.position
+                }), which is higher or equal to your highest role. (Position: ${
+                  (interaction.member?.roles as GuildMemberRoleManager).highest
+                    .position
+                })`
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         allowedMentions: {
           users: [],
@@ -469,29 +510,33 @@ export default {
     ) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorBotAuthority)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorBotAuthority)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (!member.manageable) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUser)
-            .setDescription(`<@${member.id}> is not muteable.`)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUser)
+              .setDescription(`<@${member.id}> is not muteable.`)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -501,25 +546,27 @@ export default {
     ) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUserMuted)
-            .setDescription(
-              `<@${member.id}> is already muted. Unmute them first.`
-            )
-            .setFields([
-              {
-                name: "Expires At",
-                value: `<t:${Math.floor(
-                  member.communicationDisabledUntilTimestamp / 1000
-                )}:f>`,
-              },
-            ])
-            .setColor(EmbedColors.info)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUserMuted)
+              .setDescription(
+                `<@${member.id}> is already muted. Unmute them first.`
+              )
+              .setFields([
+                {
+                  name: "Expires At",
+                  value: `<t:${Math.floor(
+                    member.communicationDisabledUntilTimestamp / 1000
+                  )}:f>`,
+                },
+              ])
+              .setColor(EmbedColors.info)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -533,15 +580,17 @@ export default {
       if (!mute) {
         return interaction.reply({
           embeds: [
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorGeneric)
-              .setDescription("Something went wrong while muting the user.")
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.author.tag}`,
-                iconURL: interaction.author.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now()),
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle(Errors.ErrorGeneric)
+                .setDescription("Something went wrong while muting the user.")
+                .setColor(EmbedColors.error)
+                .setFooter({
+                  text: `Requested by ${interaction.author.tag}`,
+                  iconURL: interaction.author.displayAvatarURL(),
+                })
+                .setTimestamp(Date.now())
+            ),
           ],
         });
       }
@@ -550,31 +599,33 @@ export default {
       try {
         await user.send({
           embeds: [
-            new EmbedBuilder()
-              .setTitle("You have been muted")
-              .setDescription(
-                `You have been muted in \`${interaction.guild!.name}\``
-              )
-              .setFields([
-                {
-                  name: "Reason",
-                  value: reason || "No reason provided",
-                },
-                {
-                  name: "Moderator",
-                  value: interaction.author.tag,
-                },
-                {
-                  name: "Expires At",
-                  value: `<t:${Math.floor(mute.getTime() / 1000)}:f>`,
-                },
-              ])
-              .setColor(EmbedColors.warning)
-              .setFooter({
-                text: `Muted by ${interaction.author.tag}`,
-                iconURL: interaction.author.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now()),
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle("You have been muted")
+                .setDescription(
+                  `You have been muted in \`${interaction.guild!.name}\``
+                )
+                .setFields([
+                  {
+                    name: "Reason",
+                    value: reason || "No reason provided",
+                  },
+                  {
+                    name: "Moderator",
+                    value: interaction.author.tag,
+                  },
+                  {
+                    name: "Expires At",
+                    value: `<t:${Math.floor(mute.getTime() / 1000)}:f>`,
+                  },
+                ])
+                .setColor(EmbedColors.warning)
+                .setFooter({
+                  text: `Muted by ${interaction.author.tag}`,
+                  iconURL: interaction.author.displayAvatarURL(),
+                })
+                .setTimestamp(Date.now())
+            ),
           ],
         });
         dmSent = true;
@@ -590,25 +641,29 @@ export default {
         expiresAt: new Date(Date.now() + timeMs),
       });
       await action.save();
-      const embed = new EmbedBuilder()
-        .setTitle("Muted")
-        .setDescription(
-          `Muted <@${user.id}> for \`${reason || "No reason provided"}\`. ${
-            dmSent ? "They have been notified." : "They could not be notified."
-          }`
-        )
-        .setFields([
-          {
-            name: "Expires",
-            value: `<t:${Math.floor(mute.getTime() / 1000)}:f>`,
-          },
-        ])
-        .setColor(EmbedColors.success)
-        .setFooter({
-          text: `Requested by ${interaction.author.tag}`,
-          iconURL: interaction.author.displayAvatarURL(),
-        })
-        .setTimestamp(Date.now());
+      const embed = safeEmbed(
+        new EmbedBuilder()
+          .setTitle("Muted")
+          .setDescription(
+            `Muted <@${user.id}> for \`${reason || "No reason provided"}\`. ${
+              dmSent
+                ? "They have been notified."
+                : "They could not be notified."
+            }`
+          )
+          .setFields([
+            {
+              name: "Expires",
+              value: `<t:${Math.floor(mute.getTime() / 1000)}:f>`,
+            },
+          ])
+          .setColor(EmbedColors.success)
+          .setFooter({
+            text: `Requested by ${interaction.author.tag}`,
+            iconURL: interaction.author.displayAvatarURL(),
+          })
+          .setTimestamp(Date.now())
+      );
       if (interaction.channel !== config.logChannel)
         config.log({ embeds: [embed] });
       return interaction.reply({
@@ -618,15 +673,17 @@ export default {
       logger.warn(`Mute command failed to mute user. ${e}`);
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorGeneric)
-            .setDescription("Something went wrong while muting the user.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorGeneric)
+              .setDescription("Something went wrong while muting the user.")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }

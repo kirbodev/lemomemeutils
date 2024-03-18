@@ -18,6 +18,7 @@ import logger from "../../helpers/logger";
 import ms from "ms";
 import banMember from "../../helpers/banMember";
 import configs from "../../config";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default {
   name: "ban",
@@ -77,14 +78,16 @@ export default {
     if (!user) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUserNotFound)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUserNotFound)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -92,14 +95,16 @@ export default {
     if (time && (!timeMs || timeMs < 0 || timeMs > 3.1536e10) /* 1 year */) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorInvalidTime)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorInvalidTime)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -107,29 +112,33 @@ export default {
     if (user.id === interaction.user.id) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorSelf)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorSelf)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (user.id === interaction.client.user.id) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorBot)
-            .setDescription("What have I done wrong? :(")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorBot)
+              .setDescription("What have I done wrong? :(")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -140,24 +149,26 @@ export default {
     ) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorAuthority)
-            .setDescription(
-              `<@${member.id}>'s highest role is <@&${
-                member.roles.highest.id
-              }> (Position: ${
-                member.roles.highest.position
-              }), which is higher or equal to your highest role. (Position: ${
-                (interaction.member?.roles as GuildMemberRoleManager).highest
-                  .position
-              })`
-            )
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorAuthority)
+              .setDescription(
+                `<@${member.id}>'s highest role is <@&${
+                  member.roles.highest.id
+                }> (Position: ${
+                  member.roles.highest.position
+                }), which is higher or equal to your highest role. (Position: ${
+                  (interaction.member?.roles as GuildMemberRoleManager).highest
+                    .position
+                })`
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         allowedMentions: {
           users: [],
@@ -173,14 +184,16 @@ export default {
     ) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorBotAuthority)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorBotAuthority)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         ephemeral: true,
       });
@@ -188,15 +201,17 @@ export default {
     if (member && !member.bannable) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUser)
-            .setDescription(`<@${user.id}> is not bannable.`)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUser)
+              .setDescription(`<@${user.id}> is not bannable.`)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         ephemeral: true,
       });
@@ -205,21 +220,23 @@ export default {
       const fetchedBan = await interaction.guild!.bans.fetch(user.id);
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUserBanned)
-            .setDescription(`<@${user.id}> is already banned.`)
-            .setFields([
-              {
-                name: "Reason",
-                value: fetchedBan.reason || "No reason provided",
-              },
-            ])
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUserBanned)
+              .setDescription(`<@${user.id}> is already banned.`)
+              .setFields([
+                {
+                  name: "Reason",
+                  value: fetchedBan.reason || "No reason provided",
+                },
+              ])
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     } catch (e) {
@@ -238,17 +255,19 @@ export default {
       if (!ban.success) {
         return interaction.followUp({
           embeds: [
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorGeneric)
-              .setDescription(
-                `Something went wrong while banning <@${user.id}>.`
-              )
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.user.tag}`,
-                iconURL: interaction.user.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now()),
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle(Errors.ErrorGeneric)
+                .setDescription(
+                  `Something went wrong while banning <@${user.id}>.`
+                )
+                .setColor(EmbedColors.error)
+                .setFooter({
+                  text: `Requested by ${interaction.user.tag}`,
+                  iconURL: interaction.user.displayAvatarURL(),
+                })
+                .setTimestamp(Date.now())
+            ),
           ],
         });
       }
@@ -265,39 +284,41 @@ export default {
           await interaction.guild!.members.unban(user.id);
         }, timeMs);
       }
-      const embed = new EmbedBuilder()
-        .setTitle("Banned")
-        .setDescription(
-          `Banned <@${user.id}> for \`${reason || "No reason provided"}\`. ${
-            ban.dmSent
-              ? "They have been notified."
-              : "They could not be notified."
-          }`
-        )
-        .setFields([
-          {
-            name: "Parole",
-            value: `${parole ? "Yes" : "No"}`,
-          },
-          {
-            name: "Expires",
-            value: `${
-              time
-                ? `<t:${Math.floor((Date.now() + timeMs!) / 1000)}:f>`
-                : "Never"
-            }`,
-          },
-          {
-            name: "Deleted Messages",
-            value: `${del ? "Yes" : "No"}`,
-          },
-        ])
-        .setColor(EmbedColors.success)
-        .setFooter({
-          text: `Requested by ${interaction.user.tag}`,
-          iconURL: interaction.user.displayAvatarURL(),
-        })
-        .setTimestamp(Date.now());
+      const embed = safeEmbed(
+        new EmbedBuilder()
+          .setTitle("Banned")
+          .setDescription(
+            `Banned <@${user.id}> for \`${reason || "No reason provided"}\`. ${
+              ban.dmSent
+                ? "They have been notified."
+                : "They could not be notified."
+            }`
+          )
+          .setFields([
+            {
+              name: "Parole",
+              value: `${parole ? "Yes" : "No"}`,
+            },
+            {
+              name: "Expires",
+              value: `${
+                time
+                  ? `<t:${Math.floor((Date.now() + timeMs!) / 1000)}:f>`
+                  : "Never"
+              }`,
+            },
+            {
+              name: "Deleted Messages",
+              value: `${del ? "Yes" : "No"}`,
+            },
+          ])
+          .setColor(EmbedColors.success)
+          .setFooter({
+            text: `Requested by ${interaction.user.tag}`,
+            iconURL: interaction.user.displayAvatarURL(),
+          })
+          .setTimestamp(Date.now())
+      );
       if (interaction.channel !== config.logChannel)
         config.log({ embeds: [embed] });
       return interaction.followUp({
@@ -307,15 +328,17 @@ export default {
       logger.warn(`Ban command failed to ban user. ${e}`);
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorGeneric)
-            .setDescription("Something went wrong while banning the user.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorGeneric)
+              .setDescription("Something went wrong while banning the user.")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -332,15 +355,17 @@ export default {
     } catch (e) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUserNotFound)
-            .setDescription("Please provide a valid user.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUserNotFound)
+              .setDescription("Please provide a valid user.")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -378,14 +403,16 @@ export default {
     if (time && (!timeMs || timeMs < 0 || timeMs > 3.1536e10) /* 1 year */) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorInvalidTime)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorInvalidTime)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -393,60 +420,66 @@ export default {
     if (user.id === interaction.author.id) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorSelf)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorSelf)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (user.id === interaction.client.user.id) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorBot)
-            .setDescription("What have I done wrong? :(")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorBot)
+              .setDescription("What have I done wrong? :(")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (alias === "fban") {
-      const embed = new EmbedBuilder()
-        .setTitle("Banned")
-        .setDescription(
-          `Banned <@${user.id}> for \`${
-            reason || "No reason provided"
-          }\`. They have been notified.`
-        )
-        .setFields([
-          {
-            name: "Parole",
-            value: `${parole ? "Yes" : "No"}`,
-          },
-          {
-            name: "Expires",
-            value: `${
-              time
-                ? `<t:${Math.floor((Date.now() + timeMs!) / 1000)}:f>`
-                : "Never"
-            }`,
-          },
-        ])
-        .setColor(EmbedColors.success)
-        .setFooter({
-          text: `Requested by ${interaction.author.tag}`,
-          iconURL: interaction.author.displayAvatarURL(),
-        })
-        .setTimestamp(Date.now());
+      const embed = safeEmbed(
+        new EmbedBuilder()
+          .setTitle("Banned")
+          .setDescription(
+            `Banned <@${user.id}> for \`${
+              reason || "No reason provided"
+            }\`. They have been notified.`
+          )
+          .setFields([
+            {
+              name: "Parole",
+              value: `${parole ? "Yes" : "No"}`,
+            },
+            {
+              name: "Expires",
+              value: `${
+                time
+                  ? `<t:${Math.floor((Date.now() + timeMs!) / 1000)}:f>`
+                  : "Never"
+              }`,
+            },
+          ])
+          .setColor(EmbedColors.success)
+          .setFooter({
+            text: `Requested by ${interaction.author.tag}`,
+            iconURL: interaction.author.displayAvatarURL(),
+          })
+          .setTimestamp(Date.now())
+      );
       return interaction.reply({
         embeds: [embed],
       });
@@ -458,24 +491,26 @@ export default {
     ) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorAuthority)
-            .setDescription(
-              `<@${member.id}>'s highest role is <@&${
-                member.roles.highest.id
-              }> (Position: ${
-                member.roles.highest.position
-              }), which is higher or equal to your highest role. (Position: ${
-                (interaction.member?.roles as GuildMemberRoleManager).highest
-                  .position
-              })`
-            )
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorAuthority)
+              .setDescription(
+                `<@${member.id}>'s highest role is <@&${
+                  member.roles.highest.id
+                }> (Position: ${
+                  member.roles.highest.position
+                }), which is higher or equal to your highest role. (Position: ${
+                  (interaction.member?.roles as GuildMemberRoleManager).highest
+                    .position
+                })`
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         allowedMentions: {
           users: [],
@@ -490,29 +525,33 @@ export default {
     ) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorBotAuthority)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorBotAuthority)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (member && !member.bannable) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUser)
-            .setDescription(`<@${user.id}> is not bannable.`)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUser)
+              .setDescription(`<@${user.id}> is not bannable.`)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -520,21 +559,23 @@ export default {
       const fetchedBan = await interaction.guild!.bans.fetch(user.id);
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUserBanned)
-            .setDescription(`<@${user.id}> is already banned.`)
-            .setFields([
-              {
-                name: "Reason",
-                value: fetchedBan.reason || "No reason provided",
-              },
-            ])
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUserBanned)
+              .setDescription(`<@${user.id}> is already banned.`)
+              .setFields([
+                {
+                  name: "Reason",
+                  value: fetchedBan.reason || "No reason provided",
+                },
+              ])
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     } catch (e) {
@@ -552,17 +593,19 @@ export default {
       if (!ban.success) {
         return interaction.reply({
           embeds: [
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorGeneric)
-              .setDescription(
-                `Something went wrong while banning <@${user.id}>.`
-              )
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.author.tag}`,
-                iconURL: interaction.author.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now()),
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle(Errors.ErrorGeneric)
+                .setDescription(
+                  `Something went wrong while banning <@${user.id}>.`
+                )
+                .setColor(EmbedColors.error)
+                .setFooter({
+                  text: `Requested by ${interaction.author.tag}`,
+                  iconURL: interaction.author.displayAvatarURL(),
+                })
+                .setTimestamp(Date.now())
+            ),
           ],
         });
       }
@@ -579,35 +622,37 @@ export default {
           await interaction.guild!.members.unban(user.id);
         }, timeMs);
       }
-      const embed = new EmbedBuilder()
-        .setTitle("Banned")
-        .setDescription(
-          `Banned <@${user.id}> for \`${reason || "No reason provided"}\`. ${
-            ban.dmSent
-              ? "They have been notified."
-              : "They could not be notified."
-          }`
-        )
-        .setFields([
-          {
-            name: "Parole",
-            value: `${parole ? "Yes" : "No"}`,
-          },
-          {
-            name: "Expires",
-            value: `${
-              time
-                ? `<t:${Math.floor((Date.now() + timeMs!) / 1000)}:f>`
-                : "Never"
-            }`,
-          },
-        ])
-        .setColor(EmbedColors.success)
-        .setFooter({
-          text: `Requested by ${interaction.author.tag}`,
-          iconURL: interaction.author.displayAvatarURL(),
-        })
-        .setTimestamp(Date.now());
+      const embed = safeEmbed(
+        new EmbedBuilder()
+          .setTitle("Banned")
+          .setDescription(
+            `Banned <@${user.id}> for \`${reason || "No reason provided"}\`. ${
+              ban.dmSent
+                ? "They have been notified."
+                : "They could not be notified."
+            }`
+          )
+          .setFields([
+            {
+              name: "Parole",
+              value: `${parole ? "Yes" : "No"}`,
+            },
+            {
+              name: "Expires",
+              value: `${
+                time
+                  ? `<t:${Math.floor((Date.now() + timeMs!) / 1000)}:f>`
+                  : "Never"
+              }`,
+            },
+          ])
+          .setColor(EmbedColors.success)
+          .setFooter({
+            text: `Requested by ${interaction.author.tag}`,
+            iconURL: interaction.author.displayAvatarURL(),
+          })
+          .setTimestamp(Date.now())
+      );
       if (interaction.channel !== config.logChannel)
         config.log({ embeds: [embed] });
       return interaction.reply({
@@ -617,15 +662,17 @@ export default {
       logger.warn(`Ban command failed to ban user. ${e}`);
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorGeneric)
-            .setDescription("Something went wrong while banning the user.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorGeneric)
+              .setDescription("Something went wrong while banning the user.")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }

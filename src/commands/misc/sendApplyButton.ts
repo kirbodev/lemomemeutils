@@ -9,6 +9,7 @@ import {
 import type Command from "../../structures/commandInterface";
 import EmbedColors from "../../structures/embedColors";
 import kv from "../../db/models/kv";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default {
   name: "sendapplybutton",
@@ -21,11 +22,13 @@ export default {
         .setLabel("Apply")
         .setStyle(ButtonStyle.Primary),
     ]);
-    const embed = new EmbedBuilder()
-      .setTitle("Staff Application")
-      .setDescription("Click the button below to apply for staff.")
-      .setColor(EmbedColors.info)
-      .setTimestamp(Date.now());
+    const embed = safeEmbed(
+      new EmbedBuilder()
+        .setTitle("Staff Application")
+        .setDescription("Click the button below to apply for staff.")
+        .setColor(EmbedColors.info)
+        .setTimestamp(Date.now())
+    );
 
     interaction.reply({
       content: "Sending...",

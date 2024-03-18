@@ -12,6 +12,7 @@ import { KV } from "../../db";
 import kvInterface from "../../structures/kvInterface";
 import { HydratedDocument } from "mongoose";
 import { devs } from "../../config";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default {
   name: "whois",
@@ -38,14 +39,16 @@ export default {
     if (!wuser) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUserNotFound)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUserNotFound)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -77,17 +80,19 @@ export default {
         key: `botmsg-${interaction.reference.messageId}`,
       });
       if (!author) {
-        const embed = new EmbedBuilder()
-          .setTitle("Whois | Genuine")
-          .setDescription(
-            "This is a genuine bot message. It was not sent by a user."
-          )
-          .setColor(EmbedColors.info)
-          .setFooter({
-            text: `Requested by ${interaction.author.tag}`,
-            iconURL: interaction.author.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now());
+        const embed = safeEmbed(
+          new EmbedBuilder()
+            .setTitle("Whois | Genuine")
+            .setDescription(
+              "This is a genuine bot message. It was not sent by a user."
+            )
+            .setColor(EmbedColors.info)
+            .setFooter({
+              text: `Requested by ${interaction.author.tag}`,
+              iconURL: interaction.author.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        );
         if (Date.now() < new Date(2024, 2, 8, 0, 0, 0, 0).getTime()) {
           embed.setFields([
             {
@@ -104,19 +109,21 @@ export default {
       const user = await interaction.guild?.members.fetch(author.value);
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle("Whois")
-            .setDescription(
-              `This message was sent by <@${author.value}> (${
-                user?.user.tag || "Unknown name"
-              }).`
-            )
-            .setColor(EmbedColors.info)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle("Whois")
+              .setDescription(
+                `This message was sent by <@${author.value}> (${
+                  user?.user.tag || "Unknown name"
+                }).`
+              )
+              .setColor(EmbedColors.info)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     } else {
@@ -128,25 +135,27 @@ export default {
 } as Command;
 
 function getUserInfo(user: User, member: GuildMember | null, author: string) {
-  const embed = new EmbedBuilder()
-    .setTitle(`Whois | ${user.username}`)
-    .setColor(EmbedColors.info) // Using standardized color for informational embeds
-    .setThumbnail(user.displayAvatarURL())
-    .addFields(
-      { name: "Username", value: user.username, inline: true },
-      { name: "ID", value: user.id, inline: true },
-      { name: "Bot", value: user.bot ? "Yes" : "No", inline: true },
-      {
-        name: "Account Creation Date",
-        value: `<t:${Math.floor(user.createdAt.getTime() / 1000)}>`,
-        inline: true,
-      }
-    )
-    .setFooter({
-      text: `Requested by ${author}`,
-      iconURL: user.displayAvatarURL(),
-    })
-    .setTimestamp(Date.now());
+  const embed = safeEmbed(
+    new EmbedBuilder()
+      .setTitle(`Whois | ${user.username}`)
+      .setColor(EmbedColors.info) // Using standardized color for informational embeds
+      .setThumbnail(user.displayAvatarURL())
+      .addFields(
+        { name: "Username", value: user.username, inline: true },
+        { name: "ID", value: user.id, inline: true },
+        { name: "Bot", value: user.bot ? "Yes" : "No", inline: true },
+        {
+          name: "Account Creation Date",
+          value: `<t:${Math.floor(user.createdAt.getTime() / 1000)}>`,
+          inline: true,
+        }
+      )
+      .setFooter({
+        text: `Requested by ${author}`,
+        iconURL: user.displayAvatarURL(),
+      })
+      .setTimestamp(Date.now())
+  );
 
   if (member) {
     embed.addFields(

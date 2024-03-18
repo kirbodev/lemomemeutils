@@ -21,6 +21,7 @@ import staffInterface from "../../structures/staffInterface";
 import { HydratedDocument } from "mongoose";
 import configs from "../../config";
 import ms from "ms";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default async (client: Client, interaction: Interaction) => {
   if (!interaction.isButton()) return;
@@ -29,17 +30,19 @@ export default async (client: Client, interaction: Interaction) => {
   if (!config.staffApplicationsChannelID)
     return interaction.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle(Errors.ErrorCommand)
-          .setDescription(
-            "This server does not have a staff applications channel set."
-          )
-          .setColor(EmbedColors.error)
-          .setFooter({
-            text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle(Errors.ErrorCommand)
+            .setDescription(
+              "This server does not have a staff applications channel set."
+            )
+            .setColor(EmbedColors.error)
+            .setFooter({
+              text: `Requested by ${interaction.user.tag}`,
+              iconURL: interaction.user.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
       ],
       ephemeral: true,
     });
@@ -48,15 +51,17 @@ export default async (client: Client, interaction: Interaction) => {
   )
     return interaction.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle(Errors.ErrorUser)
-          .setDescription("Staff cannot apply for staff.")
-          .setColor(EmbedColors.error)
-          .setFooter({
-            text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle(Errors.ErrorUser)
+            .setDescription("Staff cannot apply for staff.")
+            .setColor(EmbedColors.error)
+            .setFooter({
+              text: `Requested by ${interaction.user.tag}`,
+              iconURL: interaction.user.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
       ],
       ephemeral: true,
     });
@@ -68,17 +73,19 @@ export default async (client: Client, interaction: Interaction) => {
   )
     return interaction.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle(Errors.ErrorUser)
-          .setDescription(
-            `You do not have permission to apply for staff. You need <@&${config.staffAppRoleID}> to apply for staff.`
-          )
-          .setColor(EmbedColors.error)
-          .setFooter({
-            text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle(Errors.ErrorUser)
+            .setDescription(
+              `You do not have permission to apply for staff. You need <@&${config.staffAppRoleID}> to apply for staff.`
+            )
+            .setColor(EmbedColors.error)
+            .setFooter({
+              text: `Requested by ${interaction.user.tag}`,
+              iconURL: interaction.user.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
       ],
       ephemeral: true,
     });
@@ -92,20 +99,24 @@ export default async (client: Client, interaction: Interaction) => {
   ) {
     return interaction.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle(Errors.ErrorCooldown)
-          .setDescription(
-            `You can use this command again in ${ms(
-              staff.appliedAt.getTime() + 1000 * 60 * 60 * 24 * 14 - Date.now(),
-              { long: true }
-            )}`
-          )
-          .setColor(EmbedColors.info)
-          .setFooter({
-            text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle(Errors.ErrorCooldown)
+            .setDescription(
+              `You can use this command again in ${ms(
+                staff.appliedAt.getTime() +
+                  1000 * 60 * 60 * 24 * 14 -
+                  Date.now(),
+                { long: true }
+              )}`
+            )
+            .setColor(EmbedColors.info)
+            .setFooter({
+              text: `Requested by ${interaction.user.tag}`,
+              iconURL: interaction.user.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
       ],
       ephemeral: true,
     });
@@ -177,15 +188,17 @@ export default async (client: Client, interaction: Interaction) => {
     if (!age || !timezone || !level || !why || !mfa)
       return response.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUser)
-            .setDescription("You did not fill out the form correctly.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUser)
+              .setDescription("You did not fill out the form correctly.")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         components: [],
         ephemeral: true,
@@ -193,17 +206,19 @@ export default async (client: Client, interaction: Interaction) => {
     if (isNaN(parseInt(age)) || isNaN(parseInt(level)))
       return response.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUser)
-            .setDescription(
-              "You did not fill out the form correctly. Age and level must be numbers."
-            )
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUser)
+              .setDescription(
+                "You did not fill out the form correctly. Age and level must be numbers."
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         components: [],
         ephemeral: true,
@@ -211,17 +226,19 @@ export default async (client: Client, interaction: Interaction) => {
     if (mfa.toLowerCase() !== "y" && mfa.toLowerCase() !== "n")
       return response.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUser)
-            .setDescription(
-              "You did not fill out the form correctly. 2fa must be y (yes) or n (no)."
-            )
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUser)
+              .setDescription(
+                "You did not fill out the form correctly. 2fa must be y (yes) or n (no)."
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         components: [],
         ephemeral: true,
@@ -229,22 +246,24 @@ export default async (client: Client, interaction: Interaction) => {
     if (mfa.toLowerCase() === "n")
       return response.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUser)
-            .setDescription("You must have 2fa enabled to apply for staff.")
-            .setFields([
-              {
-                name: "How do I enable 2fa?",
-                value:
-                  "Check out [this article](https://support.discord.com/hc/en-us/articles/219576828-Setting-up-Multi-Factor-Authentication).",
-              },
-            ])
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUser)
+              .setDescription("You must have 2fa enabled to apply for staff.")
+              .setFields([
+                {
+                  name: "How do I enable 2fa?",
+                  value:
+                    "Check out [this article](https://support.discord.com/hc/en-us/articles/219576828-Setting-up-Multi-Factor-Authentication).",
+                },
+              ])
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         components: [],
         ephemeral: true,
@@ -252,50 +271,60 @@ export default async (client: Client, interaction: Interaction) => {
     // send the response
     await response.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle("Staff Application")
-          .setDescription(
-            "Thank you for applying for staff. Your application has been submitted."
-          )
-          .setColor(EmbedColors.success)
-          .setFooter({
-            text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle("Staff Application")
+            .setDescription(
+              "Thank you for applying for staff. Your application has been submitted."
+            )
+            .setColor(EmbedColors.success)
+            .setFooter({
+              text: `Requested by ${interaction.user.tag}`,
+              iconURL: interaction.user.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now()),
+          {
+            withSystemMessages: false,
+          }
+        ),
       ],
       components: [],
       ephemeral: true,
     });
     response.channel?.send({
       embeds: [
-        new EmbedBuilder()
-          .setTitle("Staff Application")
-          .setDescription(`<@${interaction.user.id}> has applied for staff.`)
-          .setFields([
-            {
-              name: "Age",
-              value: age,
-            },
-            {
-              name: "Timezone",
-              value: timezone,
-            },
-            {
-              name: "Level",
-              value: level,
-            },
-            {
-              name: "Reason for applying",
-              value: why,
-            },
-          ])
-          .setColor(EmbedColors.info)
-          .setFooter({
-            text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle("Staff Application")
+            .setDescription(`<@${interaction.user.id}> has applied for staff.`)
+            .setFields([
+              {
+                name: "Age",
+                value: age,
+              },
+              {
+                name: "Timezone",
+                value: timezone,
+              },
+              {
+                name: "Level",
+                value: level,
+              },
+              {
+                name: "Reason for applying",
+                value: why,
+              },
+            ])
+            .setColor(EmbedColors.info)
+            .setFooter({
+              text: `Requested by ${interaction.user.tag}`,
+              iconURL: interaction.user.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now()),
+          {
+            withSystemMessages: false,
+          }
+        ),
       ],
     });
     // send the application
@@ -303,35 +332,40 @@ export default async (client: Client, interaction: Interaction) => {
       config.staffVoteChannelID!
     );
     if (!voteChannel) return;
-    const embed = new EmbedBuilder()
-      .setTitle("Staff Application")
-      .setDescription(
-        `<@${interaction.user.id}> has applied for staff. **Reply** with \`r${config.prefix}<reason>\` to add a reason.`
-      )
-      .setFields([
-        {
-          name: "Age",
-          value: age,
-        },
-        {
-          name: "Timezone",
-          value: timezone,
-        },
-        {
-          name: "Level",
-          value: level,
-        },
-        {
-          name: "Reason for applying",
-          value: why,
-        },
-      ])
-      .setColor(EmbedColors.info)
-      .setFooter({
-        text: `Requested by ${interaction.user.tag}`,
-        iconURL: interaction.user.displayAvatarURL(),
-      })
-      .setTimestamp(Date.now());
+    const embed = safeEmbed(
+      new EmbedBuilder()
+        .setTitle("Staff Application")
+        .setDescription(
+          `<@${interaction.user.id}> has applied for staff. **Reply** with \`r${config.prefix}<reason>\` to add a reason.`
+        )
+        .setFields([
+          {
+            name: "Age",
+            value: age,
+          },
+          {
+            name: "Timezone",
+            value: timezone,
+          },
+          {
+            name: "Level",
+            value: level,
+          },
+          {
+            name: "Reason for applying",
+            value: why,
+          },
+        ])
+        .setColor(EmbedColors.info)
+        .setFooter({
+          text: `Requested by ${interaction.user.tag}`,
+          iconURL: interaction.user.displayAvatarURL(),
+        })
+        .setTimestamp(Date.now()),
+      {
+        withSystemMessages: false,
+      }
+    );
     const bypassButtons = new ActionRowBuilder<ButtonBuilder>().setComponents([
       new ButtonBuilder()
         .setLabel("Bypass - Approve")

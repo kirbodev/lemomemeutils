@@ -16,6 +16,7 @@ import Errors from "../../structures/errors";
 import logger from "../../helpers/logger";
 import kickMember from "../../helpers/kickMember";
 import configs from "../../config";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default {
   name: "kick",
@@ -49,57 +50,65 @@ export default {
     if (!user) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUserNotFound)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUserNotFound)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (!member) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorMemberNotFound)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorMemberNotFound)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (user.id === interaction.user.id) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorSelf)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorSelf)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (user.id === interaction.client.user.id) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorBot)
-            .setDescription("What have I done wrong? :(")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorBot)
+              .setDescription("What have I done wrong? :(")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -109,24 +118,26 @@ export default {
     ) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorAuthority)
-            .setDescription(
-              `<@${member.id}>'s highest role is <@&${
-                member.roles.highest.id
-              }> (Position: ${
-                member.roles.highest.position
-              }), which is higher or equal to your highest role. (Position: ${
-                (interaction.member?.roles as GuildMemberRoleManager).highest
-                  .position
-              })`
-            )
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorAuthority)
+              .setDescription(
+                `<@${member.id}>'s highest role is <@&${
+                  member.roles.highest.id
+                }> (Position: ${
+                  member.roles.highest.position
+                }), which is higher or equal to your highest role. (Position: ${
+                  (interaction.member?.roles as GuildMemberRoleManager).highest
+                    .position
+                })`
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         allowedMentions: {
           users: [],
@@ -141,14 +152,16 @@ export default {
     ) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorBotAuthority)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorBotAuthority)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         ephemeral: true,
       });
@@ -156,15 +169,17 @@ export default {
     if (!member.kickable) {
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUser)
-            .setDescription(`<@${user.id}> is not kickable.`)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUser)
+              .setDescription(`<@${user.id}> is not kickable.`)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         ephemeral: true,
       });
@@ -179,35 +194,39 @@ export default {
       if (!kick.success) {
         return interaction.followUp({
           embeds: [
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorGeneric)
-              .setDescription(
-                `Something went wrong while kicking <@${user.id}>.`
-              )
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.user.tag}`,
-                iconURL: interaction.user.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now()),
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle(Errors.ErrorGeneric)
+                .setDescription(
+                  `Something went wrong while kicking <@${user.id}>.`
+                )
+                .setColor(EmbedColors.error)
+                .setFooter({
+                  text: `Requested by ${interaction.user.tag}`,
+                  iconURL: interaction.user.displayAvatarURL(),
+                })
+                .setTimestamp(Date.now())
+            ),
           ],
         });
       }
-      const embed = new EmbedBuilder()
-        .setTitle("Kicked")
-        .setDescription(
-          `Kicked <@${user.id}> for \`${reason || "No reason provided"}\`. ${
-            kick.dmSent
-              ? "They have been notified."
-              : "They could not be notified."
-          }`
-        )
-        .setColor(EmbedColors.success)
-        .setFooter({
-          text: `Requested by ${interaction.user.tag}`,
-          iconURL: interaction.user.displayAvatarURL(),
-        })
-        .setTimestamp(Date.now());
+      const embed = safeEmbed(
+        new EmbedBuilder()
+          .setTitle("Kicked")
+          .setDescription(
+            `Kicked <@${user.id}> for \`${reason || "No reason provided"}\`. ${
+              kick.dmSent
+                ? "They have been notified."
+                : "They could not be notified."
+            }`
+          )
+          .setColor(EmbedColors.success)
+          .setFooter({
+            text: `Requested by ${interaction.user.tag}`,
+            iconURL: interaction.user.displayAvatarURL(),
+          })
+          .setTimestamp(Date.now())
+      );
       if (interaction.channel !== config.logChannel)
         config.log({ embeds: [embed] });
       return interaction.followUp({
@@ -217,15 +236,17 @@ export default {
       logger.warn(`Kick command failed to kick user. ${e}`);
       return interaction.followUp({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorGeneric)
-            .setDescription("Something went wrong while kicking the user.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorGeneric)
+              .setDescription("Something went wrong while kicking the user.")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -242,15 +263,17 @@ export default {
     } catch (e) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUserNotFound)
-            .setDescription("Please provide a valid user.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUserNotFound)
+              .setDescription("Please provide a valid user.")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -261,43 +284,49 @@ export default {
     if (!member) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorMemberNotFound)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorMemberNotFound)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (user.id === interaction.author.id) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorSelf)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorSelf)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (user.id === interaction.client.user.id) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorBot)
-            .setDescription("What have I done wrong? :(")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorBot)
+              .setDescription("What have I done wrong? :(")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -307,24 +336,26 @@ export default {
     ) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorAuthority)
-            .setDescription(
-              `<@${member.id}>'s highest role is <@&${
-                member.roles.highest.id
-              }> (Position: ${
-                member.roles.highest.position
-              }), which is higher or equal to your highest role. (Position: ${
-                (interaction.member?.roles as GuildMemberRoleManager).highest
-                  .position
-              })`
-            )
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorAuthority)
+              .setDescription(
+                `<@${member.id}>'s highest role is <@&${
+                  member.roles.highest.id
+                }> (Position: ${
+                  member.roles.highest.position
+                }), which is higher or equal to your highest role. (Position: ${
+                  (interaction.member?.roles as GuildMemberRoleManager).highest
+                    .position
+                })`
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
         allowedMentions: {
           users: [],
@@ -338,29 +369,33 @@ export default {
     ) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorBotAuthority)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorBotAuthority)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
     if (!member.kickable) {
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorUser)
-            .setDescription(`<@${user.id}> is not kickable.`)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUser)
+              .setDescription(`<@${user.id}> is not kickable.`)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }
@@ -374,35 +409,39 @@ export default {
       if (!kick.success) {
         return interaction.reply({
           embeds: [
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorGeneric)
-              .setDescription(
-                `Something went wrong while kicking <@${user.id}>.`
-              )
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.author.tag}`,
-                iconURL: interaction.author.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now()),
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle(Errors.ErrorGeneric)
+                .setDescription(
+                  `Something went wrong while kicking <@${user.id}>.`
+                )
+                .setColor(EmbedColors.error)
+                .setFooter({
+                  text: `Requested by ${interaction.author.tag}`,
+                  iconURL: interaction.author.displayAvatarURL(),
+                })
+                .setTimestamp(Date.now())
+            ),
           ],
         });
       }
-      const embed = new EmbedBuilder()
-        .setTitle("Kicked")
-        .setDescription(
-          `Kicked <@${user.id}> for \`${reason || "No reason provided"}\`. ${
-            kick.dmSent
-              ? "They have been notified."
-              : "They could not be notified."
-          }`
-        )
-        .setColor(EmbedColors.success)
-        .setFooter({
-          text: `Requested by ${interaction.author.tag}`,
-          iconURL: interaction.author.displayAvatarURL(),
-        })
-        .setTimestamp(Date.now());
+      const embed = safeEmbed(
+        new EmbedBuilder()
+          .setTitle("Kicked")
+          .setDescription(
+            `Kicked <@${user.id}> for \`${reason || "No reason provided"}\`. ${
+              kick.dmSent
+                ? "They have been notified."
+                : "They could not be notified."
+            }`
+          )
+          .setColor(EmbedColors.success)
+          .setFooter({
+            text: `Requested by ${interaction.author.tag}`,
+            iconURL: interaction.author.displayAvatarURL(),
+          })
+          .setTimestamp(Date.now())
+      );
       if (interaction.channel !== config.logChannel)
         config.log({ embeds: [embed] });
       return interaction.reply({
@@ -412,15 +451,17 @@ export default {
       logger.warn(`Kick command failed to kick user. ${e}`);
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorGeneric)
-            .setDescription("Something went wrong while kicking the user.")
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.author.tag}`,
-              iconURL: interaction.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorGeneric)
+              .setDescription("Something went wrong while kicking the user.")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }

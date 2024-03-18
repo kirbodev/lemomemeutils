@@ -7,6 +7,7 @@ import {
 import type Command from "../../structures/commandInterface";
 import EmbedColors from "../../structures/embedColors";
 import Errors from "../../structures/errors";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default {
   name: "bigemoji",
@@ -39,34 +40,38 @@ export default {
         if (!res2.ok) continue;
       }
 
-      const embed = new EmbedBuilder()
-        .setTitle(`Emoji ${embedarr.length + 1}`)
-        .setImage(emojiUrl)
-        .setColor(EmbedColors.info)
-        .setFields([
-          {
-            name: "Emoji URL",
-            value: `[Click here](${emojiUrl})`,
-          },
-        ])
-        .setFooter({
-          text: `Requested by ${interaction.user.tag}`,
-          iconURL: interaction.user.displayAvatarURL(),
-        })
-        .setTimestamp();
+      const embed = safeEmbed(
+        new EmbedBuilder()
+          .setTitle(`Emoji ${embedarr.length + 1}`)
+          .setImage(emojiUrl)
+          .setColor(EmbedColors.info)
+          .setFields([
+            {
+              name: "Emoji URL",
+              value: `[Click here](${emojiUrl})`,
+            },
+          ])
+          .setFooter({
+            text: `Requested by ${interaction.user.tag}`,
+            iconURL: interaction.user.displayAvatarURL(),
+          })
+          .setTimestamp()
+      );
       embedarr.push(embed);
     }
     if (embedarr.length === 0) {
       return interaction.editReply({
         embeds: [
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorEmojiNotFound)
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now()),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorEmojiNotFound)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
         ],
       });
     }

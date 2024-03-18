@@ -8,13 +8,14 @@ import type Command from "../../structures/commandInterface";
 import EmbedColors from "../../structures/embedColors";
 import os from "os-utils";
 import ms from "ms";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default {
   name: "ping",
   description: "Pong!",
   contextName: "Ping!",
   cooldown: 10000,
-  permissionsRequired: [PermissionsBitField.Flags.ManageMessages],
+  permissionsRequired: [PermissionsBitField.Flags.SendMessages],
   async slash(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ ephemeral: true });
     // Get some useful information
@@ -22,7 +23,7 @@ export default {
     const apiLatency = interaction.client.ws.ping;
     // Get nodejs server stats and make them look nice
     const memoryUsage = Math.round(
-      process.memoryUsage().heapUsed / 1024 / 1024,
+      process.memoryUsage().heapUsed / 1024 / 1024
     );
     const uptime = ms(process.uptime() * 1000);
     // Turn os-utils into a promise (it's callback based), it doesnt use (err, data), it only uses (data)
@@ -30,38 +31,41 @@ export default {
       os.cpuUsage((v) => resolve(v));
     })) as unknown as number;
 
+    console.log("Pong!");
     await interaction.followUp({
       embeds: [
-        new EmbedBuilder()
-          .setTitle("Pong!")
-          .setFields([
-            {
-              name: "Latency",
-              value: `${latency}ms`,
-            },
-            {
-              name: "API Latency",
-              value: `${apiLatency > 0 ? `${apiLatency}ms` : "N/A"}`,
-            },
-            {
-              name: "CPU Usage",
-              value: `${cpuUsage.toFixed(2)}%`,
-            },
-            {
-              name: "Memory Usage",
-              value: `${memoryUsage}MB`,
-            },
-            {
-              name: "Uptime",
-              value: uptime,
-            },
-          ])
-          .setColor(EmbedColors.info)
-          .setFooter({
-            text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle("Pong!")
+            .setFields([
+              {
+                name: "Latency",
+                value: `${latency}ms`,
+              },
+              {
+                name: "API Latency",
+                value: `${apiLatency > 0 ? `${apiLatency}ms` : "N/A"}`,
+              },
+              {
+                name: "CPU Usage",
+                value: `${cpuUsage.toFixed(2)}%`,
+              },
+              {
+                name: "Memory Usage",
+                value: `${memoryUsage}MB`,
+              },
+              {
+                name: "Uptime",
+                value: uptime,
+              },
+            ])
+            .setColor(EmbedColors.info)
+            .setFooter({
+              text: `Requested by ${interaction.user.tag}`,
+              iconURL: interaction.user.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
       ],
     });
   },
@@ -71,7 +75,7 @@ export default {
     const apiLatency = interaction.client.ws.ping;
     // Get nodejs server stats and make them look nice
     const memoryUsage = Math.round(
-      process.memoryUsage().heapUsed / 1024 / 1024,
+      process.memoryUsage().heapUsed / 1024 / 1024
     );
     const uptime = ms(process.uptime() * 1000);
     // Turn os-utils into a promise (it's callback based), it doesnt use (err, data), it only uses (data)
@@ -81,36 +85,38 @@ export default {
 
     await interaction.reply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle("Pong!")
-          .setFields([
-            {
-              name: "Latency",
-              value: `${latency}ms`,
-            },
-            {
-              name: "API Latency",
-              value: `${apiLatency > 0 ? `${apiLatency}ms` : "N/A"}`,
-            },
-            {
-              name: "CPU Usage",
-              value: `${cpuUsage.toFixed(2)}%`,
-            },
-            {
-              name: "Memory Usage",
-              value: `${memoryUsage}MB`,
-            },
-            {
-              name: "Uptime",
-              value: uptime,
-            },
-          ])
-          .setColor(EmbedColors.info)
-          .setFooter({
-            text: `Requested by ${interaction.author.tag}`,
-            iconURL: interaction.author.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now()),
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle("Pong!")
+            .setFields([
+              {
+                name: "Latency",
+                value: `${latency}ms`,
+              },
+              {
+                name: "API Latency",
+                value: `${apiLatency > 0 ? `${apiLatency}ms` : "N/A"}`,
+              },
+              {
+                name: "CPU Usage",
+                value: `${cpuUsage.toFixed(2)}%`,
+              },
+              {
+                name: "Memory Usage",
+                value: `${memoryUsage}MB`,
+              },
+              {
+                name: "Uptime",
+                value: uptime,
+              },
+            ])
+            .setColor(EmbedColors.info)
+            .setFooter({
+              text: `Requested by ${interaction.author.tag}`,
+              iconURL: interaction.author.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
       ],
     });
   },

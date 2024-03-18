@@ -11,6 +11,7 @@ import setStaffLevel from "../../helpers/setStaffLevel";
 import { HydratedDocument } from "mongoose";
 import staffInterface from "../../structures/staffInterface";
 import EmbedColors from "../../structures/embedColors";
+import safeEmbed from "../../utils/safeEmbed";
 
 export default async (client: Client, interaction: Interaction) => {
   if (!interaction.isButton()) return;
@@ -25,7 +26,7 @@ export default async (client: Client, interaction: Interaction) => {
   const type = interaction.customId.split("-").slice(1, 2).join("-");
   // split after the second - to get the user id
   const user = await client.users.fetch(
-    interaction.customId.split("-").slice(2).join("-"),
+    interaction.customId.split("-").slice(2).join("-")
   );
   if (!user) return;
   await interaction.deferReply({ ephemeral: true });
@@ -50,25 +51,30 @@ export default async (client: Client, interaction: Interaction) => {
       content: "✅ Approved!",
       ephemeral: true,
     });
-    const embed = new EmbedBuilder()
-      .setTitle("Staff Application Approved")
-      .setDescription(
-        `Your staff application for ${
-          interaction.guild!.name
-        } has been approved!`,
-      )
-      .setFields([
-        {
-          name: "Decision",
-          value: `Bypass approved by ${interaction.user.tag}`,
-        },
-        {
-          name: "Reason",
-          value: staff.decision.reason || "No reason provided",
-        },
-      ])
-      .setColor(EmbedColors.success)
-      .setTimestamp();
+    const embed = safeEmbed(
+      new EmbedBuilder()
+        .setTitle("Staff Application Approved")
+        .setDescription(
+          `Your staff application for ${
+            interaction.guild!.name
+          } has been approved!`
+        )
+        .setFields([
+          {
+            name: "Decision",
+            value: `Bypass approved by ${interaction.user.tag}`,
+          },
+          {
+            name: "Reason",
+            value: staff.decision.reason || "No reason provided",
+          },
+        ])
+        .setColor(EmbedColors.success)
+        .setTimestamp(),
+      {
+        withSystemMessages: false,
+      }
+    );
     try {
       await client.users.cache.get(staff.userID)?.send({
         embeds: [embed],
@@ -78,7 +84,7 @@ export default async (client: Client, interaction: Interaction) => {
     }
     try {
       const message = await interaction.channel!.messages.fetch(
-        staff.voteMessage,
+        staff.voteMessage
       );
       if (!message) return;
       const membed = new EmbedBuilder(message.embeds[0] as APIEmbed)
@@ -96,28 +102,33 @@ export default async (client: Client, interaction: Interaction) => {
       });
 
       const staffChannel = interaction.guild!.channels.cache.get(
-        config.staffApplicationsChannelID!,
+        config.staffApplicationsChannelID!
       ) as GuildTextBasedChannel;
       if (!staffChannel) return;
       staffChannel.send({
         embeds: [
-          new EmbedBuilder()
-            .setTitle("Staff Application Approved")
-            .setDescription(
-              `<@${staff.userID}>'s (${staff.userID}) staff application has been approved!`,
-            )
-            .setFields([
-              {
-                name: "Decision",
-                value: `Bypass approved by ${interaction.user.tag}`,
-              },
-              {
-                name: "Reason",
-                value: staff.decision.reason || "No reason provided",
-              },
-            ])
-            .setColor(EmbedColors.success)
-            .setTimestamp(),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle("Staff Application Approved")
+              .setDescription(
+                `<@${staff.userID}>'s (${staff.userID}) staff application has been approved!`
+              )
+              .setFields([
+                {
+                  name: "Decision",
+                  value: `Bypass approved by ${interaction.user.tag}`,
+                },
+                {
+                  name: "Reason",
+                  value: staff.decision.reason || "No reason provided",
+                },
+              ])
+              .setColor(EmbedColors.success)
+              .setTimestamp(Date.now()),
+            {
+              withSystemMessages: false,
+            }
+          ),
         ],
       });
     } catch (e) {
@@ -131,25 +142,30 @@ export default async (client: Client, interaction: Interaction) => {
       content: "✅ Denied!",
       ephemeral: true,
     });
-    const embed = new EmbedBuilder()
-      .setTitle("Staff Application Declined")
-      .setDescription(
-        `Your staff application for ${
-          interaction.guild!.name
-        } has been declined.`,
-      )
-      .setFields([
-        {
-          name: "Decision",
-          value: `Bypass denied by ${interaction.user.tag}`,
-        },
-        {
-          name: "Reason",
-          value: staff.decision.reason || "No reason provided",
-        },
-      ])
-      .setColor(EmbedColors.error)
-      .setTimestamp();
+    const embed = safeEmbed(
+      new EmbedBuilder()
+        .setTitle("Staff Application Declined")
+        .setDescription(
+          `Your staff application for ${
+            interaction.guild!.name
+          } has been declined.`
+        )
+        .setFields([
+          {
+            name: "Decision",
+            value: `Bypass denied by ${interaction.user.tag}`,
+          },
+          {
+            name: "Reason",
+            value: staff.decision.reason || "No reason provided",
+          },
+        ])
+        .setColor(EmbedColors.error)
+        .setTimestamp(),
+      {
+        withSystemMessages: false,
+      }
+    );
     try {
       await client.users.cache.get(staff.userID)?.send({
         embeds: [embed],
@@ -159,7 +175,7 @@ export default async (client: Client, interaction: Interaction) => {
     }
     try {
       const message = await interaction.channel!.messages.fetch(
-        staff.voteMessage,
+        staff.voteMessage
       );
       if (!message) return;
       const membed = new EmbedBuilder(message.embeds[0] as APIEmbed)
@@ -177,28 +193,33 @@ export default async (client: Client, interaction: Interaction) => {
       });
 
       const staffChannel = interaction.guild!.channels.cache.get(
-        config.staffApplicationsChannelID!,
+        config.staffApplicationsChannelID!
       ) as GuildTextBasedChannel;
       if (!staffChannel) return;
       staffChannel.send({
         embeds: [
-          new EmbedBuilder()
-            .setTitle("Staff Application Declined")
-            .setDescription(
-              `<@${staff.userID}>'s (${staff.userID}) staff application has been declined.`,
-            )
-            .setFields([
-              {
-                name: "Decision",
-                value: `Bypass denied by ${interaction.user.tag}`,
-              },
-              {
-                name: "Reason",
-                value: staff.decision.reason || "No reason provided",
-              },
-            ])
-            .setColor(EmbedColors.error)
-            .setTimestamp(),
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle("Staff Application Declined")
+              .setDescription(
+                `<@${staff.userID}>'s (${staff.userID}) staff application has been declined.`
+              )
+              .setFields([
+                {
+                  name: "Decision",
+                  value: `Bypass denied by ${interaction.user.tag}`,
+                },
+                {
+                  name: "Reason",
+                  value: staff.decision.reason || "No reason provided",
+                },
+              ])
+              .setColor(EmbedColors.error)
+              .setTimestamp(Date.now()),
+            {
+              withSystemMessages: false,
+            }
+          ),
         ],
       });
     } catch (e) {
