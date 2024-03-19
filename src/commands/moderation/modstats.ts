@@ -58,26 +58,6 @@ export default {
           ),
         ],
       });
-    if (
-      !(mod.permissions as PermissionsBitField)?.has(
-        PermissionsBitField.Flags.ManageMessages
-      )
-    ) {
-      return interaction.editReply({
-        embeds: [
-          safeEmbed(
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorUser)
-              .setDescription("That user is not a moderator.")
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.user.tag}`,
-                iconURL: interaction.user.displayAvatarURL(),
-              })
-          ),
-        ],
-      });
-    }
 
     const id = nanoid();
     const select =
@@ -286,6 +266,34 @@ async function sendStats(
     mod,
     isNaN(timePeriod) ? null : 1000 * 60 * 60 * 24 * timePeriod
   );
+
+  if (!warns.length && !bans.length && !kicks.length && !mutes.length) {
+    return {
+      embeds: [
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle("Mod Stats")
+            .setDescription("No data found.")
+            .setColor(EmbedColors.error)
+            .setThumbnail(mod.user.displayAvatarURL())
+            .setFooter({
+              text: `Requested by ${
+                (interaction instanceof Message
+                  ? interaction.author
+                  : interaction.user
+                ).tag
+              }`,
+              iconURL: (interaction instanceof Message
+                ? interaction.author
+                : interaction.user
+              ).displayAvatarURL(),
+            })
+            .setTimestamp()
+        ),
+      ],
+      components: [select],
+    };
+  }
 
   const attachment = new AttachmentBuilder(
     await drawChart(

@@ -1,4 +1,10 @@
-import { Client, EmbedBuilder, GuildMember, Interaction } from "discord.js";
+import {
+  Client,
+  EmbedBuilder,
+  GuildMember,
+  Interaction,
+  PermissionsBitField,
+} from "discord.js";
 import Errors from "../../structures/errors";
 import EmbedColors from "../../structures/embedColors";
 import configs from "../../config";
@@ -14,6 +20,29 @@ export default async (client: Client, interaction: Interaction) => {
     interaction.customId.split("-").slice(2).join(" ") || "No reason provided";
   const config = configs.get(interaction.guildId!)!;
   const mod = interaction.user;
+
+  if (
+    !interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageRoles)
+  ) {
+    return interaction.reply({
+      embeds: [
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle(Errors.ErrorPermissions)
+            .setDescription(
+              `You need the following permissions to use this command: \`Manage Roles\``
+            )
+            .setColor(EmbedColors.error)
+            .setFooter({
+              text: `Requested by ${interaction.user.tag}`,
+              iconURL: interaction.user.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
+      ],
+      ephemeral: true,
+    });
+  }
 
   const ban = await banMember(user, reason, interaction.member as GuildMember);
   if (!ban.success) {
