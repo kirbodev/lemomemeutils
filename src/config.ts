@@ -146,7 +146,7 @@ export const hardResponses: Record<string, string> = {
   "<@1171528301072879707> you moderate discord servers": "oh my god.",
   "regex:^\\?afk.*":
     "I see you're using dyno's afk command. Sorry, but that's not available anymore! Use </afk:1213262685450276944> instead!",
-  "regex:^\\?avatar.*":
+  "regex:^\\?av.*":
     "I see you're using dyno's avatar command. Dyno sucks. Try using </avatar:1219401600469307434> instead! Dyno's av will be phased out <t:1711195200:R>.",
   "regex:fuck pomegranate": "hey fuck you too buddy",
 };
