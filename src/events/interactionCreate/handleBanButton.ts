@@ -22,7 +22,9 @@ export default async (client: Client, interaction: Interaction) => {
   const mod = interaction.user;
 
   if (
-    !interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageRoles)
+    !(interaction.member?.permissions as PermissionsBitField).has(
+      PermissionsBitField.Flags.ManageRoles
+    )
   ) {
     return interaction.reply({
       embeds: [

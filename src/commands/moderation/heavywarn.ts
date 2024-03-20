@@ -173,7 +173,8 @@ export default {
       member,
       interaction.member as GuildMember,
       2,
-      reason || undefined
+      reason || undefined,
+      timeMs ? new Date(Date.now() + timeMs) : undefined
     );
 
     if (warn.response === WarnResponse.RateLimited) {
@@ -309,6 +310,8 @@ export default {
                 (warn) =>
                   `<t:${Math.floor(warn.timestamp.getTime() / 1000)}:f> - ${
                     warn.reason
+                  } - ${
+                    warn.severity === 1 ? "Light" : "Heavy"
                   } - Issued by <@${warn.moderatorID}>`
               )
               .join("\n") || "No active warnings.",
@@ -662,6 +665,8 @@ export default {
                 (warn) =>
                   `<t:${Math.floor(warn.timestamp.getTime() / 1000)}:f> - ${
                     warn.reason
+                  } - ${
+                    warn.severity === 1 ? "Light" : "Heavy"
                   } - Issued by <@${warn.moderatorID}>`
               )
               .join("\n") || "No active warnings.",

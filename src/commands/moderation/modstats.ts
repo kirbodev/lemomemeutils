@@ -20,8 +20,8 @@ import warnInterface from "../../structures/warnInterface";
 import actionInterface from "../../structures/actionInterface";
 import Errors from "../../structures/errors";
 import { nanoid } from "nanoid";
-import userAnalytics from "../../db/models/userAnalytics";
-import userAnalyticsInterface from "../../structures/userAnalyticsInterface";
+// import userAnalytics from "../../db/models/userAnalytics";
+// import userAnalyticsInterface from "../../structures/userAnalyticsInterface";
 import { ChartJSNodeCanvas } from "chartjs-node-canvas";
 import { loadImage } from "canvas";
 
@@ -234,23 +234,23 @@ async function getStats(member: GuildMember, timePeriod: number | null) {
       ? { $gt: Date.now() - timePeriod }
       : { $exists: true },
   });
-  const activity: HydratedDocument<userAnalyticsInterface> | null =
-    await userAnalytics.findOne({
-      userID: member.id,
-      guildID: member.guild.id,
-      messages: {
-        $elemMatch: {
-          hour: timePeriod
-            ? { $gt: Date.now() - timePeriod }
-            : { $exists: true },
-        },
-      },
-    });
-  const messageCount = activity?.messages.reduce(
-    (acc, curr) => acc + curr.amount,
-    0
-  );
-  return { warns, bans, kicks, mutes, messageCount };
+  // const activity: HydratedDocument<userAnalyticsInterface> | null =
+  //   await userAnalytics.findOne({
+  //     userID: member.id,
+  //     guildID: member.guild.id,
+  //     messages: {
+  //       $elemMatch: {
+  //         hour: timePeriod
+  //           ? { $gt: Date.now() - timePeriod }
+  //           : { $exists: true },
+  //       },
+  //     },
+  //   });
+  // const messageCount = activity?.messages.reduce(
+  //   (acc, curr) => acc + curr.amount,
+  //   0
+  // );
+  return { warns, bans, kicks, mutes };
 }
 
 async function sendStats(
@@ -262,7 +262,7 @@ async function sendStats(
   timePeriod: number,
   select: ActionRowBuilder<StringSelectMenuBuilder>
 ) {
-  const { warns, bans, kicks, mutes, messageCount } = await getStats(
+  const { warns, bans, kicks, mutes } = await getStats(
     mod,
     isNaN(timePeriod) ? null : 1000 * 60 * 60 * 24 * timePeriod
   );
@@ -338,11 +338,6 @@ async function sendStats(
         {
           name: "Mutes",
           value: mutes.length.toString(),
-          inline: true,
-        },
-        {
-          name: "Messages",
-          value: messageCount?.toString() || "No data",
           inline: true,
         },
       ])
