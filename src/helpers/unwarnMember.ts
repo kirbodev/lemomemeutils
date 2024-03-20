@@ -2,11 +2,12 @@ import { GuildMember } from "discord.js";
 import { HydratedDocument } from "mongoose";
 import warnInterface from "../structures/warnInterface";
 import configs from "../config";
+import getActiveWarns from "./getActiveWarns";
 
 export default async function unwarnMember(
   warn: HydratedDocument<warnInterface>,
   mod: GuildMember,
-  reason?: string,
+  reason?: string
 ) {
   if (!warn) return;
   if (warn.unwarn) return;
@@ -18,10 +19,17 @@ export default async function unwarnMember(
   const member = await mod.guild.members.fetch(warn.userID);
   // Remove the warn role
   const config = configs.get(member.guild.id)!;
+  const warns = await getActiveWarns(member);
+  if (!warns) return;
+  const warnPoints = warns.reduce((a, b) => a + b.severity, 0);
   const role =
-    warn.severity === 1 ? config.firstWarnRoleID : config.secondWarnRoleID;
+    warnPoints === 0
+      ? config.firstWarnRoleID
+      : warnPoints === 1
+      ? config.secondWarnRoleID
+      : null;
   if (role) await member.roles.remove(role);
-  if (warn.severity > 1) await member.roles.remove(config.firstWarnRoleID);
+  if (warnPoints < 1) await member.roles.remove(config.firstWarnRoleID);
   // Remove the mute
   if (warn.withMute) await member.disableCommunicationUntil(null);
   return warn;
