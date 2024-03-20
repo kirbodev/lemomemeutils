@@ -4,10 +4,12 @@ import {
   type Message,
   EmbedBuilder,
   ApplicationCommandOptionType,
+  User,
 } from "discord.js";
 import type Command from "../../structures/commandInterface";
 import EmbedColors from "../../structures/embedColors";
 import safeEmbed from "../../utils/safeEmbed";
+import lazyMemberSearch from "../../utils/lazyMemberSearch";
 
 export default {
   name: "avatar",
@@ -54,11 +56,21 @@ export default {
   async message(interaction: Message, { args }) {
     args = args ?? [];
     const rawUser = args[0];
-    const user = rawUser
-      ? (await interaction.client.users
-          .fetch(rawUser.replace(/[<@!>]/g, ""))
-          .catch(() => null)) || interaction.author
-      : interaction.author;
+    let user: User | null | undefined = await interaction.client.users
+      .fetch(rawUser.replace(/[<@!>]/g, ""))
+      .catch(() => null);
+    let embedDescription;
+    if (!user) {
+      user = (await lazyMemberSearch(rawUser, interaction.guild!))?.user;
+      if (user && interaction.author.id === "433826072002297856") {
+        //angery
+        embedDescription =
+          '"nooo kirbo please dont remove dyno avatar i want to find random avatars"';
+      }
+    }
+    if (!user) user = interaction.author;
+    if (user.id === "433826072002297856")
+      embedDescription = "⚠️ The user you are trying to find is stroking it ⚠️";
     const member = await interaction
       .guild!.members.fetch(user)
       .catch(() => null);
@@ -68,6 +80,7 @@ export default {
         safeEmbed(
           new EmbedBuilder()
             .setTitle(`Avatar | ${user.tag}`)
+            .setDescription(embedDescription ?? null)
             .setImage(
               member?.displayAvatarURL({
                 size: 4096,
