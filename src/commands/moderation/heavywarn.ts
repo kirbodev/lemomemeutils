@@ -169,6 +169,39 @@ export default {
       });
     }
 
+    if (
+      time &&
+      member.communicationDisabledUntilTimestamp &&
+      member.communicationDisabledUntilTimestamp > Date.now()
+    ) {
+      return interaction.followUp({
+        embeds: [
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUserMuted)
+              .setDescription(
+                `<@${member.id}> is already muted. Unmute them first.`
+              )
+              .setFields([
+                {
+                  name: "Expires At",
+                  value: `<t:${Math.floor(
+                    member.communicationDisabledUntilTimestamp / 1000
+                  )}:f>`,
+                },
+              ])
+              .setColor(EmbedColors.info)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
+        ],
+        ephemeral: true,
+      });
+    }
+
     const warn = await warnMember(
       member,
       interaction.member as GuildMember,
@@ -229,39 +262,6 @@ export default {
               .setTimestamp(Date.now())
           ),
         ],
-      });
-    }
-
-    if (
-      time &&
-      member.communicationDisabledUntilTimestamp &&
-      member.communicationDisabledUntilTimestamp > Date.now()
-    ) {
-      return interaction.followUp({
-        embeds: [
-          safeEmbed(
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorUserMuted)
-              .setDescription(
-                `<@${member.id}> is already muted. Unmute them first.`
-              )
-              .setFields([
-                {
-                  name: "Expires At",
-                  value: `<t:${Math.floor(
-                    member.communicationDisabledUntilTimestamp / 1000
-                  )}:f>`,
-                },
-              ])
-              .setColor(EmbedColors.info)
-              .setFooter({
-                text: `Requested by ${interaction.user.tag}`,
-                iconURL: interaction.user.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now())
-          ),
-        ],
-        ephemeral: true,
       });
     }
 
