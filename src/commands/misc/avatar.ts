@@ -56,11 +56,13 @@ export default {
   async message(interaction: Message, { args }) {
     args = args ?? [];
     const rawUser = args[0];
-    let user: User | null | undefined = await interaction.client.users
-      .fetch(rawUser.replace(/[<@!>]/g, ""))
-      .catch(() => null);
+    let user: User | null | undefined = rawUser
+      ? await interaction.client.users
+          .fetch(rawUser.replace(/[<@!>]/g, ""))
+          .catch(() => null)
+      : null;
     let embedDescription;
-    if (!user) {
+    if (!user && rawUser) {
       user = (await lazyMemberSearch(rawUser, interaction.guild!))?.user;
       if (user && interaction.author.id === "433826072002297856") {
         //angery
