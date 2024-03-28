@@ -29,6 +29,7 @@ enum Errors {
   ErrorUserNotMuted = "🤔 That user isn't muted",
   ErrorUserBanned = "🔨 That user is banned from the server",
   ErrorInvalidTime = "⏱️ That's not a valid time, try something like `1h` or `1d`",
+  ErrorDevBypass = "🛠️ You can't bypass permissions as a dev with message commands",
 }
 
 export default Errors;

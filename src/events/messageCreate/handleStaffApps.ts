@@ -8,8 +8,8 @@ export default async (client: Client, message: Message) => {
   if (!message.guild) return;
   const config = configs.get(message.guild.id);
   if (!config || !config.staffApplicationsChannelID) return;
-  if (message.channelId !== config.staffApplicationsChannelID) return;
-  if (message.interaction || message.reference) return;
+  if (message.channel.id !== config.staffApplicationsChannelID) return;
+  if (message.reference && message.author.id === message.client.user.id) return;
   if (
     message.components[0]?.components[0]?.customId ===
     `apply-${message.guildId}`
@@ -22,7 +22,8 @@ export default async (client: Client, message: Message) => {
   const applyMessage = await message.channel.messages
     .fetch(applyMessageId.value)
     .catch(() => null);
-  if (!applyMessage) return;
+  if (!applyMessage || applyMessage.author.id !== message.client.user.id)
+    return;
   const msg = await message.channel.send({
     content: applyMessage.content,
     embeds: applyMessage.embeds,

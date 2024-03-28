@@ -314,7 +314,7 @@ async function sendStats(
     new EmbedBuilder()
       .setTitle(`Mod Stats | ${mod.user.tag}`)
       .setDescription(
-        `Please be aware that message count only counts from v1.7 or when the bot was added to the server. Warns do not include unwarns.\nShowing stats for ${
+        `Warns do not include unwarns.\nShowing stats for ${
           isNaN(timePeriod) ? "all time" : `the past ${timePeriod} days`
         }.`
       )

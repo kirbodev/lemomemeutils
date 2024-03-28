@@ -26,7 +26,7 @@ export default {
       required: false,
     },
   ],
-  permissionsRequired: [PermissionsBitField.Flags.SendMessages],
+  permissionsRequired: [PermissionsBitField.Flags.ManageMessages],
   cooldown: 5000,
   async message(interaction, { args }) {
     args = args ?? [];

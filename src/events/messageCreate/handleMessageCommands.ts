@@ -135,26 +135,46 @@ export default async (client: Client, message: Message) => {
     !(message.member?.permissions as PermissionsBitField).has(
       command.permissionsRequired
     )
-  )
-    return message.reply({
-      embeds: [
-        safeEmbed(
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorPermissions)
-            .setDescription(
-              `You need the following permissions to use this command: ${command.permissionsRequired
-                .map((permission) => `\`${getPermissionName(permission)}\``)
-                .join(", ")}`
-            )
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${message.author.tag}`,
-              iconURL: message.author.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now())
-        ),
-      ],
-    });
+  ) {
+    if (devs.includes(message.author.id)) {
+      return message.reply({
+        embeds: [
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorDevBypass)
+              .setDescription(
+                "Use slash commands to bypass permissions as a developer."
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${message.author.tag}`,
+                iconURL: message.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
+        ],
+      });
+    } else
+      return message.reply({
+        embeds: [
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorPermissions)
+              .setDescription(
+                `You need the following permissions to use this command: ${command.permissionsRequired
+                  .map((permission) => `\`${getPermissionName(permission)}\``)
+                  .join(", ")}`
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${message.author.tag}`,
+                iconURL: message.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
+        ],
+      });
+  }
   if (command.requiresHighStaff) {
     if (!config?.highStaffRole) return;
     if (

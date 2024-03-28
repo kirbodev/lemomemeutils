@@ -81,23 +81,6 @@ export default {
         ephemeral: true,
       });
     }
-    if (member.id === interaction.user.id) {
-      return interaction.followUp({
-        embeds: [
-          safeEmbed(
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorSelf)
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.user.tag}`,
-                iconURL: interaction.user.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now())
-          ),
-        ],
-        ephemeral: true,
-      });
-    }
     if (member.id === interaction.client.user.id) {
       return interaction.followUp({
         embeds: [
@@ -423,22 +406,6 @@ export default {
             new EmbedBuilder()
               .setTitle(Errors.ErrorMemberNotFound)
               .setDescription(`<@${user.id}> is not a member of this server.`)
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.author.tag}`,
-                iconURL: interaction.author.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now())
-          ),
-        ],
-      });
-    }
-    if (member.id === interaction.author.id) {
-      return interaction.reply({
-        embeds: [
-          safeEmbed(
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorSelf)
               .setColor(EmbedColors.error)
               .setFooter({
                 text: `Requested by ${interaction.author.tag}`,

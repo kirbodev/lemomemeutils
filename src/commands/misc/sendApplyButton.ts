@@ -38,16 +38,18 @@ export default {
       embeds: [embed],
       components: [button],
     });
-    kv.findOneAndUpdate(
-      {
+    const existing = await kv.findOne({
+      key: `staffAppsMessage-${interaction.guildId}`,
+    });
+    if (!existing) {
+      const newDoc = new kv({
         key: `staffAppsMessage-${interaction.guildId}`,
-      },
-      {
         value: msg.id,
-      },
-      {
-        upsert: true,
-      }
-    );
+      });
+      await newDoc.save();
+    } else {
+      existing.value = msg.id;
+      await existing.save();
+    }
   },
 } as Command;

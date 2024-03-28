@@ -123,6 +123,38 @@ config.set(
     appealServer: "https://discord.gg/EUsVK5E",
   })
 );
+// Cozy lodge
+config.set(
+  "1220886191600308254",
+  new Config({
+    guildID: "1220886191600308254",
+    firstWarnRoleID: "1222932763959890030",
+    secondWarnRoleID: "1222932900421439641",
+    paroleRoleID: "1222942964301697044",
+    prefix: ",",
+    thinIceRoleID: "1222945595551907850",
+    thinnerIceRoleID: "1222945704348225688",
+    logChannelID: "1222946063716192329",
+    appealServer: "",
+    highStaffRole: "1222893532545814598",
+    linkedStaffRoles: new Map([
+      [StaffLevel.Farmer, "1222892729646972948"], // Staff role
+    ]),
+    staffApplicationsChannelID: "1222947761453011066",
+    staffRoles: [
+      null,
+      null,
+      "1220886191616954481",
+      "1220886191616954482",
+      "1220886191616954484",
+      "1220886191616954485", // crypt keeper
+    ],
+    staffVoteChannelID: "1220886193085087754",
+    staffAppRoleID: "1220886191600308260",
+    staffVoteRoles: ["1222893532545814598", "1220886191616954487"],
+  })
+);
+
 export default config;
 export let maintainanceMode = process.env.NODE_ENV ? true : false;
 export const toggleMode = () => (maintainanceMode = !maintainanceMode);

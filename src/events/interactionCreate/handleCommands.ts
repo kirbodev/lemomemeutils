@@ -91,32 +91,37 @@ export default async (client: Client, interaction: Interaction) => {
       ephemeral: true,
     });
   // Check if user has any of the required permissions
+  let devBypass = false;
   if (
     command.permissionsRequired &&
     !(interaction.member?.permissions as PermissionsBitField).has(
       command.permissionsRequired
     )
-  )
-    return interaction.reply({
-      embeds: [
-        safeEmbed(
-          new EmbedBuilder()
-            .setTitle(Errors.ErrorPermissions)
-            .setDescription(
-              `You need the following permissions to use this command: ${command.permissionsRequired
-                .map((permission) => `\`${getPermissionName(permission)}\``)
-                .join(", ")}`
-            )
-            .setColor(EmbedColors.error)
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setTimestamp(Date.now())
-        ),
-      ],
-      ephemeral: true,
-    });
+  ) {
+    if (devs.includes(interaction.user.id)) {
+      devBypass = true;
+    } else
+      return interaction.reply({
+        embeds: [
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorPermissions)
+              .setDescription(
+                `You need the following permissions to use this command: ${command.permissionsRequired
+                  .map((permission) => `\`${getPermissionName(permission)}\``)
+                  .join(", ")}`
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
+        ],
+        ephemeral: true,
+      });
+  }
   if (command.requiresHighStaff) {
     if (!config?.highStaffRole) return;
     if (
@@ -174,7 +179,7 @@ export default async (client: Client, interaction: Interaction) => {
       ],
       ephemeral: true,
     });
-  if (command.otpRequired) {
+  if (command.otpRequired || devBypass) {
     // Check if user has OTP enabled
     const dev = await Dev.findOne({ id: interaction.user.id });
     const otpCommand = client.application?.commands.cache.find(
