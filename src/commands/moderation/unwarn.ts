@@ -1,9 +1,4 @@
-import type {
-  ChatInputCommandInteraction,
-  GuildMemberRoleManager /* ContextMenuCommandInteraction, Message */,
-  Message,
-  User,
-} from "discord.js";
+import type { ChatInputCommandInteraction, Message, User } from "discord.js";
 import type Command from "../../structures/commandInterface";
 import {
   GuildMember,
@@ -94,28 +89,6 @@ export default {
           safeEmbed(
             new EmbedBuilder()
               .setTitle(Errors.ErrorBot)
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.user.tag}`,
-                iconURL: interaction.user.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now())
-          ),
-        ],
-        ephemeral: true,
-      });
-    }
-
-    if (
-      member.roles.highest.position >=
-      (interaction.guild!.members.me?.roles as GuildMemberRoleManager).highest
-        .position
-    ) {
-      return interaction.followUp({
-        embeds: [
-          safeEmbed(
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorBotAuthority)
               .setColor(EmbedColors.error)
               .setFooter({
                 text: `Requested by ${interaction.user.tag}`,
@@ -382,27 +355,6 @@ export default {
           safeEmbed(
             new EmbedBuilder()
               .setTitle(Errors.ErrorBot)
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.author.tag}`,
-                iconURL: interaction.author.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now())
-          ),
-        ],
-      });
-    }
-
-    if (
-      member.roles.highest.position >=
-      (interaction.guild!.members.me?.roles as GuildMemberRoleManager).highest
-        .position
-    ) {
-      return interaction.reply({
-        embeds: [
-          safeEmbed(
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorBotAuthority)
               .setColor(EmbedColors.error)
               .setFooter({
                 text: `Requested by ${interaction.author.tag}`,
