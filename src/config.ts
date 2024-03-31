@@ -135,7 +135,7 @@ config.set(
     thinIceRoleID: "1222945595551907850",
     thinnerIceRoleID: "1222945704348225688",
     logChannelID: "1222946063716192329",
-    appealServer: "",
+    appealServer: "https://discord.gg/Q7Ee9SkeDb",
     highStaffRole: "1222893532545814598",
     linkedStaffRoles: new Map([
       [StaffLevel.Farmer, "1222892729646972948"], // Staff role
