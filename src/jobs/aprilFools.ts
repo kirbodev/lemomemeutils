@@ -10,7 +10,7 @@ import safeEmbed from "../utils/safeEmbed";
 import EmbedColors from "../structures/embedColors";
 
 export default {
-  every: "0 20 31 3 *",
+  every: "2 20 31 3 *",
   dontRunOnStart: true,
   execute: async (client: Client) => {
     let dmCount = 0;
