@@ -57,9 +57,9 @@ export default {
             ])
             .setColor(EmbedColors.warning)
             .setFooter({
-              text: `Banned by kdv_`,
+              text: `Banned by _dankus`,
               iconURL:
-                "https://cdn.discordapp.com/avatars/695228246966534255/92085cdc81821401171525971c751165.webp?size=4096",
+                "https://cdn.discordapp.com/avatars/923993065784508496/e8aaf7eb0738f6fd212afdb15aa02639.webp",
             })
             .setTimestamp(Date.now()),
           {
