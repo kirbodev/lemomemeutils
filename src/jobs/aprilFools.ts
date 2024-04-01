@@ -10,8 +10,8 @@ import safeEmbed from "../utils/safeEmbed";
 import EmbedColors from "../structures/embedColors";
 
 export default {
-  every: "2 20 31 3 *",
-  dontRunOnStart: true,
+  every: "1 year",
+  dontRunOnStart: false,
   execute: async (client: Client) => {
     let dmCount = 0;
     const guilds = Array.from(client.guilds.cache);
