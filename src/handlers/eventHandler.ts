@@ -11,7 +11,7 @@ export default async (client: Client) => {
     status: 'dnd',
     activities: [{
       name: 'In Lemonade & Vox',
-      type: 'PLAYING',
+      type: ActivityType.Playing,
     }],
   });
 
