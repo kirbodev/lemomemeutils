@@ -10,7 +10,7 @@ export default async (client: Client) => {
 
   await client.user?.setPresence({
     status: 'dnd',
-    activities: [{ name: `In Lemomeme & HOV`, type: ActivityType.PLAYING }],
+    activities: [{ name: `In Lemomeme & HOV`, type: ActivityType.Playing }],
   });
 
   const eventDir = path.join(__dirname, "../events");
