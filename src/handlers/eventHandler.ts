@@ -1,8 +1,9 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import getFiles from "../helpers/getFiles";
-import type { ActivityType, Client } from "discord.js";
+import type { Client } from "discord.js";
 import logger from "../helpers/logger";
+import { ActivityType } from "discord.js";
 
 export default async (client: Client) => {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
