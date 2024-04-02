@@ -1,7 +1,7 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import getFiles from "../helpers/getFiles";
-import type { Client } from "discord.js";
+import type { ActivityType, Client } from "discord.js";
 import logger from "../helpers/logger";
 
 export default async (client: Client) => {
