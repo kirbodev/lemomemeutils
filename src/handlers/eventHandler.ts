@@ -7,6 +7,14 @@ import logger from "../helpers/logger";
 export default async (client: Client) => {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+  await client.user?.setPresence({
+    status: 'dnd',
+    activities: [{
+      name: 'In Lemonade & Vox',
+      type: 'PLAYING',
+    }],
+  });
+
   const eventDir = path.join(__dirname, "../events");
   const eventFolders = await getFiles(eventDir, true, true);
 
