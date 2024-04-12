@@ -2,16 +2,14 @@ import { Client, Message, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonS
 import fetch from "node-fetch";
 import dotenv from "dotenv";
 import configs from "../../config";
-import getBanButton from "../../helpers/handleBanButton";
 import EmbedColors from "../../structures/embedColors";
 
 dotenv.config();
 
-const VIRUSTOTAL_API_KEY = process.env.TOTAL_VIRUS_KEY;
+const VIRUSTOTAL_API_KEY = process.env.VIRUSTOTAL_API_KEY; // Ensure correct env variable name
 
 export default async (client: Client, message: Message) => {
-  if (!message.guild) return;
-  if (message.author.bot) return;
+  if (!message.guild || message.author.bot) return;
 
   const urlPattern = /https?:\/\/[^\s]+/g;
   const urls = message.content.match(urlPattern);
@@ -27,9 +25,9 @@ const scanUrlWithVirusTotal = async (url: string, message: Message, client: Clie
   const options = {
     method: 'POST',
     headers: {
-      accept: 'application/json',
+      'Accept': 'application/json',
       'x-apikey': VIRUSTOTAL_API_KEY,
-      'content-type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded'
     },
     body: `url=${encodeURIComponent(url)}`
   };
@@ -40,9 +38,8 @@ const scanUrlWithVirusTotal = async (url: string, message: Message, client: Clie
 
     if (data.data && data.data.attributes.last_analysis_stats.malicious > 0) {
       await message.delete();
-
-      const logChannel = client.guild.channels.cache.get(configs.logChannelId);
-      if (!logChannel) return;
+      const logChannel = message.guild.channels.cache.get(configs.logChannelId);
+      if (!logChannel || !logChannel.isTextBased()) return;
 
       const embed = new EmbedBuilder()
         .setTitle("Malicious URL Detected")
@@ -57,17 +54,19 @@ const scanUrlWithVirusTotal = async (url: string, message: Message, client: Clie
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(banButton);
 
       await logChannel.send({ embeds: [embed], components: [row] });
-
-      client.on('interactionCreate', async (interaction) => {
-        if (!interaction.isButton()) return;
-        const [action, userId] = interaction.customId.split('-');
-        if (action === 'ban-user') {
-          await banMember(userId, interaction.guildId!, interaction.user);
-          await interaction.update({ content: 'User has been banned.', components: [] });
-        }
-      });
     }
   } catch (err) {
     console.error('Error scanning URL with VirusTotal:', err);
   }
 };
+
+// Assuming global handling is set up elsewhere
+// This code should be in a central interaction handler, not inside a function.
+client.on('interactionCreate', async (interaction) => {
+  if (!interaction.isButton()) return;
+  const [action, userId] = interaction.customId.split('-');
+  if (action === 'ban-user' && interaction.guild) {
+    await banMember(userId, interaction.guild.id, interaction.user);
+    await interaction.update({ content: 'User has been banned.', components: [] });
+  }
+});
