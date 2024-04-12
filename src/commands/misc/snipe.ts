@@ -1,6 +1,17 @@
-import { APIApplicationCommandOption, ChatInputCommandInteraction } from 'discord.js';
-import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
+import { 
+  APIApplicationCommandOption, 
+  ChatInputCommandInteraction, 
+  ApplicationCommandOptionType, 
+  EmbedBuilder 
+} from 'discord.js';
 import Snipe from '../../db/index';
+
+interface Command {
+  name: string;
+  description: string;
+  options: APIApplicationCommandOption[];
+  slash: (interaction: ChatInputCommandInteraction) => Promise<void>;
+}
 
 export default {
   name: 'snipe',
@@ -16,14 +27,8 @@ export default {
     type: ApplicationCommandOptionType.String,
     required: true,
     choices: [
-      {
-        name: 'deleted',
-        value: 'delete',
-      },
-      {
-        name: 'edited',
-        value: 'edit',
-      },
+      { name: 'deleted', value: 'delete' },
+      { name: 'edited', value: 'edit' }
     ],
   }, {
     name: 'amount',
@@ -35,15 +40,15 @@ export default {
     await interaction.deferReply({ ephemeral: true });
 
     const channelOption = interaction.options.getChannel('channel') || interaction.channel;
-    const messageType = interaction.options.getString('type', true);
-    const amount = interaction.options.getInteger('amount') || 1;
-
-    if (!channelOption || !('messages' in channelOption)) {
+    if (!channelOption || !channelOption.isTextBased()) {
       await interaction.editReply('The specified channel is not a text-based channel.');
       return;
     }
 
-    const snipedMessages = await Snipe.find({
+    const messageType = interaction.options.getString('type', true);
+    const amount = interaction.options.getInteger('amount') || 1;
+
+    const snipedMessages = await Snipe[interaction.guild?.id].find({
       channelId: channelOption.id,
       methodType: messageType,
     }).sort({ timestamp: -1 }).limit(amount);
@@ -54,7 +59,7 @@ export default {
     }
 
     const embed = new EmbedBuilder()
-      .setTitle(`Sniped Messages in ${channelOption}`)
+      .setTitle(`Sniped Messages in ${channelOption.name}`)
       .setColor('#0099ff');
 
     snipedMessages.forEach((msg, index) => {
