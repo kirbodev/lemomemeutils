@@ -3,8 +3,14 @@ import Snipe from "../../db/index";
 
 export default async (client: Client, message: Message) => {
   if (!message.guild) return;
-  if (message.partial) await message.fetch().catch(() => null); // Fetch if the message is partial
-  if (!message.content && !message.attachments.size) return; // Ignore if there's no content or attachments
+  if (message.partial) {
+    try {
+      await message.fetch();
+    } catch (error) {
+      return;
+    }
+  }
+  if (!message.content && !message.attachments.size) return;
 
   const snipedMessage = new Snipe({
     messageId: message.id,
@@ -17,5 +23,9 @@ export default async (client: Client, message: Message) => {
     timestamp: new Date(),
   });
 
-  await snipedMessage.save();
+  try {
+    await snipedMessage.save();
+  } catch (error) {
+    console.error('Failed to save the sniped message:', error);
+  }
 };
