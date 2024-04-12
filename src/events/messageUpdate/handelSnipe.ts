@@ -1,9 +1,15 @@
 import { Client, Message } from "discord.js";
 import Snipe from "../../db/index";
+
 export default async (client: Client, oldMessage: Message, newMessage: Message) => {
   if (!newMessage.guild) return;
-  if (newMessage.partial) await newMessage.fetch().catch(() => null); // Fetch if the message is partial
-  // Ignore if there's no change in content or if the message now has no content
+  if (newMessage.partial) {
+    try {
+      await newMessage.fetch();
+    } catch (error) {
+      return;
+    }
+  }
   if (oldMessage.content === newMessage.content || !newMessage.content) return;
 
   const snipedMessage = new Snipe({
@@ -17,5 +23,9 @@ export default async (client: Client, oldMessage: Message, newMessage: Message) 
     timestamp: new Date(),
   });
 
-  await snipedMessage.save();
+  try {
+    await snipedMessage.save();
+  } catch (error) {
+    console.error('Failed to save the sniped message:', error);
+  }
 };
