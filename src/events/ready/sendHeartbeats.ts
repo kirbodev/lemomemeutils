@@ -5,7 +5,7 @@ export default () => {
     if (process.env.NODE_ENV) return;
     logger.info("Sending heartbeats");
     sendHeartbeats();
-    setInterval(sendHeartbeats, 1000 * 60 * 5).unref();
+    setInterval(sendHeartbeats, 1000 * 60 * 1).unref();
 };
 
 async function sendHeartbeats() {
