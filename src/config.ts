@@ -53,11 +53,7 @@ config.set(
     staffApplicationsChannelID: "1096120117974290503",
     staffAppRoleID: "575811748284858368",
     staffVoteChannelID: "1096121574983225435",
-    staffVoteRoles: [
-      "594576990212849767",
-      "553354789359058954",
-      "1124428178102948011",
-    ],
+    staffVoteRoles: ["553354789359058954"],
     staffRoles: [
       /*
       None,

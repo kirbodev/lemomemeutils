@@ -1,13 +1,15 @@
 export default {
   name: "Minor Update",
-  date: new Date(2024, 2, 28),
-  version: "1.7.1",
-  description: "Small bug fixes",
+  date: new Date(2024, 3, 20),
+  version: "1.7.2",
+  description:
+    "Coming back with few changes due to my ssd corrupting but snipe and suggestions will hopefully come soon. This update improves reliability.",
   changelog: [
-    "Devs can now bypass permission checks, if they have OTP enabled.",
-    "Users can now warn themselves.",
-    "The staff applications button is now sticky.",
-    "Next update will be a major update!",
+    "Errors are now more clear",
+    "Staff applications no longer fail to edit if a user has their DMs off",
+    "Better error logging and analytics",
+    "Not all commands fail when the DB is down anymore (only the ones that need it)",
+    "We have a status page now! Check it out at https://status.kdv.one/",
   ],
 } satisfies {
   name: string;

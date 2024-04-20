@@ -3,6 +3,7 @@ import configs from "../../config";
 import kv from "../../db/models/kv";
 import { HydratedDocument } from "mongoose";
 import kvInterface from "../../structures/kvInterface";
+import { dbStatus } from "../../handlers/errorHandler";
 
 export default async (client: Client, message: Message) => {
   if (!message.guild) return;
@@ -15,6 +16,7 @@ export default async (client: Client, message: Message) => {
     `apply-${message.guildId}`
   )
     return;
+    if (dbStatus) return;
   const applyMessageId: HydratedDocument<kvInterface> | null = await kv.findOne(
     { key: `staffAppsMessage-${message.guildId}` }
   );

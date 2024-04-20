@@ -20,8 +20,6 @@ import warnInterface from "../../structures/warnInterface";
 import actionInterface from "../../structures/actionInterface";
 import Errors from "../../structures/errors";
 import { nanoid } from "nanoid";
-// import userAnalytics from "../../db/models/userAnalytics";
-// import userAnalyticsInterface from "../../structures/userAnalyticsInterface";
 import { ChartJSNodeCanvas } from "chartjs-node-canvas";
 import { loadImage } from "canvas";
 
@@ -234,22 +232,6 @@ async function getStats(member: GuildMember, timePeriod: number | null) {
       ? { $gt: Date.now() - timePeriod }
       : { $exists: true },
   });
-  // const activity: HydratedDocument<userAnalyticsInterface> | null =
-  //   await userAnalytics.findOne({
-  //     userID: member.id,
-  //     guildID: member.guild.id,
-  //     messages: {
-  //       $elemMatch: {
-  //         hour: timePeriod
-  //           ? { $gt: Date.now() - timePeriod }
-  //           : { $exists: true },
-  //       },
-  //     },
-  //   });
-  // const messageCount = activity?.messages.reduce(
-  //   (acc, curr) => acc + curr.amount,
-  //   0
-  // );
   return { warns, bans, kicks, mutes };
 }
 
@@ -504,55 +486,3 @@ async function drawChart(
   });
   return data;
 }
-
-// perhaps import data from statbot in the future
-// async function getStats(member: GuildMember) {
-//   // Didn't secure your api very well, did you statbot?
-//   const res = await fetch(
-//     `https://proxy.statbot.net/servers/538903170189885460/message`,
-//     {
-//       headers: {
-//         Token: process.env.STATBOT_KEY!,
-//       },
-//       body: JSON.stringify({
-//         query: {
-//           type: "query",
-//           start: 1707868800000,
-//           interval: "hour",
-//           timezone_offset: 0,
-//           whitelist_members: ["695228246966534255"],
-//           bot: false,
-//           voice_states: [
-//             "normal",
-//             "afk",
-//             "self_deaf",
-//             "self_mute",
-//             "server_deaf",
-//             "server_mute",
-//           ],
-//         },
-//         source: "89uref389ur89fgh34ur",
-//       }),
-//       method: "POST",
-//     }
-//   );
-//   console.log(res);
-//   if (!res || !res.ok) return null;
-//   // res is a ReadableStream, wait until it's done and parse the JSON
-//   const stream = res.body?.getReader();
-//   if (!stream) return null;
-//   let data = "";
-//   // eslint-disable-next-line no-constant-condition
-//   while (true) {
-//     const { done, value } = await stream.read();
-//     if (done) break;
-//     data += new TextDecoder().decode(value);
-//   }
-//   // get objects from the string, it will start with data: and there might be more objects after it
-//   if (!data.includes('"type":"data"')) return getStats(member);
-//   data = `{"type":"data"${data.split('"type":"data"')[1]}`;
-//   data = data.split("}")[0] + "}}";
-//   writeFileSync("data.json", data);
-//   data = JSON.parse(data);
-//   return data;
-// }

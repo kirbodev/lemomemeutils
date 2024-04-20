@@ -6,10 +6,12 @@ import EmbedColors from "../../structures/embedColors";
 import ms from "ms";
 import configs from "../../config";
 import safeEmbed from "../../utils/safeEmbed";
+import { dbStatus } from "../../handlers/errorHandler";
 
 export default async (client: Client, message: Message) => {
   if (!message.guild) return;
   if (message.author.bot) return;
+  if (dbStatus) return;
   const userAfk: HydratedDocument<afkInterface> | null = await afk.findOne({
     userID: message.author.id,
     guildID: message.guild.id,

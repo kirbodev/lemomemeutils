@@ -1,105 +1,9 @@
 import { EmbedBuilder } from "discord.js";
 import EmbedColors from "../structures/embedColors";
+import getErrorStatus from "../handlers/errorHandler";
 
 interface SafeEmbedOptions {
   withSystemMessages?: boolean;
-}
-
-interface DiscordStatusIncidentUpdate {
-  body: string;
-  created_at: Date;
-  display_at: Date;
-  id: string;
-  incident_id: string;
-  status:
-    | "investigating"
-    | "identified"
-    | "monitoring"
-    | "resolved"
-    | "postmortem";
-  updated_at: Date;
-  affected_components: {
-    code: string;
-    name: string;
-    old_status: string;
-    new_status: string;
-  }[];
-}
-
-interface DiscordStatusResponse {
-  page: {
-    id: "srhpyqt94yxb";
-    name: "Discord";
-    url: "https://discordstatus.com";
-    updated_at: Date;
-  };
-  status: {
-    description: string;
-    indicator: "none" | "minor" | "major" | "critical";
-  };
-  components: {
-    created_at: Date;
-    description: string | null;
-    id: string;
-    name: string;
-    page_id: string;
-    position: number;
-    status:
-      | "operational"
-      | "degraded_performance"
-      | "partial_outage"
-      | "major_outage";
-    updated_at: Date;
-  }[];
-  incidents: {
-    created_at: Date;
-    id: string;
-    impact: string;
-    incident_updates: DiscordStatusIncidentUpdate[];
-    monitoring_at: Date | null;
-    name: string;
-    page_id: string;
-    resolved_at: Date | null;
-    shortlink: string;
-    status:
-      | "investigating"
-      | "identified"
-      | "monitoring"
-      | "resolved"
-      | "postmortem";
-    updated_at: Date;
-  }[];
-  scheduled_maintenances: {
-    created_at: Date;
-    id: string;
-    impact: string;
-    incident_updates: DiscordStatusIncidentUpdate[];
-    monitoring_at: Date | null;
-    name: string;
-    page_id: string;
-    resolved_at: Date | null;
-    scheduled_for: Date;
-    scheduled_until: Date;
-    shortlink: string;
-    status: string;
-    updated_at: Date;
-  }[];
-}
-
-export let statusCache = await getDiscordStatus();
-
-setInterval(async () => {
-  // revalidate the cache every minute
-  const newStatus = await getDiscordStatus();
-  if (newStatus) statusCache = newStatus;
-}, 1000 * 60);
-
-async function getDiscordStatus(): Promise<DiscordStatusResponse | null> {
-  const res = await fetch("https://discordstatus.com/api/v2/summary.json")
-    .then(async (res) => (await res.json()) as DiscordStatusResponse)
-    .catch(() => null);
-  if (!res) return null;
-  return res;
 }
 
 export default function safeEmbed(
@@ -160,14 +64,15 @@ export default function safeEmbed(
     embed.setTimestamp();
   }
   if (options?.withSystemMessages) {
-    if (statusCache?.status.indicator !== "none") {
+    const status = getErrorStatus();
+    if (status && status.status >= 2) {
       embed.setColor(EmbedColors.warning);
       embed.addFields([
         {
           name: "Availability",
-          value: `You may experience issues with Pomegranate and Discord services. Check [status.discord.com](https://status.discord.com) for more information. The current status is: ${
-            statusCache!.status.description
-          }.`,
+          value: `You may experience issues with Pomegranate services. Check the [status page](https://status.kdv.one) for more information.\n - ${
+            status.messages.join("\n- ") || `Level ${status.status} issues`
+          }`,
         },
       ]);
     }

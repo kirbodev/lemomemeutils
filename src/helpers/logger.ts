@@ -18,7 +18,9 @@ const transport = pino.transport({
       target: "pino/file",
       options: {
         // ISO string is an invalid file name so replace colons with dashes
-        destination: `./logs/LOG-${new Date(Date.now()).toISOString().replace(/:/g, "-")}.log`,
+        destination: `./logs/LOG-${new Date(Date.now())
+          .toISOString()
+          .replace(/:/g, "-")}.log`,
         mkdir: true,
       },
     },
@@ -29,6 +31,19 @@ const transport = pino.transport({
         destination: 1,
       },
     },
+    ...(process.env.NODE_ENV
+      ? []
+      : [
+          {
+            level: process.env.PINO_LOG_LEVEL
+              ? process.env.PINO_LOG_LEVEL
+              : "info",
+            target: "@logtail/pino",
+            options: {
+              sourceToken: process.env.BETTERSTACK_SOURCE_TOKEN,
+            },
+          },
+        ]),
   ],
 });
 
@@ -37,7 +52,7 @@ const logger = pino(
     level: process.env.PINO_LOG_LEVEL ? process.env.PINO_LOG_LEVEL : "info",
     timestamp: pino.stdTimeFunctions.isoTime,
   },
-  transport,
+  transport
 );
 
 logger.info("Logger initialized");

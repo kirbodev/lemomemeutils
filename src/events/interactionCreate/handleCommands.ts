@@ -22,6 +22,7 @@ import { getCooldown, setCooldown } from "../../handlers/cooldownHandler";
 import ms from "ms";
 import analytics from "../../db/models/analytics";
 import safeEmbed from "../../utils/safeEmbed";
+import { dbStatus } from "../../handlers/errorHandler";
 
 export default async (client: Client, interaction: Interaction) => {
   if (!interaction.isChatInputCommand()) return;
@@ -131,28 +132,32 @@ export default async (client: Client, interaction: Interaction) => {
       !(interaction.member?.permissions as PermissionsBitField).has(
         "Administrator"
       )
-    )
-      return interaction.reply({
-        embeds: [
-          safeEmbed(
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorPermissions)
-              .setDescription(
-                "You need the High Staff role to use this command."
-              )
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.user.tag}`,
-                iconURL: interaction.user.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now()),
-            {
-              withSystemMessages: false,
-            }
-          ),
-        ],
-        ephemeral: true,
-      });
+    ) {
+      if (devs.includes(interaction.user.id)) {
+        devBypass = true;
+      } else
+        return interaction.reply({
+          embeds: [
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle(Errors.ErrorPermissions)
+                .setDescription(
+                  "You need the High Staff role to use this command."
+                )
+                .setColor(EmbedColors.error)
+                .setFooter({
+                  text: `Requested by ${interaction.user.tag}`,
+                  iconURL: interaction.user.displayAvatarURL(),
+                })
+                .setTimestamp(Date.now()),
+              {
+                withSystemMessages: false,
+              }
+            ),
+          ],
+          ephemeral: true,
+        });
+    }
   }
   const cooldown = getCooldown(interaction.user.id, command.name);
   if (cooldown && cooldown > Date.now())
@@ -180,6 +185,24 @@ export default async (client: Client, interaction: Interaction) => {
       ephemeral: true,
     });
   if (command.otpRequired || devBypass) {
+    if (dbStatus)
+      return interaction.reply({
+        embeds: [
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorServer)
+              .setDescription(
+                "Since the database is down, I can't verify your identity. Please try again later."
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
+        ],
+      });
     // Check if user has OTP enabled
     const dev = await Dev.findOne({ id: interaction.user.id });
     const otpCommand = client.application?.commands.cache.find(
@@ -314,14 +337,16 @@ export default async (client: Client, interaction: Interaction) => {
     setCooldown(interaction.user.id, command.name);
     const now = performance.now();
     await command.slash!(interaction);
-    const analytic = new analytics({
-      name: command.name,
-      responseTime: performance.now() - now,
-      type: "command",
-      userID: interaction.user.id,
-      guildID: interaction.guildId!,
-    });
-    await analytic.save();
+    if (!dbStatus) {
+      const analytic = new analytics({
+        name: command.name,
+        responseTime: performance.now() - now,
+        type: "command",
+        userID: interaction.user.id,
+        guildID: interaction.guildId!,
+      });
+      await analytic.save();
+    }
   } catch (e) {
     const embed = safeEmbed(
       new EmbedBuilder()

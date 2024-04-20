@@ -20,6 +20,7 @@ import { getCooldown, setCooldown } from "../../handlers/cooldownHandler";
 import ms from "ms";
 import analytics from "../../db/models/analytics";
 import safeEmbed from "../../utils/safeEmbed";
+import { dbStatus } from "../../handlers/errorHandler";
 
 export default async (client: Client, message: Message) => {
   if (!message.guild) return;
@@ -267,16 +268,32 @@ export default async (client: Client, message: Message) => {
       alias: message.content.slice(prefix.length).split(" ")[0],
       args: options,
     });
-    const analytic = new analytics({
-      name: command.name,
-      responseTime: performance.now() - now,
-      type: "message",
-      userID: message.author.id,
-      guildID: message.guild.id,
-    });
-    await analytic.save();
+    if (!dbStatus) {
+      const analytic = new analytics({
+        name: command.name,
+        responseTime: performance.now() - now,
+        type: "message",
+        userID: message.author.id,
+        guildID: message.guild.id,
+      });
+      await analytic.save();
+    }
   } catch (e) {
-    message.reply("An error occurred while executing this command");
+    message.reply({
+      embeds: [
+        safeEmbed(
+          new EmbedBuilder()
+        .setTitle(Errors.ErrorServer)
+        .setDescription("An error occurred while executing this command.")
+        .setColor(EmbedColors.error)
+        .setFooter({
+          text: `Requested by ${message.author.tag}`,
+          iconURL: message.author.displayAvatarURL(),
+        })
+        .setTimestamp(Date.now())
+        ),
+      ]
+    });
     logger.error(e, `Error while executing command ${command.name}`);
   }
 };

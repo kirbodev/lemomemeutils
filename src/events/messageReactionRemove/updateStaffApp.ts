@@ -3,6 +3,7 @@ import configs from "../../config";
 import { Staff } from "../../db";
 import { HydratedDocument } from "mongoose";
 import staffInterface from "../../structures/staffInterface";
+import { dbStatus } from "../../handlers/errorHandler";
 
 export default async (
   client: Client,
@@ -15,6 +16,7 @@ export default async (
   if (!config || !config.staffVoteChannelID) return;
   if (reaction.message.channelId !== config.staffVoteChannelID) return;
   if (reaction.emoji.name !== "✅" && reaction.emoji.name !== "❌") return;
+  if (dbStatus) return;
   const staffApp: HydratedDocument<staffInterface> | null = await Staff.findOne(
     {
       voteMessage: reaction.message.id,

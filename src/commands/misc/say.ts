@@ -199,22 +199,7 @@ export default {
           ephemeral: true,
         });
       } catch (err) {
-        return interaction.followUp({
-          embeds: [
-            safeEmbed(
-              new EmbedBuilder()
-                .setTitle(Errors.ErrorGeneric)
-                .setDescription("You took too long to respond.")
-                .setColor(EmbedColors.error)
-                .setFooter({
-                  text: `Requested by ${interaction.user.tag}`,
-                  iconURL: interaction.user.displayAvatarURL(),
-                })
-                .setTimestamp(Date.now())
-            ),
-          ],
-          ephemeral: true,
-        });
+        return;
       }
     } else {
       const modalId = nanoid();
@@ -361,22 +346,7 @@ export default {
           ephemeral: true,
         });
       } catch (err) {
-        return interaction.followUp({
-          embeds: [
-            safeEmbed(
-              new EmbedBuilder()
-                .setTitle(Errors.ErrorGeneric)
-                .setDescription("You took too long to respond.")
-                .setColor(EmbedColors.error)
-                .setFooter({
-                  text: `Requested by ${interaction.user.tag}`,
-                  iconURL: interaction.user.displayAvatarURL(),
-                })
-                .setTimestamp(Date.now())
-            ),
-          ],
-          ephemeral: true,
-        });
+        return;
       }
     }
   },
