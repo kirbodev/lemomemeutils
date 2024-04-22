@@ -1,5 +1,4 @@
 import db from "../db/index";
-import { client } from "..";
 
 interface DiscordStatusIncidentUpdate {
   body: string;
@@ -121,29 +120,30 @@ db.connection.on("disconnected", () => {
   };
 });
 
-const prevErrorAmount: number[] = [];
-let errorAmount = 0;
-let clientErrorStatus: ErrorStatus | null = null;
-client.on("error", async () => {
-  errorAmount++;
-});
-process.on("uncaughtException", async () => {
-  errorAmount++;
-});
-process.on("unhandledRejection", async () => {
-  errorAmount++;
-});
-setInterval(() => {
-  if (!prevErrorAmount.length) return prevErrorAmount.push(errorAmount) && (errorAmount = 0);
-  const avg = Math.max(Math.min(prevErrorAmount.reduce((a, b) => a + b, 0) / prevErrorAmount.length, 15), 5);
-  if (errorAmount >= avg * 1.5) {
-    clientErrorStatus = {
-      status: 3,
-      messages: ["High error rate detected. Some commands may not function."],
-      updatedAt: new Date(),
-    };
-  }
-}, 1000 * 60 * 5).unref();
+//STUB - More testing needed, seems to be too sensitive and impossible to exit the error state
+// const prevErrorAmount: number[] = [];
+// let errorAmount = 0;
+// let clientErrorStatus: ErrorStatus | null = null;
+// client.on("error", async () => {
+//   errorAmount++;
+// });
+// process.on("uncaughtException", async () => {
+//   errorAmount++;
+// });
+// process.on("unhandledRejection", async () => {
+//   errorAmount++;
+// });
+// setInterval(() => {
+//   if (!prevErrorAmount.length) return prevErrorAmount.push(errorAmount) && (errorAmount = 0);
+//   const avg = Math.max(Math.min(prevErrorAmount.reduce((a, b) => a + b, 0) / prevErrorAmount.length, 15), 5);
+//   if (errorAmount >= avg * 1.5) {
+//     clientErrorStatus = {
+//       status: 3,
+//       messages: ["High error rate detected. Some commands may not function."],
+//       updatedAt: new Date(),
+//     };
+//   }
+// }, 1000 * 60 * 5).unref();
 
 export default function getErrorStatus(): ErrorStatus | null {
   const errors: ErrorStatus[] = [];
@@ -167,7 +167,7 @@ export default function getErrorStatus(): ErrorStatus | null {
       updatedAt: status.page.updated_at,
     });
   if (dbStatus) errors.push(dbStatus);
-  if (clientErrorStatus) errors.push(clientErrorStatus);
+  // if (clientErrorStatus) errors.push(clientErrorStatus);
 
   if (errors.length > 0) {
     const catastrophic = errors.some((e) => e.status >= 4);
