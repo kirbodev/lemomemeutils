@@ -427,16 +427,14 @@ export default {
     const embeds = [];
     // Make a new embed for every 5 warns/actions
     for (let i = 0; i < Math.ceil(combined.length / 5); i++) {
-      const embed = safeEmbed(
-        new EmbedBuilder()
-          .setTitle(`Case logs | ${user.tag}`)
-          .setColor(EmbedColors.info)
-          .setFooter({
-            text: `Requested by ${interaction.author.tag}`,
-            iconURL: interaction.author.displayAvatarURL(),
-          })
-          .setTimestamp(Date.now())
-      );
+      const embed = new EmbedBuilder()
+        .setTitle(`Case logs | ${user.tag}`)
+        .setColor(EmbedColors.info)
+        .setFooter({
+          text: `Requested by ${interaction.author.tag}`,
+          iconURL: interaction.author.displayAvatarURL(),
+        })
+        .setTimestamp(Date.now());
 
       if (i === 0) {
         embed.setDescription(
@@ -540,7 +538,7 @@ export default {
         }
       }
 
-      embeds.push(embed);
+      embeds.push(safeEmbed(embed));
     }
 
     const backId = nanoid();

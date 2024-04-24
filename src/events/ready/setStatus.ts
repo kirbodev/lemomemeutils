@@ -67,6 +67,7 @@ export default () => {
 
 function setStatus(client: Client) {
   if (override) return client.user?.setActivity(override);
+  client.user?.setStatus("online");
   const newStatusList = statuses.filter((s) => s !== prevStatus);
   const newStatus =
     newStatusList[Math.floor(Math.random() * newStatusList.length)];
