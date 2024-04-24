@@ -1,15 +1,14 @@
 export default {
-  name: "Minor Update",
-  date: new Date(2024, 3, 20),
-  version: "1.7.2",
+  name: "Snipe is here",
+  date: new Date(2024, 3, 24),
+  version: "1.7.3",
   description:
-    "Coming back with few changes due to my ssd corrupting but snipe and suggestions will hopefully come soon. This update improves reliability.",
+    "Finally, snipe is here, in beta. User feedback is appreciated.",
   changelog: [
-    "Errors are now more clear",
-    "Staff applications no longer fail to edit if a user has their DMs off",
-    "Better error logging and analytics",
-    "Not all commands fail when the DB is down anymore (only the ones that need it)",
-    "We have a status page now! Check it out at https://status.kdv.one/",
+    "Fixed a couple of bugs",
+    "Removed status warning from some log messages",
+    "Online status should now update properly",
+    "Added snipe feature",
   ],
 } satisfies {
   name: string;
