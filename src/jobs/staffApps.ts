@@ -56,7 +56,10 @@ export default {
                 },
               ])
               .setColor(EmbedColors.success)
-              .setTimestamp()
+              .setTimestamp(),
+              {
+                withSystemMessages: false,
+              }
           );
           const userDM = await client.users
             .fetch(vote.userID)
@@ -112,7 +115,10 @@ export default {
                       },
                     ])
                     .setColor(EmbedColors.success)
-                    .setTimestamp()
+                    .setTimestamp(),
+                    {
+                      withSystemMessages: false,
+                    }
                 ),
               ],
             });
@@ -140,7 +146,10 @@ export default {
                 },
               ])
               .setColor(EmbedColors.error)
-              .setTimestamp()
+              .setTimestamp(),
+              {
+                withSystemMessages: false,
+              }
           );
 
           const userDM = await client.users
@@ -196,7 +205,10 @@ export default {
                       },
                     ])
                     .setColor(EmbedColors.error)
-                    .setTimestamp()
+                    .setTimestamp(),
+                    {
+                      withSystemMessages: false,
+                    }
                 ),
               ],
             });

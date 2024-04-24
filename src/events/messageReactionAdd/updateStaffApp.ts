@@ -123,7 +123,10 @@ export default async (
                 },
               ])
               .setColor(EmbedColors.success)
-              .setTimestamp()
+              .setTimestamp(),
+              {
+                withSystemMessages: false,
+              }
           ),
         ],
       })
@@ -154,7 +157,10 @@ export default async (
               },
             ])
             .setColor(EmbedColors.success)
-            .setTimestamp(Date.now())
+            .setTimestamp(Date.now()),
+            {
+              withSystemMessages: false,
+            }
         ),
       ],
     });
@@ -219,7 +225,10 @@ export default async (
                 },
               ])
               .setColor(EmbedColors.error)
-              .setTimestamp()
+              .setTimestamp(),
+              {
+                withSystemMessages: false,
+              }
           ),
         ],
       })
@@ -250,7 +259,10 @@ export default async (
               },
             ])
             .setColor(EmbedColors.error)
-            .setTimestamp(Date.now())
+            .setTimestamp(Date.now()),
+            {
+              withSystemMessages: false,
+            }
         ),
       ],
     });
