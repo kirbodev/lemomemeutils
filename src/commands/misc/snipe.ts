@@ -514,7 +514,7 @@ async function handleDelete(
           .setFields([
             {
               name: "Content",
-              value: snipeToDelete.content,
+              value: snipeToDelete.content.slice(0, 1024),
             },
             {
               name: "Author",
