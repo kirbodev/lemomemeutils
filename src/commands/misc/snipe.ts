@@ -141,7 +141,7 @@ export default {
             name: `${
               snipedMessage.methodType === "edit" ? "Edited" : "Deleted"
             } by ${nuser ? nuser.tag : snipedMessage.authorId} | ${relative}`,
-            value: snipedMessage.content,
+            value: snipedMessage.content.slice(0, 1024),
           },
         ]);
       }
@@ -313,7 +313,7 @@ export default {
             name: `${
               snipedMessage.methodType === "edit" ? "Edited" : "Deleted"
             } by ${nuser ? nuser.tag : snipedMessage.authorId} | ${relative}`,
-            value: snipedMessage.content,
+            value: snipedMessage.content.slice(0, 1024),
           },
         ]);
       }
