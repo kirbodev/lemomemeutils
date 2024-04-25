@@ -145,7 +145,7 @@ export default {
           },
         ]);
       }
-      embeds.push(embed);
+      embeds.push(safeEmbed(embed));
     }
 
     const backId = nanoid();
@@ -317,7 +317,7 @@ export default {
           },
         ]);
       }
-      embeds.push(embed);
+      embeds.push(safeEmbed(embed));
     }
 
     const backId = nanoid();
