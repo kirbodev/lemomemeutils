@@ -3,7 +3,7 @@
   "version": "1.4.0",
   "description": "",
   "type": "module",
-  "main": "dist/src/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "dev": "set NODE_ENV=dev && tsx watch src/index.ts | npx pino-pretty",
     "build": "tsc",
@@ -11,8 +11,7 @@
     "test": "tsc && node --es-module-specifier-resolution=node dist/test.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --ext .ts --fix",
-    "prettier": "npx prettier --write .",
-    "cluster:dev": "set NODE_ENV=dev && tsx watch cluster/index.ts"
+    "prettier": "npx prettier --write ."
   },
   "repository": {
     "type": "git",
