@@ -11,14 +11,15 @@ import {
   AttachmentBuilder,
   Message,
 } from "discord.js";
-import type Command from "../../structures/commandInterface";
-import EmbedColors from "../../structures/embedColors";
-import safeEmbed from "../../utils/safeEmbed";
-import { Action, Warn } from "../../db";
+import type Command from "../../structures/commandInterface.js";
+import EmbedColors from "../../structures/embedColors.js";
+import safeEmbed from "../../utils/safeEmbed.js";
+import Warn from "../../db/models/warn.js";
+import Action from "../../db/models/action.js";
 import { HydratedDocument } from "mongoose";
-import warnInterface from "../../structures/warnInterface";
-import actionInterface from "../../structures/actionInterface";
-import Errors from "../../structures/errors";
+import warnInterface from "../../structures/warnInterface.js";
+import actionInterface from "../../structures/actionInterface.js";
+import Errors from "../../structures/errors.js";
 import { nanoid } from "nanoid";
 import { ChartJSNodeCanvas } from "chartjs-node-canvas";
 import { loadImage } from "canvas";

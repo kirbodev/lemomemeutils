@@ -7,11 +7,11 @@ import {
   TextChannel,
 } from "discord.js";
 import { ApplicationCommandOptionType } from "discord.js";
-import Command from "../../structures/commandInterface";
-import Errors from "../../structures/errors";
-import EmbedColors from "../../structures/embedColors";
+import Command from "../../structures/commandInterface.js";
+import Errors from "../../structures/errors.js";
+import EmbedColors from "../../structures/embedColors.js";
 import ms from "ms";
-import safeEmbed from "../../utils/safeEmbed";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 export default {
   name: "slowmode",

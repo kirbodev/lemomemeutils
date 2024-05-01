@@ -1,10 +1,10 @@
 import { HydratedDocument } from "mongoose";
-import { Warn } from "../db";
-import warnInterface from "../structures/warnInterface";
+import Warn from "../db/models/warn.js";
+import warnInterface from "../structures/warnInterface.js";
 import type { Client } from "discord.js";
-import configs from "../config";
-import Job from "../structures/jobInterface";
-import getActiveWarns from "../helpers/getActiveWarns";
+import configs from "../config.js";
+import Job from "../structures/jobInterface.js";
+import getActiveWarns from "../helpers/getActiveWarns.js";
 
 export default {
   every: "1 hour",

@@ -1,8 +1,8 @@
 import { GuildMember } from "discord.js";
-import { Warn } from "../db";
+import Warn from "../db/models/warn.js";
 import { HydratedDocument } from "mongoose";
-import warnInterface from "../structures/warnInterface";
-import logger from "./logger";
+import warnInterface from "../structures/warnInterface.js";
+import logger from "./logger.js";
 
 export default async function muteMember(
   member: GuildMember,

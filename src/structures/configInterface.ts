@@ -1,7 +1,7 @@
 import { GuildTextBasedChannel, MessageCreateOptions } from "discord.js";
-import { client } from "..";
-import logger from "../helpers/logger";
-import { StaffLevel } from "./staffInterface";
+import { client } from "../index.js";
+import logger from "../helpers/logger.js";
+import { StaffLevel } from "./staffInterface.js";
 
 interface ConfigParams {
   guildID: string;

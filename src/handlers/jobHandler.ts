@@ -1,10 +1,10 @@
 import path from "path";
 import { fileURLToPath } from "url";
-import getFiles from "../helpers/getFiles";
-import logger from "../helpers/logger";
+import getFiles from "../helpers/getFiles.js";
+import logger from "../helpers/logger.js";
 import { Agenda } from "@hokify/agenda";
 import type { Client } from "discord.js";
-import Job from "../structures/jobInterface";
+import Job from "../structures/jobInterface.js";
 
 export default async (client: Client) => {
   const agenda = new Agenda({

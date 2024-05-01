@@ -1,5 +1,5 @@
 import { readdir } from "fs/promises";
-import logger from "./logger";
+import logger from "./logger.js";
 
 export default async function getFiles(
   path: string,

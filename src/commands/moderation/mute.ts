@@ -4,20 +4,20 @@ import type {
   Message,
   User /* ContextMenuCommandInteraction, Message */,
 } from "discord.js";
-import type Command from "../../structures/commandInterface";
+import type Command from "../../structures/commandInterface.js";
 import {
   ApplicationCommandOptionType,
   PermissionsBitField,
   EmbedBuilder,
 } from "discord.js";
-import EmbedColors from "../../structures/embedColors";
-import Errors from "../../structures/errors";
-import logger from "../../helpers/logger";
-import configs from "../../config";
-import muteMember from "../../helpers/muteMember";
+import EmbedColors from "../../structures/embedColors.js";
+import Errors from "../../structures/errors.js";
+import logger from "../../helpers/logger.js";
+import configs from "../../config.js";
+import muteMember from "../../helpers/muteMember.js";
 import ms from "ms";
-import { Action } from "../../db";
-import safeEmbed from "../../utils/safeEmbed";
+import Action from "../../db/models/action.js";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 export default {
   name: "mute",

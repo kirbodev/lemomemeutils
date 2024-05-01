@@ -1,5 +1,5 @@
-import getErrorStatus, { dbStatus } from "../../handlers/errorHandler";
-import logger from "../../helpers/logger";
+import getErrorStatus, { dbStatus } from "../../handlers/errorHandler.js";
+import logger from "../../helpers/logger.js";
 
 export default () => {
     if (process.env.NODE_ENV) return;

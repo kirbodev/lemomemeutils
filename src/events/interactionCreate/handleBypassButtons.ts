@@ -5,22 +5,18 @@ import {
   GuildTextBasedChannel,
   Interaction,
 } from "discord.js";
-import configs, { devs } from "../../config";
-import { Staff } from "../../db";
-import setStaffLevel from "../../helpers/setStaffLevel";
+import configs, { devs } from "../../config.js";
+import Staff from "../../db/models/staff.js";
+import setStaffLevel from "../../helpers/setStaffLevel.js";
 import { HydratedDocument } from "mongoose";
-import staffInterface from "../../structures/staffInterface";
-import EmbedColors from "../../structures/embedColors";
-import safeEmbed from "../../utils/safeEmbed";
+import staffInterface from "../../structures/staffInterface.js";
+import EmbedColors from "../../structures/embedColors.js";
+import safeEmbed from "../../utils/safeEmbed.js";
+import Errors from "../../structures/errors.js";
 
 export default async (client: Client, interaction: Interaction) => {
   if (!interaction.isButton()) return;
   if (!interaction.customId.startsWith("bypass-")) return;
-  if (!devs.includes(interaction.user.id))
-    return interaction.reply({
-      content: "❌ You can't do that!",
-      ephemeral: true,
-    });
   const config = configs.get(interaction.guildId!)!;
   // split after the first - and before the second - to get the type
   const type = interaction.customId.split("-").slice(1, 2).join("-");
@@ -43,6 +39,21 @@ export default async (client: Client, interaction: Interaction) => {
       ephemeral: true,
     });
   if (type === "approve") {
+    if (!devs.includes(interaction.user.id))
+      return interaction.reply({
+        embeds: [
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorDevOnly)
+              .setDescription(
+                "You must be a developer to bypass approve staff applications. You are allowed to bypass deny staff applications."
+              )
+              .setColor(EmbedColors.error)
+              .setTimestamp()
+          ),
+        ],
+        ephemeral: true,
+      });
     staff.decision.decisionAt = new Date();
     staff.decision.approved = true;
     await staff.save();

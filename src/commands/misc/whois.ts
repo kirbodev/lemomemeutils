@@ -5,14 +5,14 @@ import {
   User,
   ApplicationCommandOptionType,
 } from "discord.js";
-import type Command from "../../structures/commandInterface";
-import EmbedColors from "../../structures/embedColors";
-import Errors from "../../structures/errors";
-import { KV } from "../../db";
-import kvInterface from "../../structures/kvInterface";
+import type Command from "../../structures/commandInterface.js";
+import EmbedColors from "../../structures/embedColors.js";
+import Errors from "../../structures/errors.js";
+import KV from "../../db/models/kv.js";
+import kvInterface from "../../structures/kvInterface.js";
 import { HydratedDocument } from "mongoose";
-import { devs } from "../../config";
-import safeEmbed from "../../utils/safeEmbed";
+import { devs } from "../../config.js";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 export default {
   name: "whois",
@@ -222,7 +222,7 @@ function getUserInfo(user: User, member: GuildMember | null, author: string) {
         ? "<:activedev:1069940746460872794> "
         : "";
       badges += devs.includes(member.id)
-        ? "<:pomegranateDeveloper:1214341988497887243> "
+        ? "<:pomegranateActiveDev:1234596563322409101> "
         : "";
     }
     if (badges.length > 0) {

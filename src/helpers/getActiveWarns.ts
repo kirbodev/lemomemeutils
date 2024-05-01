@@ -1,7 +1,7 @@
 import { GuildMember } from "discord.js";
 import { HydratedDocument } from "mongoose";
-import warnInterface from "../structures/warnInterface";
-import { Warn } from "../db";
+import warnInterface from "../structures/warnInterface.js";
+import Warn from "../db/models/warn.js";
 
 export default async (member: GuildMember, trueValue = false) => {
   // True value returns heavy warns without altering them, false value returns all warns (for logging)

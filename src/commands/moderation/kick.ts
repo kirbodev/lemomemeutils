@@ -5,18 +5,18 @@ import type {
   Message,
   User /* ContextMenuCommandInteraction, Message */,
 } from "discord.js";
-import type Command from "../../structures/commandInterface";
+import type Command from "../../structures/commandInterface.js";
 import {
   ApplicationCommandOptionType,
   PermissionsBitField,
   EmbedBuilder,
 } from "discord.js";
-import EmbedColors from "../../structures/embedColors";
-import Errors from "../../structures/errors";
-import logger from "../../helpers/logger";
-import kickMember from "../../helpers/kickMember";
-import configs from "../../config";
-import safeEmbed from "../../utils/safeEmbed";
+import EmbedColors from "../../structures/embedColors.js";
+import Errors from "../../structures/errors.js";
+import logger from "../../helpers/logger.js";
+import kickMember from "../../helpers/kickMember.js";
+import configs from "../../config.js";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 export default {
   name: "kick",

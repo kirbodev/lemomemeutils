@@ -1,8 +1,8 @@
 // Dangerous actions will require TOTP authentication to prevent an account being compromised to lead to the entire system being fucked :)
 import { HydratedDocument } from "mongoose";
-import Dev from "../db/models/dev";
+import Dev from "../db/models/dev.js";
 import speakeasy from "speakeasy";
-import devInterface from "../structures/devInterface";
+import devInterface from "../structures/devInterface.js";
 
 export default async function (
   secret: string,

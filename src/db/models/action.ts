@@ -1,6 +1,6 @@
 // To clarify: An "action" is an action that a moderator takes upon a user that is not a warn or mute but rather usually a discord native action such as a kick or ban, with additional parameters for commands like parole etc.
 import mongoose from "mongoose";
-import actionInterface from "../../structures/actionInterface";
+import actionInterface from "../../structures/actionInterface.js";
 
 const actionSchema = new mongoose.Schema<actionInterface>({
   userID: {

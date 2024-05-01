@@ -10,16 +10,16 @@ import {
   Message,
   PermissionsBitField,
 } from "discord.js";
-import type Command from "../../structures/commandInterface";
-import { getCachedCommands } from "../../helpers/getLocalCommands";
-import Errors from "../../structures/errors";
-import EmbedColors from "../../structures/embedColors";
-import configs, { devs, testServer } from "../../config";
+import type Command from "../../structures/commandInterface.js";
+import { getCachedCommands } from "../../helpers/getLocalCommands.js";
+import Errors from "../../structures/errors.js";
+import EmbedColors from "../../structures/embedColors.js";
+import configs, { devs, testServer } from "../../config.js";
 import { nanoid } from "nanoid";
-import getPermissionName from "../../helpers/getPermissionName";
-import { client } from "../..";
+import getPermissionName from "../../helpers/getPermissionName.js";
+import { client } from "../../index.js";
 import ms from "ms";
-import safeEmbed from "../../utils/safeEmbed";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 export default {
   name: "help",

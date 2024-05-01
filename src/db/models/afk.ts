@@ -1,5 +1,5 @@
 import mongoose, { Model } from "mongoose";
-import afkInterface from "../../structures/afkInterface";
+import afkInterface from "../../structures/afkInterface.js";
 
 const afkSchema = new mongoose.Schema<afkInterface>({
   userID: {

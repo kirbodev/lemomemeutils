@@ -1,6 +1,6 @@
 // Cleanup log files by removing all but the most recent 10 to prevent the logs directory from growing too large
 
-import logger from "./logger";
+import logger from "./logger.js";
 
 import fs from "fs";
 import path from "path";

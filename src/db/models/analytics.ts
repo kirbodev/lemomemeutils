@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import analyticsInterface from "../../structures/analyticsInterface";
+import analyticsInterface from "../../structures/analyticsInterface.js";
 import { Model } from "mongoose";
 
 const analyticsSchema = new mongoose.Schema<analyticsInterface>({

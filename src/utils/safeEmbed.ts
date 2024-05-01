@@ -1,6 +1,6 @@
 import { EmbedBuilder } from "discord.js";
-import EmbedColors from "../structures/embedColors";
-import getErrorStatus from "../handlers/errorHandler";
+import EmbedColors from "../structures/embedColors.js";
+import getErrorStatus from "../handlers/errorHandler.js";
 
 interface SafeEmbedOptions {
   withSystemMessages?: boolean;

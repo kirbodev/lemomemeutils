@@ -1,9 +1,10 @@
 import { EmbedBuilder, GuildMember } from "discord.js";
-import EmbedColors from "../structures/embedColors";
-import { Action, Warn } from "../db";
+import EmbedColors from "../structures/embedColors.js";
+import Action from "../db/models/action.js";
+import Warn from "../db/models/warn.js";
 import { HydratedDocument } from "mongoose";
-import warnInterface from "../structures/warnInterface";
-import safeEmbed from "../utils/safeEmbed";
+import warnInterface from "../structures/warnInterface.js";
+import safeEmbed from "../utils/safeEmbed.js";
 
 export default async function kickMember(
   member: GuildMember,

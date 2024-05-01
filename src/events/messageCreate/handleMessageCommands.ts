@@ -5,22 +5,22 @@ import {
   EmbedBuilder,
   GuildMemberRoleManager,
 } from "discord.js";
-import getLocalCommands from "../../helpers/getLocalCommands";
+import getLocalCommands from "../../helpers/getLocalCommands.js";
 import configs, {
   devs,
   hardResponses,
   maintainanceMode,
   testServer,
-} from "../../config";
-import logger from "../../helpers/logger";
-import Errors from "../../structures/errors";
-import EmbedColors from "../../structures/embedColors";
-import getPermissionName from "../../helpers/getPermissionName";
-import { getCooldown, setCooldown } from "../../handlers/cooldownHandler";
+} from "../../config.js";
+import logger from "../../helpers/logger.js";
+import Errors from "../../structures/errors.js";
+import EmbedColors from "../../structures/embedColors.js";
+import getPermissionName from "../../helpers/getPermissionName.js";
+import { getCooldown, setCooldown } from "../../handlers/cooldownHandler.js";
 import ms from "ms";
-import analytics from "../../db/models/analytics";
-import safeEmbed from "../../utils/safeEmbed";
-import { dbStatus } from "../../handlers/errorHandler";
+import analytics from "../../db/models/analytics.js";
+import safeEmbed from "../../utils/safeEmbed.js";
+import { dbStatus } from "../../handlers/errorHandler.js";
 
 export default async (client: Client, message: Message) => {
   if (!message.guild) return;

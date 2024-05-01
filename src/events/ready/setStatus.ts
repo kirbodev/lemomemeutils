@@ -1,7 +1,7 @@
 import { ActivitiesOptions, ActivityType, Client } from "discord.js";
-import getErrorStatus from "../../handlers/errorHandler";
-import { client } from "../..";
-import logger from "../../helpers/logger";
+import getErrorStatus from "../../handlers/errorHandler.js";
+import { client } from "../../index.js";
+import logger from "../../helpers/logger.js";
 
 const statuses: ActivitiesOptions[] = [
   {

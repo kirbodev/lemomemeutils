@@ -4,11 +4,11 @@ import {
   type Message,
   EmbedBuilder,
 } from "discord.js";
-import type Command from "../../structures/commandInterface";
-import EmbedColors from "../../structures/embedColors";
+import type Command from "../../structures/commandInterface.js";
+import EmbedColors from "../../structures/embedColors.js";
 import os from "os-utils";
 import ms from "ms";
-import safeEmbed from "../../utils/safeEmbed";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 export default {
   name: "ping",

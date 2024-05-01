@@ -1,5 +1,5 @@
 import { Client, EmbedBuilder, Interaction } from "discord.js";
-import analytics from "../../db/models/analytics";
+import analytics from "../../db/models/analytics.js";
 
 export default async (client: Client, interaction: Interaction) => {
   if (!interaction.isButton()) return;

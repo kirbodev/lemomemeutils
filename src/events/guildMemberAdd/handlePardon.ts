@@ -1,8 +1,8 @@
 // Check if user has an unban action with parole, if so, add the parole date to the unban action and add parole role to user. Remember to recommend ban on warn during parole
 import type { Client, GuildMember } from "discord.js";
-import { Action } from "../../db";
-import configs from "../../config";
-import logger from "../../helpers/logger";
+import Action from "../../db/models/action.js";
+import configs from "../../config.js";
+import logger from "../../helpers/logger.js";
 
 export default async (client: Client, member: GuildMember) => {
   const action = await Action.findOne({

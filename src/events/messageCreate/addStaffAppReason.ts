@@ -1,7 +1,7 @@
 import { APIEmbed, Client, EmbedBuilder, Message } from "discord.js";
-import configs from "../../config";
-import { Staff } from "../../db";
-import safeEmbed from "../../utils/safeEmbed";
+import configs from "../../config.js";
+import Staff from "../../db/models/staff.js";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 export default async (client: Client, message: Message) => {
   if (!message.guild) return;

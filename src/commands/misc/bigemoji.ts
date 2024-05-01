@@ -4,10 +4,10 @@ import {
   ApplicationCommandOptionType,
   EmbedBuilder,
 } from "discord.js";
-import type Command from "../../structures/commandInterface";
-import EmbedColors from "../../structures/embedColors";
-import Errors from "../../structures/errors";
-import safeEmbed from "../../utils/safeEmbed";
+import type Command from "../../structures/commandInterface.js";
+import EmbedColors from "../../structures/embedColors.js";
+import Errors from "../../structures/errors.js";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 export default {
   name: "bigemoji",

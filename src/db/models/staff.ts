@@ -1,6 +1,6 @@
 // Create a dev model to be used to store OTP secrets, id must be in "devs" from config.ts
 import mongoose, { Model } from "mongoose";
-import staffInterface from "../../structures/staffInterface";
+import staffInterface from "../../structures/staffInterface.js";
 
 const staffSchema = new mongoose.Schema<staffInterface>({
   userID: {

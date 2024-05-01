@@ -1,5 +1,5 @@
 import type { ChatInputCommandInteraction, Message, User } from "discord.js";
-import type Command from "../../structures/commandInterface";
+import type Command from "../../structures/commandInterface.js";
 import {
   GuildMember,
   ApplicationCommandOptionType,
@@ -9,16 +9,16 @@ import {
   StringSelectMenuBuilder,
   ComponentType,
 } from "discord.js";
-import EmbedColors from "../../structures/embedColors";
-import Errors from "../../structures/errors";
-import unwarnMember from "../../helpers/unwarnMember";
+import EmbedColors from "../../structures/embedColors.js";
+import Errors from "../../structures/errors.js";
+import unwarnMember from "../../helpers/unwarnMember.js";
 import { HydratedDocument } from "mongoose";
-import warnInterface from "../../structures/warnInterface";
-import { Warn } from "../../db";
+import warnInterface from "../../structures/warnInterface.js";
+import Warn from "../../db/models/warn.js";
 import { nanoid } from "nanoid";
 import ms from "ms";
-import configs from "../../config";
-import safeEmbed from "../../utils/safeEmbed";
+import configs from "../../config.js";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 export default {
   name: "unwarn",

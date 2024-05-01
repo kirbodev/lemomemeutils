@@ -1,5 +1,5 @@
 // import mongoose from "mongoose";
-// import userAnalyticsInterface from "../../structures/userAnalyticsInterface";
+// import userAnalyticsInterface from "../../structures/userAnalyticsInterface.js";
 // import { Model } from "mongoose";
 
 // const userAnalyticsSchema = new mongoose.Schema<userAnalyticsInterface>({

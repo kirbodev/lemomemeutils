@@ -1,5 +1,5 @@
-import getLocalCommands from "../../helpers/getLocalCommands";
-import logger from "../../helpers/logger";
+import getLocalCommands from "../../helpers/getLocalCommands.js";
+import logger from "../../helpers/logger.js";
 import { ApplicationCommandType, type Client } from "discord.js";
 
 export default async (client: Client) => {

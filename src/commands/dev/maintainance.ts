@@ -3,10 +3,10 @@ import {
   type ChatInputCommandInteraction,
   type ModalSubmitInteraction,
 } from "discord.js";
-import type Command from "../../structures/commandInterface";
-import { maintainanceMode, toggleMode } from "../../config";
-import EmbedColors from "../../structures/embedColors";
-import safeEmbed from "../../utils/safeEmbed";
+import type Command from "../../structures/commandInterface.js";
+import { maintainanceMode, toggleMode } from "../../config.js";
+import EmbedColors from "../../structures/embedColors.js";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 export default {
   name: "maintainance",

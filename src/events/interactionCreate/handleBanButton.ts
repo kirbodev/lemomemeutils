@@ -5,11 +5,11 @@ import {
   Interaction,
   PermissionsBitField,
 } from "discord.js";
-import Errors from "../../structures/errors";
-import EmbedColors from "../../structures/embedColors";
-import configs from "../../config";
-import safeEmbed from "../../utils/safeEmbed";
-import banMember from "../../helpers/banMember";
+import Errors from "../../structures/errors.js";
+import EmbedColors from "../../structures/embedColors.js";
+import configs from "../../config.js";
+import safeEmbed from "../../utils/safeEmbed.js";
+import banMember from "../../helpers/banMember.js";
 
 export default async (client: Client, interaction: Interaction) => {
   if (!interaction.isButton()) return;

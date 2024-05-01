@@ -7,14 +7,14 @@ import {
   Role,
   User,
 } from "discord.js";
-import configs from "../../config";
-import { Staff } from "../../db";
+import configs from "../../config.js";
+import Staff from "../../db/models/staff.js";
 import { HydratedDocument } from "mongoose";
-import staffInterface, { StaffLevel } from "../../structures/staffInterface";
-import EmbedColors from "../../structures/embedColors";
-import setStaffLevel from "../../helpers/setStaffLevel";
-import safeEmbed from "../../utils/safeEmbed";
-import { dbStatus } from "../../handlers/errorHandler";
+import staffInterface, { StaffLevel } from "../../structures/staffInterface.js";
+import EmbedColors from "../../structures/embedColors.js";
+import setStaffLevel from "../../helpers/setStaffLevel.js";
+import safeEmbed from "../../utils/safeEmbed.js";
+import { dbStatus } from "../../handlers/errorHandler.js";
 
 export default async (
   client: Client,

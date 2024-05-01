@@ -1,10 +1,11 @@
 import { EmbedBuilder, GuildMember, User } from "discord.js";
-import EmbedColors from "../structures/embedColors";
-import { Action, Warn } from "../db";
+import EmbedColors from "../structures/embedColors.js";
+import Action from "../db/models/action.js";
+import Warn from "../db/models/warn.js";
 import { HydratedDocument } from "mongoose";
-import warnInterface from "../structures/warnInterface";
-import configs from "../config";
-import safeEmbed from "../utils/safeEmbed";
+import warnInterface from "../structures/warnInterface.js";
+import configs from "../config.js";
+import safeEmbed from "../utils/safeEmbed.js";
 
 export default async function banMember(
   member: GuildMember | User,

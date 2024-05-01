@@ -6,10 +6,10 @@ import {
   ApplicationCommandOptionType,
   User,
 } from "discord.js";
-import type Command from "../../structures/commandInterface";
-import EmbedColors from "../../structures/embedColors";
-import safeEmbed from "../../utils/safeEmbed";
-import lazyMemberSearch from "../../utils/lazyMemberSearch";
+import type Command from "../../structures/commandInterface.js";
+import EmbedColors from "../../structures/embedColors.js";
+import safeEmbed from "../../utils/safeEmbed.js";
+import lazyMemberSearch from "../../utils/lazyMemberSearch.js";
 
 export default {
   name: "avatar",

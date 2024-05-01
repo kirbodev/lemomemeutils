@@ -4,14 +4,14 @@ import {
   EmbedBuilder,
   GuildTextBasedChannel,
 } from "discord.js";
-import Job from "../structures/jobInterface";
-import { Staff } from "../db";
+import Job from "../structures/jobInterface.js";
+import Staff from "../db/models/staff.js";
 import { HydratedDocument } from "mongoose";
-import staffInterface, { StaffLevel } from "../structures/staffInterface";
-import configs from "../config";
-import setStaffLevel from "../helpers/setStaffLevel";
-import EmbedColors from "../structures/embedColors";
-import safeEmbed from "../utils/safeEmbed";
+import staffInterface, { StaffLevel } from "../structures/staffInterface.js";
+import configs from "../config.js";
+import setStaffLevel from "../helpers/setStaffLevel.js";
+import EmbedColors from "../structures/embedColors.js";
+import safeEmbed from "../utils/safeEmbed.js";
 
 export default {
   every: "1 hour",

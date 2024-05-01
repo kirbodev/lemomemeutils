@@ -4,10 +4,10 @@ import {
   type ModalSubmitInteraction,
   ApplicationCommandOptionType,
 } from "discord.js";
-import type Command from "../../structures/commandInterface";
-import EmbedColors from "../../structures/embedColors";
+import type Command from "../../structures/commandInterface.js";
+import EmbedColors from "../../structures/embedColors.js";
 import { inspect } from "util";
-import safeEmbed from "../../utils/safeEmbed";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 export default {
   name: "eval",
