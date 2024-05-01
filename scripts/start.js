@@ -54,7 +54,7 @@ export default async function start() {
     });
   });
 
-  const child = spawn("node", ["index.js"], {
+  const child = spawn("npm", ["run", "start"], {
     cwd: newName,
     shell: true,
     env: process.env,
