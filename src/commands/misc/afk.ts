@@ -3,14 +3,14 @@ import {
   EmbedBuilder,
   PermissionFlagsBits,
 } from "discord.js";
-import type Command from "../../structures/commandInterface";
+import type Command from "../../structures/commandInterface.js";
 import ms from "ms";
-import Errors from "../../structures/errors";
-import EmbedColors from "../../structures/embedColors";
-import afk from "../../db/models/afk";
-import afkInterface from "../../structures/afkInterface";
+import Errors from "../../structures/errors.js";
+import EmbedColors from "../../structures/embedColors.js";
+import afk from "../../db/models/afk.js";
+import afkInterface from "../../structures/afkInterface.js";
 import { HydratedDocument } from "mongoose";
-import safeEmbed from "../../utils/safeEmbed";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 export default {
   name: "afk",

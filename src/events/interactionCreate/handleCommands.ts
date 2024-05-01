@@ -9,20 +9,20 @@ import {
   ButtonInteraction,
   GuildMemberRoleManager,
 } from "discord.js";
-import configs, { devs, testServer, maintainanceMode } from "../../config";
-import getLocalCommands from "../../helpers/getLocalCommands";
-import logger from "../../helpers/logger";
-import Errors from "../../structures/errors";
-import EmbedColors from "../../structures/embedColors";
-import getPermissionName from "../../helpers/getPermissionName";
-import Dev from "../../db/models/dev";
+import configs, { devs, testServer, maintainanceMode } from "../../config.js";
+import getLocalCommands from "../../helpers/getLocalCommands.js";
+import logger from "../../helpers/logger.js";
+import Errors from "../../structures/errors.js";
+import EmbedColors from "../../structures/embedColors.js";
+import getPermissionName from "../../helpers/getPermissionName.js";
+import Dev from "../../db/models/dev.js";
 import { nanoid } from "nanoid";
-import showOTPModal from "../../helpers/showOTPModal";
-import { getCooldown, setCooldown } from "../../handlers/cooldownHandler";
+import showOTPModal from "../../helpers/showOTPModal.js";
+import { getCooldown, setCooldown } from "../../handlers/cooldownHandler.js";
 import ms from "ms";
-import analytics from "../../db/models/analytics";
-import safeEmbed from "../../utils/safeEmbed";
-import { dbStatus } from "../../handlers/errorHandler";
+import analytics from "../../db/models/analytics.js";
+import safeEmbed from "../../utils/safeEmbed.js";
+import { dbStatus } from "../../handlers/errorHandler.js";
 
 export default async (client: Client, interaction: Interaction) => {
   if (!interaction.isChatInputCommand()) return;

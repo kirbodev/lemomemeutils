@@ -1,6 +1,6 @@
 import { Collection } from "discord.js";
-import Config from "./structures/configInterface";
-import { StaffLevel } from "./structures/staffInterface";
+import Config from "./structures/configInterface.js";
+import { StaffLevel } from "./structures/staffInterface.js";
 
 /*
     guildID: string;

@@ -1,9 +1,9 @@
 import { Client, Message } from "discord.js";
-import configs from "../../config";
-import kv from "../../db/models/kv";
+import configs from "../../config.js";
+import kv from "../../db/models/kv.js";
 import { HydratedDocument } from "mongoose";
-import kvInterface from "../../structures/kvInterface";
-import { dbStatus } from "../../handlers/errorHandler";
+import kvInterface from "../../structures/kvInterface.js";
+import { dbStatus } from "../../handlers/errorHandler.js";
 
 export default async (client: Client, message: Message) => {
   if (!message.guild) return;

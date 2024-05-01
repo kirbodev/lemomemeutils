@@ -6,10 +6,10 @@ import {
   ButtonBuilder,
   ButtonStyle,
 } from "discord.js";
-import type Command from "../../structures/commandInterface";
-import EmbedColors from "../../structures/embedColors";
-import kv from "../../db/models/kv";
-import safeEmbed from "../../utils/safeEmbed";
+import type Command from "../../structures/commandInterface.js";
+import EmbedColors from "../../structures/embedColors.js";
+import kv from "../../db/models/kv.js";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 export default {
   name: "sendapplybutton",

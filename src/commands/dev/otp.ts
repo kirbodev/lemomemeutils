@@ -8,14 +8,14 @@ import {
   AttachmentBuilder,
   ButtonInteraction,
 } from "discord.js";
-import type Command from "../../structures/commandInterface";
-import Dev from "../../db/models/dev";
+import type Command from "../../structures/commandInterface.js";
+import Dev from "../../db/models/dev.js";
 import speakeasy from "speakeasy";
-import EmbedColors from "../../structures/embedColors";
+import EmbedColors from "../../structures/embedColors.js";
 import qrcode from "qrcode";
 import { nanoid } from "nanoid";
-import showOTPModal from "../../helpers/showOTPModal";
-import safeEmbed from "../../utils/safeEmbed";
+import showOTPModal from "../../helpers/showOTPModal.js";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 export default {
   name: "otp",

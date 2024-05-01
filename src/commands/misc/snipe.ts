@@ -11,17 +11,18 @@ import {
   Message,
   ButtonInteraction,
   StringSelectMenuBuilder,
+  PermissionsBitField,
 } from "discord.js";
-import snipe from "../../db/models/snipe";
-import safeEmbed from "../../utils/safeEmbed";
-import Errors from "../../structures/errors";
-import EmbedColors from "../../structures/embedColors";
-import type Command from "../../structures/commandInterface";
+import snipe from "../../db/models/snipe.js";
+import safeEmbed from "../../utils/safeEmbed.js";
+import Errors from "../../structures/errors.js";
+import EmbedColors from "../../structures/embedColors.js";
+import type Command from "../../structures/commandInterface.js";
 import { nanoid } from "nanoid";
 import moment from "moment";
 import { HydratedDocument } from "mongoose";
-import snipeInterface from "../../structures/snipeInterface";
-import analytics from "../../db/models/analytics";
+import snipeInterface from "../../structures/snipeInterface.js";
+import analytics from "../../db/models/analytics.js";
 
 export default {
   name: "snipe",
@@ -56,11 +57,14 @@ export default {
       required: false,
     },
   ],
+  permissionsRequired: [PermissionsBitField.Flags.ManageMessages],
+  aliases: ["esnipe"],
+  syntax: "[channel] [user] [amount]",
   slash: async (interaction: ChatInputCommandInteraction) => {
     await interaction.deferReply({ ephemeral: true });
 
-    const channelOption =
-      interaction.options.getChannel("channel") || interaction.channel;
+    const channel = interaction.options.getChannel("channel");
+    const channelOption = channel || interaction.channel;
     if (!channelOption || !(channelOption instanceof TextChannel)) {
       await interaction.editReply({
         embeds: [
@@ -88,7 +92,7 @@ export default {
 
     const query = snipe
       .find({
-        channelId: channelOption.id,
+        channelId: user && !channel ? { $exists: true } : channelOption.id,
         authorId: user ? user.id : { $exists: true },
         guildId: interaction.guildId,
         methodType: messageType,
@@ -208,10 +212,10 @@ export default {
         .catch(() => null);
     }
   },
-  message: async (interaction, { args }) => {
+  message: async (interaction, { args, alias }) => {
     args = args ?? [];
-    const channelOption =
-      interaction.mentions.channels.first() || interaction.channel;
+    const channel = interaction.mentions.channels.first();
+    const channelOption = channel || interaction.channel;
     if (!channelOption || !(channelOption instanceof TextChannel)) {
       await interaction.reply({
         embeds: [
@@ -233,34 +237,14 @@ export default {
 
     const user = interaction.mentions.users.first();
 
-    const messageType = args[0];
-    if (!messageType || !["delete", "edit"].includes(messageType)) {
-      await interaction.reply({
-        embeds: [
-          safeEmbed(
-            new EmbedBuilder()
-              .setTitle(Errors.ErrorUser)
-              .setDescription(
-                "Please provide a valid message type. Either `delete` or `edit`"
-              )
-              .setColor(EmbedColors.error)
-              .setFooter({
-                text: `Requested by ${interaction.author.tag}`,
-                iconURL: interaction.author.displayAvatarURL(),
-              })
-              .setTimestamp(Date.now())
-          ),
-        ],
-      });
-      return;
-    }
+    const messageType = alias === "snipe" ? "delete" : "edit";
 
     const rawAmount = parseInt(args.filter((arg) => !isNaN(Number(arg)))[0]);
     const amount = (!rawAmount ? 1 : rawAmount) < 0 ? null : rawAmount;
 
     const query = snipe
       .find({
-        channelId: channelOption.id,
+        channelId: user && !channel ? { $exists: true } : channelOption.id,
         authorId: user ? user.id : { $exists: true },
         guildId: interaction.guildId,
         methodType: messageType,
@@ -544,7 +528,7 @@ async function handleDelete(
     timestamp: new Date(),
     name: `deleteSnipe-${snipeToDelete.authorId}`,
     responseTime: Date.now() - select.createdTimestamp,
-    type: "other"
+    type: "other",
   });
   await an.save();
 }

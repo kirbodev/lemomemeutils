@@ -1,7 +1,7 @@
-// import Job from "../structures/jobInterface";
-// import { userMessageStore } from "../events/messageCreate/logUserAnalytics";
-// import userAnalytics from "../db/models/userAnalytics";
-// import logger from "../helpers/logger";
+// import Job from "../structures/jobInterface.js";
+// import { userMessageStore } from "../events/messageCreate/logUserAnalytics.js";
+// import userAnalytics from "../db/models/userAnalytics.js";
+// import logger from "../helpers/logger.js";
 
 // export default {
 //   every: "0 * * * *",

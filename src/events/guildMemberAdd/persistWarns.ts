@@ -1,9 +1,9 @@
 // Get the active warns for a user and find the associated roles to apply to them
 
-import configs from "../../config";
-import logger from "../../helpers/logger";
+import configs from "../../config.js";
+import logger from "../../helpers/logger.js";
 import { Client, GuildMember } from "discord.js";
-import getActiveWarns from "../../helpers/getActiveWarns";
+import getActiveWarns from "../../helpers/getActiveWarns.js";
 
 export default async (client: Client, member: GuildMember) => {
   const warns = await getActiveWarns(member);

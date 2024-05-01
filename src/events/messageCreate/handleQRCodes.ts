@@ -1,11 +1,11 @@
 import { Client, EmbedBuilder, Message } from "discord.js";
 import sharp from "sharp";
-import { qrCodeAllowlist } from "../../config";
-import EmbedColors from "../../structures/embedColors";
+import { qrCodeAllowlist } from "../../config.js";
+import EmbedColors from "../../structures/embedColors.js";
 
 import { readBarcodesFromImageFile } from "zxing-wasm";
-import analytics from "../../db/models/analytics";
-import safeEmbed from "../../utils/safeEmbed";
+import analytics from "../../db/models/analytics.js";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 export default async (client: Client, message: Message) => {
   if (!message.guild) return;

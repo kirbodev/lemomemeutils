@@ -1,5 +1,5 @@
 import mongoose, { Model } from "mongoose";
-import snipeInterface from "../../structures/snipeInterface";
+import snipeInterface from "../../structures/snipeInterface.js";
 
 const snipeSchema = new mongoose.Schema<snipeInterface>({
   messageId: { type: String, required: true },

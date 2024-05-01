@@ -13,15 +13,15 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
-import Errors from "../../structures/errors";
-import EmbedColors from "../../structures/embedColors";
-import { Staff } from "../../db";
+import Errors from "../../structures/errors.js";
+import EmbedColors from "../../structures/embedColors.js";
+import Staff from "../../db/models/staff.js";
 import { nanoid } from "nanoid";
-import staffInterface from "../../structures/staffInterface";
+import staffInterface from "../../structures/staffInterface.js";
 import { HydratedDocument } from "mongoose";
-import configs from "../../config";
+import configs from "../../config.js";
 import ms from "ms";
-import safeEmbed from "../../utils/safeEmbed";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 export default async (client: Client, interaction: Interaction) => {
   if (!interaction.isButton()) return;

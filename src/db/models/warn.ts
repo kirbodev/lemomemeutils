@@ -1,5 +1,5 @@
 import mongoose, { Model } from "mongoose";
-import warnInterface from "../../structures/warnInterface";
+import warnInterface from "../../structures/warnInterface.js";
 
 const unwarnInterface = new mongoose.Schema({
   moderatorID: {

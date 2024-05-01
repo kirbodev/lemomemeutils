@@ -1,5 +1,5 @@
 import mongoose, { Model } from "mongoose";
-import kvInterface from "../../structures/kvInterface";
+import kvInterface from "../../structures/kvInterface.js";
 
 const kvSchema = new mongoose.Schema<kvInterface>({
   key: {

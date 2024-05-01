@@ -7,12 +7,12 @@ import {
   ButtonInteraction,
   EmbedBuilder,
 } from "discord.js";
-import Dev from "../db/models/dev";
+import Dev from "../db/models/dev.js";
 import { nanoid } from "nanoid";
-import verifyOTP from "./verifyOTP";
-import Errors from "../structures/errors";
-import EmbedColors from "../structures/embedColors";
-import safeEmbed from "../utils/safeEmbed";
+import verifyOTP from "./verifyOTP.js";
+import Errors from "../structures/errors.js";
+import EmbedColors from "../structures/embedColors.js";
+import safeEmbed from "../utils/safeEmbed.js";
 
 export default async function showOTPModal(
   interaction: ChatInputCommandInteraction | ButtonInteraction,

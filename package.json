@@ -7,10 +7,13 @@
   "scripts": {
     "dev": "set NODE_ENV=dev && tsx watch src/index.ts | npx pino-pretty",
     "build": "tsc",
-    "start": "npm run build && node --es-module-specifier-resolution=node .",
-    "test": "tsc && node --es-module-specifier-resolution=node dist/test.js",
+    "start": "npm run build && node .",
+    "test": "tsc && node dist/test.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --ext .ts --fix",
+    "manage": "node scripts/start.js",
+    "manage:dev": "node scripts/start.js dev",
+    "manage:build": "npm run build && node scripts/start.js dev",
     "prettier": "npx prettier --write ."
   },
   "repository": {
@@ -53,6 +56,7 @@
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
     "eslint": "^8.53.0",
+    "isomorphic-git": "^1.25.7",
     "pino": "^8.16.1",
     "pino-pretty": "^10.2.3",
     "tsx": "^3.14.0"

@@ -1,8 +1,8 @@
 import { GuildMember } from "discord.js";
 import { HydratedDocument } from "mongoose";
-import warnInterface from "../structures/warnInterface";
-import configs from "../config";
-import getActiveWarns from "./getActiveWarns";
+import warnInterface from "../structures/warnInterface.js";
+import configs from "../config.js";
+import getActiveWarns from "./getActiveWarns.js";
 
 export default async function unwarnMember(
   warn: HydratedDocument<warnInterface>,

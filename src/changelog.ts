@@ -1,14 +1,13 @@
 export default {
-  name: "Snipe is here",
-  date: new Date(2024, 3, 24),
-  version: "1.7.3",
+  name: "Downtime is over",
+  date: new Date(2024, 4, 1),
+  version: "1.7.4",
   description:
-    "Finally, snipe is here, in beta. User feedback is appreciated.",
+    "Minimised bot cold start time from ~60s to 500ms. A couple of other small changes.",
   changelog: [
-    "Fixed a couple of bugs",
-    "Removed status warning from some log messages",
-    "Online status should now update properly",
-    "Added snipe feature",
+    "Changed snipe. `esnipe` will be used for edits and `snipe` for deletes.",
+    "Made the code work with latest versions of Node.js",
+    "Made Fruit Harvester, a way to update the bot without downtime",
   ],
 } satisfies {
   name: string;

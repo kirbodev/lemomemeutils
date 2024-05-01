@@ -1,4 +1,4 @@
-import getLocalCommands from "../helpers/getLocalCommands";
+import getLocalCommands from "../helpers/getLocalCommands.js";
 
 const cooldowns = new Map<string, Map<string, number>>();
 

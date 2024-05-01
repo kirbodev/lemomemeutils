@@ -13,13 +13,13 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
-import type Command from "../../structures/commandInterface";
-import EmbedColors from "../../structures/embedColors";
-import Errors from "../../structures/errors";
+import type Command from "../../structures/commandInterface.js";
+import EmbedColors from "../../structures/embedColors.js";
+import Errors from "../../structures/errors.js";
 import { nanoid } from "nanoid";
-import { KV } from "../../db";
-import kvInterface from "../../structures/kvInterface";
-import safeEmbed from "../../utils/safeEmbed";
+import KV from "../../db/models/kv.js";
+import kvInterface from "../../structures/kvInterface.js";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 export default {
   name: "say",

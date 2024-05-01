@@ -1,12 +1,12 @@
 import { Client, EmbedBuilder, Message } from "discord.js";
-import afk from "../../db/models/afk";
+import afk from "../../db/models/afk.js";
 import { HydratedDocument } from "mongoose";
-import afkInterface from "../../structures/afkInterface";
-import EmbedColors from "../../structures/embedColors";
+import afkInterface from "../../structures/afkInterface.js";
+import EmbedColors from "../../structures/embedColors.js";
 import ms from "ms";
-import configs from "../../config";
-import safeEmbed from "../../utils/safeEmbed";
-import { dbStatus } from "../../handlers/errorHandler";
+import configs from "../../config.js";
+import safeEmbed from "../../utils/safeEmbed.js";
+import { dbStatus } from "../../handlers/errorHandler.js";
 
 export default async (client: Client, message: Message) => {
   if (!message.guild) return;

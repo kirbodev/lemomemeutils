@@ -1,7 +1,7 @@
 import type { Client } from "discord.js";
-import Job from "../structures/jobInterface";
-import { Action } from "../db";
-import actionInterface from "../structures/actionInterface";
+import Job from "../structures/jobInterface.js";
+import Action from "../db/models/action.js";
+import actionInterface from "../structures/actionInterface.js";
 import { HydratedDocument } from "mongoose";
 
 export default {

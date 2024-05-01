@@ -1,8 +1,8 @@
 import { HydratedDocument } from "mongoose";
-import staffInterface, { StaffLevel } from "../structures/staffInterface";
-import configs from "../config";
-import { client } from "..";
-import logger from "./logger";
+import staffInterface, { StaffLevel } from "../structures/staffInterface.js";
+import configs from "../config.js";
+import { client } from "../index.js";
+import logger from "./logger.js";
 
 export default async function setStaffLevel(
   staff: HydratedDocument<staffInterface>,

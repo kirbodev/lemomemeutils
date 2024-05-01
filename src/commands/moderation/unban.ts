@@ -2,18 +2,18 @@ import type {
   ChatInputCommandInteraction,
   Message /* ContextMenuCommandInteraction, Message */,
 } from "discord.js";
-import type Command from "../../structures/commandInterface";
+import type Command from "../../structures/commandInterface.js";
 import {
   ApplicationCommandOptionType,
   PermissionsBitField,
   EmbedBuilder,
 } from "discord.js";
-import EmbedColors from "../../structures/embedColors";
-import Errors from "../../structures/errors";
-import { Action } from "../../db/index";
-import configs from "../../config";
-import logger from "../../helpers/logger";
-import safeEmbed from "../../utils/safeEmbed";
+import EmbedColors from "../../structures/embedColors.js";
+import Errors from "../../structures/errors.js";
+import { Action } from "../../db/index.js";
+import configs from "../../config.js";
+import logger from "../../helpers/logger.js";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 export default {
   name: "unban",

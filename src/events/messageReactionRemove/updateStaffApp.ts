@@ -1,9 +1,9 @@
 import { Client, MessageReaction, User } from "discord.js";
-import configs from "../../config";
-import { Staff } from "../../db";
+import configs from "../../config.js";
+import Staff from "../../db/models/staff.js";
 import { HydratedDocument } from "mongoose";
-import staffInterface from "../../structures/staffInterface";
-import { dbStatus } from "../../handlers/errorHandler";
+import staffInterface from "../../structures/staffInterface.js";
+import { dbStatus } from "../../handlers/errorHandler.js";
 
 export default async (
   client: Client,

@@ -1,6 +1,6 @@
 import { Guild } from "discord.js";
 import Fuse from "fuse.js";
-import { client } from "..";
+import { client } from "../index.js";
 
 for (const guild of client.guilds.cache.values()) {
   guild.members.fetch();

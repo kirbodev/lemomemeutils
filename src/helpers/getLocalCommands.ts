@@ -1,9 +1,9 @@
 // Get commands from local directory
-import type Command from "../structures/commandInterface";
-import getFiles from "./getFiles";
+import type Command from "../structures/commandInterface.js";
+import getFiles from "./getFiles.js";
 import path from "path";
 import { fileURLToPath } from "url";
-import logger from "./logger";
+import logger from "./logger.js";
 
 let cachedCommands: Command[] | undefined;
 export default async function getLocalCommands() {

@@ -4,10 +4,10 @@ import {
   Message,
   EmbedBuilder,
 } from "discord.js";
-import type Command from "../../structures/commandInterface";
-import changelog from "../../changelog";
-import EmbedColors from "../../structures/embedColors";
-import safeEmbed from "../../utils/safeEmbed";
+import type Command from "../../structures/commandInterface.js";
+import changelog from "../../changelog.js";
+import EmbedColors from "../../structures/embedColors.js";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 export default {
   name: "changelog",

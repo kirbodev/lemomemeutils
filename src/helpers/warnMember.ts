@@ -1,10 +1,10 @@
 import { EmbedBuilder, GuildMember } from "discord.js";
-import { Warn } from "../db";
-import configs from "../config";
-import EmbedColors from "../structures/embedColors";
-import muteMember from "./muteMember";
-import getActiveWarns from "./getActiveWarns";
-import safeEmbed from "../utils/safeEmbed";
+import Warn from "../db/models/warn.js";
+import configs from "../config.js";
+import EmbedColors from "../structures/embedColors.js";
+import muteMember from "./muteMember.js";
+import getActiveWarns from "./getActiveWarns.js";
+import safeEmbed from "../utils/safeEmbed.js";
 
 export enum WarnResponse {
   RateLimited,

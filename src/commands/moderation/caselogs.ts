@@ -10,17 +10,18 @@ import {
   Message,
   User,
 } from "discord.js";
-import type Command from "../../structures/commandInterface";
-import Errors from "../../structures/errors";
-import EmbedColors from "../../structures/embedColors";
-import configs from "../../config";
-import { Action, Warn } from "../../db";
+import type Command from "../../structures/commandInterface.js";
+import Errors from "../../structures/errors.js";
+import EmbedColors from "../../structures/embedColors.js";
+import configs from "../../config.js";
+import Warn from "../../db/models/warn.js";
+import Action from "../../db/models/action.js";
 import { HydratedDocument } from "mongoose";
-import warnInterface, { unwarnInterface } from "../../structures/warnInterface";
-import actionInterface from "../../structures/actionInterface";
+import warnInterface, { unwarnInterface } from "../../structures/warnInterface.js";
+import actionInterface from "../../structures/actionInterface.js";
 import ms from "ms";
 import { nanoid } from "nanoid";
-import safeEmbed from "../../utils/safeEmbed";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 enum CombinedType {
   warn = "warn",

@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import logger from "../helpers/logger";
-import warn from "./models/warn";
-import action from "./models/action";
-import staff from "./models/staff";
-import kv from "./models/kv";
+import logger from "../helpers/logger.js";
+import warn from "./models/warn.js";
+import action from "./models/action.js";
+import staff from "./models/staff.js";
+import kv from "./models/kv.js";
 
 mongoose.connect(process.env.MONGO_CONNECTION as string);
 

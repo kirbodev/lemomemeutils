@@ -1,5 +1,5 @@
 import pino from "pino";
-import logCleanup from "./logCleanup";
+import logCleanup from "./logCleanup.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";

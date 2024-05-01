@@ -4,7 +4,7 @@ import type {
   Message,
   User,
 } from "discord.js";
-import type Command from "../../structures/commandInterface";
+import type Command from "../../structures/commandInterface.js";
 import {
   GuildMember,
   ApplicationCommandOptionType,
@@ -13,13 +13,13 @@ import {
   ButtonBuilder,
   ActionRowBuilder,
 } from "discord.js";
-import EmbedColors from "../../structures/embedColors";
-import Errors from "../../structures/errors";
-import warnMember, { WarnResponse } from "../../helpers/warnMember";
-import getBanButton from "../../helpers/handleBanButton";
+import EmbedColors from "../../structures/embedColors.js";
+import Errors from "../../structures/errors.js";
+import warnMember, { WarnResponse } from "../../helpers/warnMember.js";
+import getBanButton from "../../helpers/handleBanButton.js";
 import ms from "ms";
-import configs from "../../config";
-import safeEmbed from "../../utils/safeEmbed";
+import configs from "../../config.js";
+import safeEmbed from "../../utils/safeEmbed.js";
 
 export default {
   name: "hw",

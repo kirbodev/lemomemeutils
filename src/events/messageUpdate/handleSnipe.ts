@@ -1,5 +1,5 @@
 import { Client, Message } from "discord.js";
-import snipe from "../../db/models/snipe";
+import snipe from "../../db/models/snipe.js";
 
 export default async (
   client: Client,
