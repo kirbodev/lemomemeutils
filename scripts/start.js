@@ -5,6 +5,7 @@ import fs from "fs";
 import git from "isomorphic-git";
 import http from "isomorphic-git/http/node/index.cjs";
 import "dotenv/config";
+import { platform } from "os";
 
 const devMode = process.argv.includes("dev");
 const repo = "https://github.com/kirbodev/lemomemeutils";
@@ -119,9 +120,26 @@ export default async function start() {
   });
 }
 
+//npm install --cpu=x64 --os=linux sharp
 async function installDependencies(cwd) {
   return new Promise((resolve) => {
     console.info("Installing dependencies...");
+    if (platform() === "linux") {
+      console.info("Linux detected, installing sharp with --cpu=x64 --os=linux")
+      const sharp = spawn("npm", ["install", "--cpu=x64", "--os=linux", "sharp"], {
+        cwd,
+        shell: true,
+      });
+      sharp.on("close", (code) => {
+        if (code !== 0) {
+          console.error(
+            "Failed to install sharp, proceeding with full restart..."
+          );
+          return fullRestart();
+        }
+        console.info("Sharp installed successfully");
+      });
+    }
     const child = spawn("npm", ["install"], {
       cwd,
       shell: true,
