@@ -12,6 +12,9 @@ import {
   ButtonInteraction,
   StringSelectMenuBuilder,
   PermissionsBitField,
+  Channel,
+  ButtonComponent,
+  MessageEditOptions,
 } from "discord.js";
 import snipe from "../../db/models/snipe.js";
 import safeEmbed from "../../utils/safeEmbed.js";
@@ -32,7 +35,7 @@ export default {
       name: "type",
       description: "Whether to fetch the last deleted or last edited message",
       type: ApplicationCommandOptionType.String,
-      required: true,
+      required: false,
       choices: [
         { name: "deleted", value: "delete" },
         { name: "edited", value: "edit" },
@@ -86,22 +89,18 @@ export default {
 
     const user = interaction.options.getUser("user");
 
-    const messageType = interaction.options.getString("type", true);
+    const messageType = interaction.options.getString("type") ?? "delete";
     const rawAmount = interaction.options.getInteger("amount");
     const amount = (!rawAmount ? 1 : rawAmount) < 0 ? null : rawAmount;
 
-    const query = snipe
-      .find({
-        channelId: user && !channel ? { $exists: true } : channelOption.id,
-        authorId: user ? user.id : { $exists: true },
-        guildId: interaction.guildId,
-        methodType: messageType,
-      })
-      .sort({ timestamp: -1 });
-
-    amount && query.limit(amount);
-
-    const snipedMessages = await query;
+    let { rawSnipedMessages, snipedMessages } = await getSnipes(
+      user as User | undefined,
+      channel as Channel | undefined,
+      channelOption,
+      interaction,
+      messageType as "edit" | "delete",
+      amount
+    );
 
     if (!snipedMessages.length) {
       await interaction.editReply({
@@ -122,7 +121,7 @@ export default {
       return;
     }
 
-    const embeds: EmbedBuilder[] = [];
+    let embeds: EmbedBuilder[] = [];
 
     for (let i = 0; i < Math.ceil(snipedMessages.length / 5); i++) {
       const embed = new EmbedBuilder()
@@ -155,6 +154,7 @@ export default {
     const backId = nanoid();
     const nextId = nanoid();
     const deleteId = nanoid();
+    const hiddenId = nanoid();
     const reply = await interaction.editReply({
       embeds: [embeds[0]],
       components: [
@@ -173,6 +173,10 @@ export default {
             .setCustomId(deleteId)
             .setEmoji("🗑️")
             .setStyle(ButtonStyle.Danger),
+          new ButtonBuilder()
+            .setCustomId(hiddenId)
+            .setEmoji("👁️")
+            .setStyle(ButtonStyle.Secondary),
         ]),
       ],
       allowedMentions: {
@@ -200,9 +204,23 @@ export default {
           page,
           backId,
           nextId,
+          rawSnipedMessages,
           deleteId,
-          snipedMessages
+          hiddenId,
+          interaction
         );
+
+        const newSnipes = await getSnipes(
+          user as User | undefined,
+          channel as Channel | undefined,
+          channelOption,
+          interaction,
+          messageType as "edit" | "delete",
+          amount
+        );
+        embeds = await getPages(newSnipes.snipedMessages, interaction);
+        rawSnipedMessages = newSnipes.rawSnipedMessages;
+        snipedMessages = newSnipes.snipedMessages;
       }
     } catch (err) {
       return reply
@@ -242,18 +260,14 @@ export default {
     const rawAmount = parseInt(args.filter((arg) => !isNaN(Number(arg)))[0]);
     const amount = (!rawAmount ? 1 : rawAmount) < 0 ? null : rawAmount;
 
-    const query = snipe
-      .find({
-        channelId: user && !channel ? { $exists: true } : channelOption.id,
-        authorId: user ? user.id : { $exists: true },
-        guildId: interaction.guildId,
-        methodType: messageType,
-      })
-      .sort({ timestamp: -1 });
-
-    amount && query.limit(amount);
-
-    const snipedMessages = await query;
+    let { rawSnipedMessages, snipedMessages } = await getSnipes(
+      user,
+      channel,
+      channelOption,
+      interaction,
+      messageType,
+      amount
+    );
 
     if (!snipedMessages.length) {
       await interaction.reply({
@@ -274,39 +288,12 @@ export default {
       return;
     }
 
-    const embeds: EmbedBuilder[] = [];
-
-    for (let i = 0; i < Math.ceil(snipedMessages.length / 5); i++) {
-      const embed = new EmbedBuilder()
-        .setTitle(`Snipe`)
-        .setColor(EmbedColors.info)
-        .setFooter({
-          text: `Requested by ${interaction.author.tag}`,
-          iconURL: interaction.author.displayAvatarURL(),
-        })
-        .setTimestamp(Date.now());
-
-      const page = snipedMessages.slice(i * 5, i * 5 + 5);
-      for (const snipedMessage of page) {
-        const nuser = await interaction.client.users
-          .fetch(snipedMessage.authorId)
-          .catch(() => null);
-        const relative = moment(snipedMessage.timestamp).fromNow();
-        embed.addFields([
-          {
-            name: `${
-              snipedMessage.methodType === "edit" ? "Edited" : "Deleted"
-            } by ${nuser ? nuser.tag : snipedMessage.authorId} | ${relative}`,
-            value: snipedMessage.content.slice(0, 1024),
-          },
-        ]);
-      }
-      embeds.push(safeEmbed(embed));
-    }
+    let embeds = await getPages(snipedMessages, interaction);
 
     const backId = nanoid();
     const nextId = nanoid();
     const deleteId = nanoid();
+    const hiddenId = nanoid();
     const reply = await interaction.reply({
       embeds: [embeds[0]],
       components: [
@@ -325,6 +312,10 @@ export default {
             .setCustomId(deleteId)
             .setEmoji("🗑️")
             .setStyle(ButtonStyle.Danger),
+          new ButtonBuilder()
+            .setCustomId(hiddenId)
+            .setEmoji("👁️")
+            .setStyle(ButtonStyle.Secondary),
         ]),
       ],
       allowedMentions: {
@@ -352,9 +343,22 @@ export default {
           page,
           backId,
           nextId,
+          rawSnipedMessages,
           deleteId,
-          snipedMessages
+          hiddenId
         );
+
+        const newSnipes = await getSnipes(
+          user,
+          channel,
+          channelOption,
+          interaction,
+          messageType,
+          amount
+        );
+        embeds = await getPages(newSnipes.snipedMessages, interaction);
+        rawSnipedMessages = newSnipes.rawSnipedMessages;
+        snipedMessages = newSnipes.snipedMessages;
       }
     } catch (err) {
       return reply
@@ -373,8 +377,10 @@ async function changePage(
   page: number,
   backId: string,
   nextId: string,
-  deleteId: string,
-  snipes: HydratedDocument<snipeInterface>[]
+  snipes: HydratedDocument<snipeInterface>[],
+  deleteId?: string,
+  hiddenId?: string,
+  interaction?: ChatInputCommandInteraction
 ) {
   const button = await msg
     .awaitMessageComponent({
@@ -384,8 +390,12 @@ async function changePage(
     })
     .catch(() => null);
   if (!button) return page;
-  if (button.customId === deleteId) {
-    handleDelete(button, page, snipes);
+  if (deleteId && button.customId === deleteId) {
+    await handleDelete(button, page, snipes, interaction);
+    return page;
+  }
+  if (hiddenId && button.customId === hiddenId) {
+    handleHidden(button, snipes);
     return page;
   }
   if (button.customId === backId) {
@@ -408,10 +418,22 @@ async function changePage(
           .setEmoji("➡️")
           .setStyle(ButtonStyle.Primary)
           .setDisabled(page === embeds.length - 1),
-        new ButtonBuilder()
-          .setCustomId(deleteId)
-          .setEmoji("🗑️")
-          .setStyle(ButtonStyle.Danger),
+        ...(deleteId
+          ? [
+              new ButtonBuilder()
+                .setCustomId(deleteId)
+                .setEmoji("🗑️")
+                .setStyle(ButtonStyle.Danger),
+            ]
+          : []),
+        ...(hiddenId
+          ? [
+              new ButtonBuilder()
+                .setCustomId(hiddenId)
+                .setEmoji("👁️")
+                .setStyle(ButtonStyle.Secondary),
+            ]
+          : []),
       ]),
     ],
     allowedMentions: {
@@ -424,14 +446,16 @@ async function changePage(
 async function handleDelete(
   button: ButtonInteraction,
   page: number,
-  snipes: HydratedDocument<snipeInterface>[]
+  snipes: HydratedDocument<snipeInterface>[],
+  interaction?: ChatInputCommandInteraction
 ) {
+  const newSnipes = snipes.filter((snipe) => !snipe.hidden);
   await button.reply({
     embeds: [
       safeEmbed(
         new EmbedBuilder()
-          .setTitle("Snipe | Deletion")
-          .setDescription("Select the snipe you want to delete.")
+          .setTitle("Snipe | Hide")
+          .setDescription("Select the snipe you want to hide.")
           .setColor(EmbedColors.info),
         {
           withSystemMessages: false,
@@ -442,9 +466,9 @@ async function handleDelete(
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents([
         new StringSelectMenuBuilder()
           .setCustomId(nanoid())
-          .setPlaceholder("Select a snipe to delete")
+          .setPlaceholder("Select a snipe to hide")
           .addOptions(
-            snipes.slice(page * 5, page * 5 + 5).map((snipe) => ({
+            newSnipes.slice(page * 5, page * 5 + 5).map((snipe) => ({
               label: `Snipe by ${
                 button.client.users.cache
                   .get(snipe.authorId)
@@ -472,16 +496,21 @@ async function handleDelete(
   await select.deferReply({
     ephemeral: true,
   });
-  const snipeToDelete = await snipe.findOneAndDelete({
-    _id: select.values[0],
-  });
-  if (!snipeToDelete)
-    return select.editReply({
+  const snipeToDelete = await snipe.findOneAndUpdate(
+    {
+      _id: select.values[0],
+    },
+    {
+      hidden: true,
+    }
+  );
+  if (!snipeToDelete) {
+    select.editReply({
       embeds: [
         safeEmbed(
           new EmbedBuilder()
             .setTitle(Errors.ErrorUser)
-            .setDescription("Failed to find the snipe to delete.")
+            .setDescription("Failed to find the snipe to hide.")
             .setColor(EmbedColors.error),
           {
             withSystemMessages: false,
@@ -489,12 +518,46 @@ async function handleDelete(
         ),
       ],
     });
+    return;
+  }
+  button.editReply({
+    components: [],
+  });
+
+  const newPages = await getPages(
+    newSnipes.filter(
+      (snipe) => snipe._id.toString() !== snipeToDelete._id.toString()
+    ),
+    button
+  );
+  const oldComponents = interaction
+    ? (await interaction.fetchReply()).components[0].components
+    : button.message.components[0].components;
+  const newContent: MessageEditOptions = {
+    embeds: [newPages[page]],
+    components: [
+      new ActionRowBuilder<ButtonBuilder>().addComponents(
+        oldComponents.map((component, i) => {
+          const b = new ButtonBuilder((component as ButtonComponent).toJSON());
+          if (i === 0) b.setDisabled(page === 0);
+          if (i === 1) b.setDisabled(page === newPages.length - 1);
+          return b;
+        })
+      ),
+    ],
+  };
+  interaction
+    ? await interaction.editReply(newContent)
+    : await button.message.edit(newContent);
+
   select.editReply({
     embeds: [
       safeEmbed(
         new EmbedBuilder()
-          .setTitle("Snipe | Deletion")
-          .setDescription("Successfully deleted the snipe.")
+          .setTitle("Snipe | Hide")
+          .setDescription(
+            'Successfully hid the snipe. It will now be hidden to the "👁️" section.'
+          )
           .setFields([
             {
               name: "Content",
@@ -531,4 +594,189 @@ async function handleDelete(
     type: "other",
   });
   await an.save();
+  return snipeToDelete;
+}
+
+async function handleHidden(
+  button: ButtonInteraction,
+  snipes: HydratedDocument<snipeInterface>[]
+) {
+  await button.deferReply({
+    ephemeral: true,
+  });
+  const embeds: EmbedBuilder[] = [];
+
+  snipes = snipes.filter((snipe) => snipe.hidden);
+
+  if (!snipes.length) {
+    return button.editReply({
+      embeds: [
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle("Snipe | Hidden")
+            .setDescription("No hidden snipes found.")
+            .setColor(EmbedColors.info),
+          {
+            withSystemMessages: false,
+          }
+        ),
+      ],
+    });
+  }
+
+  for (let i = 0; i < Math.ceil(snipes.length / 5); i++) {
+    const embed = new EmbedBuilder()
+      .setTitle(`Snipe | Hidden`)
+      .setDescription("Showing hidden snipes.")
+      .setColor(EmbedColors.info)
+      .setFooter({
+        text: `Requested by ${button.user.tag}`,
+        iconURL: button.user.displayAvatarURL(),
+      })
+      .setTimestamp(Date.now());
+
+    const page = snipes.slice(i * 5, i * 5 + 5);
+    for (const snipedMessage of page) {
+      const nuser = await button.client.users
+        .fetch(snipedMessage.authorId)
+        .catch(() => null);
+      const relative = moment(snipedMessage.timestamp).fromNow();
+      embed.addFields([
+        {
+          name: `${
+            snipedMessage.methodType === "edit" ? "Edited" : "Deleted"
+          } by ${nuser ? nuser.tag : snipedMessage.authorId} | ${relative}`,
+          value: snipedMessage.content.slice(0, 1024),
+        },
+      ]);
+    }
+    embeds.push(safeEmbed(embed));
+  }
+
+  const backId = nanoid();
+  const nextId = nanoid();
+  const reply = await button.editReply({
+    embeds: [embeds[0]],
+    components: [
+      new ActionRowBuilder<ButtonBuilder>().addComponents([
+        new ButtonBuilder()
+          .setCustomId(backId)
+          .setEmoji("⬅️")
+          .setStyle(ButtonStyle.Primary)
+          .setDisabled(true),
+        new ButtonBuilder()
+          .setCustomId(nextId)
+          .setEmoji("➡️")
+          .setStyle(ButtonStyle.Primary)
+          .setDisabled(embeds.length === 1),
+      ]),
+    ],
+    allowedMentions: {
+      users: [],
+    },
+  });
+
+  try {
+    // Change the page when the user clicks a button for 5 minutes
+    let page = 0;
+    let expired = false;
+    setTimeout(() => {
+      reply
+        .edit({
+          components: [],
+        })
+        .catch(() => null);
+      expired = true;
+    }, 1000 * 60 * 5);
+    while (!expired) {
+      page = await changePage(
+        reply,
+        button.user,
+        embeds,
+        page,
+        backId,
+        nextId,
+        snipes
+      );
+    }
+  } catch (err) {
+    console.error(err);
+    return reply
+      .edit({
+        components: [],
+      })
+      .catch(() => null);
+  }
+}
+
+async function getPages(
+  snipedMessages: HydratedDocument<snipeInterface>[],
+  interaction: Message | ButtonInteraction | ChatInputCommandInteraction
+) {
+  const embeds: EmbedBuilder[] = [];
+
+  for (let i = 0; i < Math.ceil(snipedMessages.length / 5); i++) {
+    const embed = new EmbedBuilder()
+      .setTitle(`Snipe`)
+      .setColor(EmbedColors.info)
+      .setFooter({
+        text: `Requested by ${
+          (interaction instanceof Message
+            ? interaction.author
+            : interaction.user
+          ).tag
+        }`,
+        iconURL: (interaction instanceof Message
+          ? interaction.author
+          : interaction.user
+        ).displayAvatarURL(),
+      })
+      .setTimestamp(Date.now());
+
+    const page = snipedMessages.slice(i * 5, i * 5 + 5);
+    for (const snipedMessage of page) {
+      const nuser = await interaction.client.users
+        .fetch(snipedMessage.authorId)
+        .catch(() => null);
+      const relative = moment(snipedMessage.timestamp).fromNow();
+      embed.addFields([
+        {
+          name: `${
+            snipedMessage.methodType === "edit" ? "Edited" : "Deleted"
+          } by ${nuser ? nuser.tag : snipedMessage.authorId} | ${relative}`,
+          value: snipedMessage.content.slice(0, 1024),
+        },
+      ]);
+    }
+    embeds.push(safeEmbed(embed));
+  }
+
+  return embeds;
+}
+
+async function getSnipes(
+  user: User | undefined,
+  channel: Channel | undefined,
+  channelOption: TextChannel,
+  interaction: Message | ButtonInteraction | ChatInputCommandInteraction,
+  messageType: "edit" | "delete",
+  amount: number | null
+) {
+  const query = snipe
+    .find({
+      channelId: user && !channel ? { $exists: true } : channelOption.id,
+      authorId: user ? user.id : { $exists: true },
+      guildId: interaction.guildId,
+      methodType: messageType,
+    })
+    .sort({ timestamp: -1 });
+
+  amount && query.limit(amount);
+
+  const rawSnipedMessages = await query;
+  const snipedMessages = rawSnipedMessages.filter((snipe) => !snipe.hidden);
+  return {
+    snipedMessages,
+    rawSnipedMessages,
+  };
 }

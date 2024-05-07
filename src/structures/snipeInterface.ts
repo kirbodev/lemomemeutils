@@ -5,5 +5,6 @@ export default interface snipeInterface {
   channelId: string;
   methodType: "delete" | "edit";
   content: string;
+  hidden?: boolean;
   timestamp?: Date;
 }

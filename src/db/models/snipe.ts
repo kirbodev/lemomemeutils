@@ -8,6 +8,7 @@ const snipeSchema = new mongoose.Schema<snipeInterface>({
   channelId: { type: String, required: true },
   methodType: { type: String, required: true },
   content: { type: String, required: true },
+  hidden: { type: Boolean, default: false },
   timestamp: { type: Date, default: Date.now, expires: 60 * 60 * 24 },
 });
 

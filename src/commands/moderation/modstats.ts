@@ -10,6 +10,8 @@ import {
   StringSelectMenuInteraction,
   AttachmentBuilder,
   Message,
+  ButtonBuilder,
+  ButtonStyle,
 } from "discord.js";
 import type Command from "../../structures/commandInterface.js";
 import EmbedColors from "../../structures/embedColors.js";
@@ -59,6 +61,12 @@ export default {
       });
 
     const id = nanoid();
+    const button = new ActionRowBuilder<ButtonBuilder>().setComponents([
+      new ButtonBuilder()
+        .setCustomId(`type-${id}`)
+        .setEmoji("📊")
+        .setStyle(ButtonStyle.Primary),
+    ]);
     const select =
       new ActionRowBuilder<StringSelectMenuBuilder>().setComponents([
         new StringSelectMenuBuilder()
@@ -87,7 +95,29 @@ export default {
             },
           ]),
       ]);
-    interaction.editReply(await sendStats(interaction, mod, 7, select));
+    interaction.editReply(
+      await sendStats(interaction, mod, 7, select, button, "bar")
+    );
+
+    let type: "bar" | "line" = "bar";
+    let timePeriod = 7;
+    interaction
+      .channel!.createMessageComponentCollector({
+        componentType: ComponentType.Button,
+        filter: (i) =>
+          i.customId === `type-${id}` && i.user.id === interaction.user.id,
+        time: 1000 * 60 * 5,
+      })
+      .on("collect", async (i) => {
+        await i.deferUpdate();
+        type = type === "bar" ? "line" : "bar";
+        interaction.editReply(
+          await sendStats(interaction, mod, timePeriod, select, button, type)
+        );
+      })
+      .on("end", () => {
+        interaction.editReply({ components: [] });
+      });
 
     interaction
       .channel!.createMessageComponentCollector({
@@ -97,8 +127,10 @@ export default {
       })
       .on("collect", async (i) => {
         await i.deferUpdate();
-        const timePeriod = parseInt(i.values[0]);
-        interaction.editReply(await sendStats(i, mod, timePeriod, select));
+        timePeriod = parseInt(i.values[0]);
+        interaction.editReply(
+          await sendStats(i, mod, timePeriod, select, button, type)
+        );
       })
       .on("end", () => {
         interaction.editReply({ components: [] });
@@ -151,6 +183,12 @@ export default {
     }
 
     const id = nanoid();
+    const button = new ActionRowBuilder<ButtonBuilder>().setComponents([
+      new ButtonBuilder()
+        .setCustomId(`type-${id}`)
+        .setEmoji("📊")
+        .setStyle(ButtonStyle.Primary),
+    ]);
     const select =
       new ActionRowBuilder<StringSelectMenuBuilder>().setComponents([
         new StringSelectMenuBuilder()
@@ -180,8 +218,28 @@ export default {
           ]),
       ]);
     const msg = await interaction.reply(
-      await sendStats(interaction, mod, 7, select)
+      await sendStats(interaction, mod, 7, select, button)
     );
+
+    let type: "bar" | "line" = "bar";
+    let timePeriod = 7;
+    interaction
+      .channel!.createMessageComponentCollector({
+        componentType: ComponentType.Button,
+        filter: (i) =>
+          i.customId === `type-${id}` && i.user.id === interaction.author.id,
+        time: 1000 * 60 * 5,
+      })
+      .on("collect", async (i) => {
+        await i.deferUpdate();
+        type = type === "bar" ? "line" : "bar";
+        msg.edit(
+          await sendStats(interaction, mod, timePeriod, select, button, type)
+        );
+      })
+      .on("end", () => {
+        msg.edit({ components: [] });
+      });
 
     interaction
       .channel!.createMessageComponentCollector({
@@ -191,8 +249,8 @@ export default {
       })
       .on("collect", async (i) => {
         await i.deferUpdate();
-        const timePeriod = parseInt(i.values[0]);
-        msg.edit(await sendStats(i, mod, timePeriod, select));
+        timePeriod = parseInt(i.values[0]);
+        msg.edit(await sendStats(i, mod, timePeriod, select, button, type));
       })
       .on("end", () => {
         msg.edit({ components: [] });
@@ -243,7 +301,9 @@ async function sendStats(
     | Message,
   mod: GuildMember,
   timePeriod: number,
-  select: ActionRowBuilder<StringSelectMenuBuilder>
+  select: ActionRowBuilder<StringSelectMenuBuilder>,
+  button: ActionRowBuilder<ButtonBuilder>,
+  type: "bar" | "line" = "bar"
 ) {
   const { warns, bans, kicks, mutes } = await getStats(
     mod,
@@ -275,6 +335,7 @@ async function sendStats(
         ),
       ],
       components: [select],
+      attachments: [],
     };
   }
 
@@ -286,7 +347,8 @@ async function sendStats(
       mutes,
       isNaN(timePeriod)
         ? null
-        : new Date(Date.now() - 1000 * 60 * 60 * 24 * timePeriod)
+        : new Date(Date.now() - 1000 * 60 * 60 * 24 * timePeriod),
+      type
     ),
     {
       name: `chart-${mod.id}-${Date.now()}.png`,
@@ -341,7 +403,7 @@ async function sendStats(
       .setTimestamp()
   );
 
-  return { embeds: [embed], files: [attachment], components: [select] };
+  return { embeds: [embed], files: [attachment], components: [select, button] };
 }
 
 async function drawChart(
@@ -349,7 +411,8 @@ async function drawChart(
   bans: HydratedDocument<actionInterface>[],
   kicks: HydratedDocument<actionInterface>[],
   mutes: HydratedDocument<actionInterface>[],
-  startDate: Date | null
+  startDate: Date | null,
+  type: "bar" | "line"
 ) {
   const width = 800;
   const height = 400;
@@ -438,33 +501,37 @@ async function drawChart(
   );
 
   const data = await chart.renderToBuffer({
-    type: "bar",
+    type: type,
     data: {
       labels: dates,
       datasets: [
         {
           label: "Warns",
           data: warnData,
-          backgroundColor: "#2B7734",
-          borderRadius: 4,
+          backgroundColor: type === "bar" ? "#2B7734" : undefined,
+          borderColor: type === "line" ? "#2B7734" : undefined,
+          pointBorderWidth: 0,
         },
         {
           label: "Kicks",
           data: kickData,
-          backgroundColor: "#F76A20",
-          borderRadius: 4,
+          backgroundColor: type === "bar" ? "#F76A20" : undefined,
+          borderColor: type === "line" ? "#F76A20" : undefined,
+          pointBorderWidth: 0,
         },
         {
           label: "Bans",
           data: banData,
-          backgroundColor: "#AA0610",
-          borderRadius: 4,
+          backgroundColor: type === "bar" ? "#AA0610" : undefined,
+          borderColor: type === "line" ? "#AA0610" : undefined,
+          pointBorderWidth: 0,
         },
         {
           label: "Mutes",
           data: muteData,
-          backgroundColor: "#7399FA",
-          borderRadius: 4,
+          backgroundColor: type === "bar" ? "#7399FA" : undefined,
+          borderColor: type === "line" ? "#7399FA" : undefined,
+          pointBorderWidth: 0,
         },
       ],
     },
