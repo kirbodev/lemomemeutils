@@ -1,13 +1,16 @@
 export default {
-  name: "Downtime is over",
-  date: new Date(2024, 4, 1),
-  version: "1.7.4",
+  name: "QOL Update",
+  date: new Date(2024, 4, 7),
+  version: "1.7.6",
   description:
-    "Minimised bot cold start time from ~60s to 500ms. A couple of other small changes.",
+    "General quality of life changes.",
   changelog: [
-    "Changed snipe. `esnipe` will be used for edits and `snipe` for deletes.",
-    "Made the code work with latest versions of Node.js",
-    "Made Fruit Harvester, a way to update the bot without downtime",
+    "Added a new `banner` command.",
+    "`modstats` now allows you to change graph types.",
+    "`snipe` and `esnipe` are now separate commands.",
+    "`snipe`/`esnipe` no longer require a channel argument.",
+    "Snipes can no longer be deleted. They are now hidden instead. (until 24hr expiration)",
+    "`changelog` is now consistent between slash and message commands."
   ],
 } satisfies {
   name: string;

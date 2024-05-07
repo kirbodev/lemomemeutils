@@ -44,6 +44,7 @@ export default {
     });
   },
   message(interaction: Message) {
+    const changes = changelog.changelog.map((change) => `- ${change}`);
     interaction.reply({
       embeds: [
         safeEmbed(
@@ -57,7 +58,7 @@ export default {
               },
               {
                 name: "Changes",
-                value: changelog.changelog.join("\n"),
+                value: changes.join("\n"),
               },
             ])
             .setColor(EmbedColors.info)
