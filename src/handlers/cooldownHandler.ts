@@ -1,6 +1,6 @@
 import getLocalCommands from "../helpers/getLocalCommands.js";
 
-const cooldowns = new Map<string, Map<string, number>>();
+export const cooldowns = new Map<string, Map<string, number>>();
 
 const commands = await getLocalCommands();
 export function setCooldown(userID: string, commandName: string) {

@@ -26,7 +26,6 @@ export default {
       required: false,
     },
   ],
-  permissionsRequired: [PermissionsBitField.Flags.ManageMessages],
   cooldown: 5000,
   async message(interaction, { args }) {
     args = args ?? [];
@@ -93,19 +92,38 @@ export default {
             })
             .setTimestamp(Date.now())
         );
-        if (Date.now() < new Date(2024, 2, 8, 0, 0, 0, 0).getTime()) {
-          embed.setFields([
-            {
-              name: "Disclaimer",
-              value:
-                "If this message was sent by a user before the whois system was implemented, it will be considered genuine. This disclaimer will be removed <t:1709856000:R>.",
-            },
-          ]);
-        }
         return interaction.reply({
           embeds: [embed],
         });
       }
+      if (author.value === "ai") {
+        return interaction.reply({
+          embeds: [
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle("Whois")
+                .setDescription("I am sentient. I sent this message.")
+                .setFields([
+                  {
+                    name: "AI",
+                    value:
+                      'Pssss... this message was sent by an AI. It could be inaccurate, offensive or inappropriate. You can activate the AI by pinging the bot when the bot is in chat, which happens at random, this could be seen by a "hi" message or similar.',
+                  },
+                ])
+                .setColor(EmbedColors.info)
+                .setFooter({
+                  text: `Requested by ${interaction.author.tag}`,
+                  iconURL: interaction.author.displayAvatarURL(),
+                })
+                .setTimestamp(Date.now())
+            ),
+          ],
+        });
+      }
+      const identify = interaction.member?.permissions.has(
+        PermissionsBitField.Flags.ManageMessages
+      );
+
       const user = await interaction.guild?.members.fetch(author.value);
       return interaction.reply({
         embeds: [
@@ -113,9 +131,11 @@ export default {
             new EmbedBuilder()
               .setTitle("Whois")
               .setDescription(
-                `This message was sent by <@${author.value}> (${
-                  user?.user.tag || "Unknown name"
-                }).`
+                identify
+                  ? `This message was sent by <@${author.value}> (${
+                      user?.user.tag || "Unknown name"
+                    }).`
+                  : "This message was sent by a user. You don't have permission to see their information."
               )
               .setColor(EmbedColors.info)
               .setFooter({

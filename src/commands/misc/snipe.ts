@@ -700,7 +700,6 @@ async function handleHidden(
       );
     }
   } catch (err) {
-    console.error(err);
     return reply
       .edit({
         components: [],
