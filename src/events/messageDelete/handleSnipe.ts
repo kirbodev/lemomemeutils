@@ -1,5 +1,6 @@
 import { Client, Message } from "discord.js";
 import snipe from "../../db/models/snipe.js";
+import logger from "../../helpers/logger.js";
 
 export default async (client: Client, message: Message) => {
   if (!message.guild) return;
@@ -27,6 +28,6 @@ export default async (client: Client, message: Message) => {
   try {
     await snipedMessage.save();
   } catch (error) {
-    console.error("Failed to save the sniped message:", error);
+    logger.error("Failed to save the sniped message:", error);
   }
 };

@@ -60,7 +60,6 @@ import {
             .catch(() => null)
         : null;
       if (!user) user = interaction.author;
-      console.log(user);
   
       await interaction.reply({
         embeds: [

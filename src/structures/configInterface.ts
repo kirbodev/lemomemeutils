@@ -20,6 +20,8 @@ interface ConfigParams {
   linkedStaffRoles?: Map<StaffLevel, string>;
   highStaffRole?: string;
   appealServer?: string;
+  aiEnabled?: boolean;
+  aiChannels?: string[];
 }
 export default class Config {
   guildID: string;
@@ -39,6 +41,8 @@ export default class Config {
   linkedStaffRoles?: Map<StaffLevel, string>; // If >= StaffLevel, they get the role
   highStaffRole?: string;
   appealServer?: string;
+  aiEnabled?: boolean;
+  aiChannels?: string[];
 
   constructor(params: ConfigParams) {
     this.guildID = params.guildID;
@@ -57,6 +61,8 @@ export default class Config {
     this.linkedStaffRoles = params.linkedStaffRoles;
     this.highStaffRole = params.highStaffRole;
     this.appealServer = params.appealServer;
+    this.aiEnabled = params.aiEnabled;
+    this.aiChannels = params.aiChannels;
 
     if (!this.prefix) this.prefix = ",";
     client.channels
