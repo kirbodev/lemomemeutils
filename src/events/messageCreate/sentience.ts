@@ -103,7 +103,6 @@ const aiChannels = configs
 
 let active = true;
 const changeState = () => {
-return "hopefully I remember to uncommit this tomorrow";
   const time = Math.floor(Math.random() * 300_000 + 300_000) * (active ? 1 : 4);
   setTimeout(async () => {
     for (const channelid of aiChannels) {
@@ -133,7 +132,7 @@ return "hopefully I remember to uncommit this tomorrow";
     changeState();
   }, time);
 };
-changeState();
+// changeState();
 
 export default async (client: Client, message: Message) => {
   if (process.env.AI_KILL_SIGNAL) return;
