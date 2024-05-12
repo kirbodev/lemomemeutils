@@ -103,7 +103,7 @@ const aiChannels = configs
 
 let active = true;
 const changeState = () => {
-if (new Date().getUTCDay() === 1) return;
+return "hopefully I remember to uncommit this tomorrow";
   const time = Math.floor(Math.random() * 300_000 + 300_000) * (active ? 1 : 4);
   setTimeout(async () => {
     for (const channelid of aiChannels) {
@@ -146,6 +146,7 @@ export default async (client: Client, message: Message) => {
   if (!config.aiEnabled) return;
   if (!message.content) return;
   if (message.content.startsWith(config.prefix ?? ",")) return;
+if (message.author.id === "695228246966534255" && message.content.endsWith("reset")) chats.clear()
 
   const cooldown = getCooldown(message.author.id, "ai");
   if (cooldown && cooldown > Date.now())
