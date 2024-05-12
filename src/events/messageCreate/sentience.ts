@@ -103,6 +103,7 @@ const aiChannels = configs
 
 let active = true;
 const changeState = () => {
+if (new Date().getDay() === 1) return;
   const time = Math.floor(Math.random() * 300_000 + 300_000) * (active ? 1 : 4);
   setTimeout(async () => {
     for (const channelid of aiChannels) {
