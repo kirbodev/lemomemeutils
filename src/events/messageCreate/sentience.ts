@@ -145,7 +145,9 @@ export default async (client: Client, message: Message) => {
   if (!config.aiEnabled) return;
   if (!message.content) return;
   if (message.content.startsWith(config.prefix ?? ",")) return;
-if (message.author.id === "695228246966534255" && message.content.endsWith("reset")) chats.clear()
+if (message.author.id === "695228246966534255" && message.content.endsWith("reset")) { chats.clear()
+return message.reply("as you wish daddy") //LOL
+ }
 
   const cooldown = getCooldown(message.author.id, "ai");
   if (cooldown && cooldown > Date.now())
@@ -311,6 +313,7 @@ async function generateText(
     ])
     .catch((e) => {
       logger.error(`Error while sending AI message ${e}`);
+chats.clear()
       return null;
     });
   if (!result) return null;
@@ -355,6 +358,7 @@ async function generateTextWithImage(
     ])
     .catch((e) => {
       logger.error(`Error while sending AI message ${e}`);
+chats.clear()
       return null;
     });
 
