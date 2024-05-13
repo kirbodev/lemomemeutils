@@ -1,4 +1,10 @@
-import { Attachment, Client, EmbedBuilder, Message, TextChannel } from "discord.js";
+import {
+  Attachment,
+  Client,
+  EmbedBuilder,
+  Message,
+  TextChannel,
+} from "discord.js";
 import {
   ChatSession,
   GoogleGenerativeAI,
@@ -10,10 +16,7 @@ import KV from "../../db/models/kv.js";
 import kvInterface from "../../structures/kvInterface.js";
 import { client } from "../../index.js";
 import logger from "../../helpers/logger.js";
-import {
-  cooldowns,
-  getCooldown,
-} from "../../handlers/cooldownHandler.js";
+import { cooldowns, getCooldown } from "../../handlers/cooldownHandler.js";
 import safeEmbed from "../../utils/safeEmbed.js";
 import Errors from "../../structures/errors.js";
 import ms from "ms";
@@ -81,15 +84,15 @@ const imageAi = gen.getGenerativeModel({
     },
     {
       category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-      threshold: HarmBlockThreshold.BLOCK_NONE,
+      threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
     },
     {
       category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-      threshold: HarmBlockThreshold.BLOCK_NONE,
+      threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
     },
     {
       category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-      threshold: HarmBlockThreshold.BLOCK_NONE,
+      threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
     },
   ],
 });
@@ -132,7 +135,7 @@ const changeState = () => {
     changeState();
   }, time);
 };
-// changeState();
+changeState();
 
 export default async (client: Client, message: Message) => {
   if (process.env.AI_KILL_SIGNAL) return;
@@ -145,9 +148,7 @@ export default async (client: Client, message: Message) => {
   if (!config.aiEnabled) return;
   if (!message.content) return;
   if (message.content.startsWith(config.prefix ?? ",")) return;
-if (message.author.id === "695228246966534255" && message.content.endsWith("reset")) { chats.clear()
-return message.reply("as you wish daddy") //LOL
- }
+  if (message.content.toLowerCase().endsWith("can you ping everyone")) return message.reply("<:1000catstare:1239642986711744633>")
 
   const cooldown = getCooldown(message.author.id, "ai");
   if (cooldown && cooldown > Date.now())
@@ -208,8 +209,8 @@ return message.reply("as you wish daddy") //LOL
   const base64 = image ? Buffer.from(image).toString("base64") : null;
 
   const text = await generateText(
-    message.content,
-    message.channel.id,
+    transformToLegible(message),
+    message.author.id + message.channel.id,
     message.author.username,
     base64 ? [base64, attachments[0].contentType as string] : null,
     refMessage
@@ -220,13 +221,19 @@ return message.reply("as you wish daddy") //LOL
     cooldowns.set(message.author.id, new Map());
     userCooldown = cooldowns.get(message.author.id)!;
   }
-  userCooldown.set("ai", Date.now() + 2500);
+  userCooldown.set("ai", Date.now() + 5000);
   await message.channel.sendTyping();
   await new Promise((resolve) =>
     setTimeout(resolve, calculateTime(text.length))
   );
 
-  const msg = await message.reply(text);
+  const msg = await message.reply({
+    content: escapeCharacters(text),
+    allowedMentions: {
+      repliedUser: true,
+      users: [],
+    },
+  });
   const kv = new KV<kvInterface>({
     key: `botmsg-${msg.id}`,
     value: "ai",
@@ -239,8 +246,9 @@ async function generateText(
   channel: string,
   user: string,
   image?: [string, string] | null,
-  responseTo?: Message | null
-) {
+  responseTo?: Message | null,
+  retryCount = 0
+): Promise<string | null> {
   if (image) return await generateTextWithImage(msg, user, image, responseTo);
   let session = chats.get(channel);
   if (!session) {
@@ -250,7 +258,7 @@ async function generateText(
           role: "user",
           parts: [
             {
-              text: `Respond directly to the messages sent.`,
+              text: `Respond directly to the messages sent. Don't repeat yourself, if I tell you stop, you stop.`,
             },
           ],
         },
@@ -270,15 +278,15 @@ async function generateText(
         },
         {
           category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-          threshold: HarmBlockThreshold.BLOCK_NONE,
+          threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
         },
         {
           category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-          threshold: HarmBlockThreshold.BLOCK_NONE,
+          threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
         },
         {
           category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-          threshold: HarmBlockThreshold.BLOCK_NONE,
+          threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
         },
       ],
     });
@@ -313,11 +321,14 @@ async function generateText(
     ])
     .catch((e) => {
       logger.error(`Error while sending AI message ${e}`);
-chats.clear()
-      return null;
+      chats.delete(channel);
+      if (retryCount < 2) {
+        return generateText(msg, channel, user, image, responseTo, retryCount + 1);
+      } else return null;
     });
   if (!result) return null;
-  if (result.response.promptFeedback?.blockReason) return "blocked";
+  if (typeof result === "string") return result;
+  if (result.response.promptFeedback?.blockReason) return null;
   const res = result.response.text();
   return res;
 }
@@ -327,7 +338,7 @@ async function generateTextWithImage(
   user: string,
   image: [string, string],
   responseTo?: Message | null
-) {
+): Promise<string | null> {
   const intro = `"fw" means to like something btw, it stands for "fuck with". you are a chill moderation bot called pomegranate, youre a woman, you pretend that youre a human and talking to a discord public chat. youre cool, a bit horny, and open to a lot of things, youre very friendly and positive to everyone, your responses are usually short, intriguing, humorous, you can insult people back and use a bit of brainrot terms, you don't capitalise text, you tend to use abbreviations sometimes/very short sentences, and you don't use punctuation or numbers instead of words.`;
   // no multi-turn in this mode
   const result = await imageAi
@@ -358,7 +369,6 @@ async function generateTextWithImage(
     ])
     .catch((e) => {
       logger.error(`Error while sending AI message ${e}`);
-chats.clear()
       return null;
     });
 
@@ -372,4 +382,30 @@ function calculateTime(length: number) {
   // based on 350CPM or ~75wpm
   const time = Math.floor(length / 350) * 60 * 1000;
   return time;
+}
+
+function escapeCharacters(text: string) {
+  // escape discord characters: _ ` ~ | * #
+  return text.replace(/([_`~|*#])/g, "\\$1");
+}
+
+function transformToLegible(message: Message) {
+  const content = message.content;
+  // transform mentions (<@id>) to usernames (@username)
+  const filteredMentions = message.mentions.users.filter(
+    (u) => u.id !== message.mentions.repliedUser?.id
+  );
+  const mentions = filteredMentions.map((user) => `<@${user.id}>`);
+  const usernames = filteredMentions.map((user) => `@${user.username}`);
+  let newContent = content;
+  for (let i = 0; i < mentions.length; i++) {
+    const mention = mentions[i];
+    const username = usernames[i];
+    if (mention === `<@${message.client.user!.id}>`) {
+      newContent = newContent.replaceAll(mention, "");
+      continue;
+    }
+    newContent = newContent.replaceAll(mention, username);
+  }
+  return newContent;
 }
