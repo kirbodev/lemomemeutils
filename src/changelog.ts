@@ -1,19 +1,17 @@
 export default {
-  name: "Sentience - Fixed",
-  date: new Date(2024, 4, 13),
-  version: "1.8.1beta",
+  name: "Sentience - Beta2",
+  date: new Date(2024, 4, 17),
+  version: "1.8.2beta",
   description:
-    "I might've made a little fucky wucky.",
+    "Sentience finally is alive again.",
   changelog: [
-    "Sentience can no longer ping anybody/any role.",
-    "Sentience output is now escaped to prevent Discord from interpreting it.",
-    "Messages from other users/channels will now be isolated from each other unless if a message is being replied to.",
-    "The AI will no longer see itself being mentioned and mentions will be replaced with usernames.",
-    "Implemented slightly stricter safety settings for the AI.",
-    "AI is still very experimental, hence the beta tag.",
-    "Tomorrow Google will start charging for their API, some changes might have to be made to make it work.",
-    "Again, if anything goes wrong, contact a dev (dust, lyku, dunkel, kirbo).",
-    "Sorry for yesterday!!"
+    "A queue has been implemented to stop rate limits.",
+    "Started using the new 1.5-flash model.",
+    "Images can now be used in multi-turn messages.",
+    "The bot will now have an afk status.",
+    "Whether the AI kill signal is on is now told to the user.",
+    "Small prompt improvements.",
+    "I'll see but this will probably be the last update until after finals 💔"
   ],
 } satisfies {
   name: string;
