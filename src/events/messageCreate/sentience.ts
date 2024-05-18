@@ -75,7 +75,6 @@ const ai = gen.getGenerativeModel({
   model: "gemini-1.5-flash-latest",
   generationConfig: {
     maxOutputTokens: 50,
-    temperature: 0.5,
   },
 });
 
