@@ -11,7 +11,7 @@ import {
   HarmBlockThreshold,
   HarmCategory,
 } from "@google/generative-ai";
-import configs from "../../config.js";
+import configs, { devs } from "../../config.js";
 import KV from "../../db/models/kv.js";
 import kvInterface from "../../structures/kvInterface.js";
 import { client } from "../../index.js";
@@ -83,6 +83,31 @@ const chats = new Map<string, ChatSession>();
 let queue: number[] = [];
 let inQueue = 0;
 
+const eventExts = new Map<string, string>([
+  ["catgirl", "use catgirl language, like uwu, :3, ovo, nya, etc"],
+  ["freaky", "act freaky, using emojis like 👅"],
+  ["wise", "act very wise, speak shakespearean, giving advice and inspiration"],
+  [
+    "high",
+    "act high, like you injested a lot of drugs, being very chill, confident, giving blatantly wrong answers, stuttering, saying things like 'uh', 'um', etc",
+  ],
+  ["insane", "act insane, seeing things that are impossible, screaming, hallucianting, etc. always respond with something."],
+  [
+    "streamer",
+    "act like a streamer, using language like lol, lmao, kek, chat, xqc, ludwig, etc",
+  ],
+  [
+    "sigma",
+    "act sigma, like andrew tate, using language like beta, alpha, and giving dumb dating/woman advice",
+  ],
+  [
+    "brainrot",
+    "talk using terminology like sigma, skibidi, gyatt, kai cenat, fanum tax, rizz, etc"
+  ]
+]);
+
+let currentEvent: string | null = getEvent();
+
 const aiChannels = configs
   .map((config) => config.aiChannels)
   .flat()
@@ -110,6 +135,7 @@ const changeState = async () => {
   }
   setTimeout(async () => {
     if (process.env.AI_KILL_SIGNAL) return;
+    if (!active) currentEvent = getEvent();
     for (const channelid of aiChannels) {
       const channel = (await client.channels
         .fetch(channelid)
@@ -130,7 +156,11 @@ const changeState = async () => {
       )
         continue;
 
-      await channel.send(message);
+      await channel.send(
+        `${message}${
+          currentEvent ? ` ✨ Special event: ${currentEvent} mode` : ""
+        }`
+      );
     }
 
     active = !active;
@@ -139,6 +169,13 @@ const changeState = async () => {
   }, time);
 };
 changeState();
+
+export function setEvent(event: string) {
+  if (!eventExts.has(event)) return false;
+  currentEvent = eventExts.get(event)!;
+  chats.clear();
+  return true;
+}
 
 export default async (client: Client, message: Message) => {
   if (!active) return;
@@ -169,6 +206,18 @@ export default async (client: Client, message: Message) => {
   }
   if (message.content.toLowerCase().endsWith("can you ping everyone"))
     return message.reply("<:1000catstare:1239642986711744633>");
+  const args = message.content.split(" ");
+  if (args[1] === "setEvent") {
+    if (!devs.includes(message.author.id)) return message.reply("you're not that guy pal'");
+    const event = args[2];
+    if (event && eventExts.has(event)) {
+      await message.reply(`✨ Event set to ${event}`);
+      return setEvent(event);
+    } else {
+      await message.reply("that event doesn't exist, the only ones are: " + Array.from(eventExts.keys()).join(", "));
+    }
+    return;
+  } 
 
   const cooldown = getCooldown(message.author.id, "ai");
   if (cooldown && cooldown > Date.now())
@@ -275,7 +324,7 @@ export default async (client: Client, message: Message) => {
   await kv.save();
 };
 
-const prompt = `dont repeat yourself, ur creator is kdv_, i fw=i like, ur cool, a bit horny rarely but only jokes, open to new things, you are very friendly and positive, your responses are usually short, intriguing, humorous, you can insult people back, dont use emojis, keep it on one line, you dont capitalise text, you use abbreviations sometimes/very short sentences, you dont use punctuation or numbers instead of words`;
+const prompt = `you're a moderation bot pretending to be a human in a discord chat, dont repeat yourself, your creator is kdv_, i fw=i like, ur cool, a bit horny rarely but only jokes, open to new things, you are very friendly and positive, your responses are usually short, intriguing, humorous, dont use emojis, keep it on one line, you dont capitalise text, you use abbreviations sometimes/very short sentences, you dont use punctuation or numbers instead of words`;
 
 async function generateText(
   msg: string,
@@ -290,11 +339,21 @@ async function generateText(
   const channel = message.channel.id + message.author.id;
   const rateLimit = checkQueue(15);
   if (rateLimit) {
-    if (reply) return await new Promise((resolve) => {
-      setTimeout(async () => {
-        resolve(await generateText(msg, message, file, responseTo, retryCount, reply))
-      }, 60000)
-    })
+    if (reply)
+      return await new Promise((resolve) => {
+        setTimeout(async () => {
+          resolve(
+            await generateText(
+              msg,
+              message,
+              file,
+              responseTo,
+              retryCount,
+              reply
+            )
+          );
+        }, 60000);
+      });
     if (inQueue > 15) return ["sorry im too busy 💔", reply];
     const replymsg = message.reply(
       `<a:pomload:1240984406764818493> busy rn. dw ill ping when im back.`
@@ -310,10 +369,10 @@ async function generateText(
             file,
             responseTo,
             retryCount,
-            await replymsg,
+            await replymsg
           )
         );
-      }, rateLimit)
+      }, rateLimit + 5000)
     );
   }
   let session = chats.get(channel);
@@ -323,7 +382,13 @@ async function generateText(
         role: "user",
         parts: [
           {
-            text: prompt,
+            text: `${prompt}${
+              currentEvent
+                ? ` \n${currentEvent}\nyour current event is ${
+                    [...eventExts].find((e) => e[1] === currentEvent)![0]
+                  }`
+                : ""
+            }`,
           },
         ],
       },
@@ -436,6 +501,7 @@ async function generateText(
   an.save();
 
   const res = result.response.text();
+  if (!res) return null;
   return [res, reply];
 }
 
@@ -475,4 +541,18 @@ function checkQueue(rpm: number) {
   queue = queue.filter((time) => time > Date.now() - 60000);
   if (queue.length >= rpm) return queue[0] + 60000 - Date.now();
   return null;
+}
+
+function getEvent() {
+  if (process.env.SET_EVENT && eventExts.has(process.env.SET_EVENT)) {
+    const event = eventExts.get(process.env.SET_EVENT)!;
+    process.env.SET_EVENT = "";
+    return event;
+  }
+  const chance = process.env.SET_EVENT_CHANCE
+    ? parseFloat(process.env.SET_EVENT_CHANCE)
+    : 0.33;
+  return Math.random() < chance
+    ? Array.from(eventExts.values())[Math.floor(Math.random() * eventExts.size)]
+    : null;
 }
