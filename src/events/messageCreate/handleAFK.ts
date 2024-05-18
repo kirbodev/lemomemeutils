@@ -11,10 +11,11 @@ import { dbStatus } from "../../handlers/errorHandler.js";
 export default async (client: Client, message: Message) => {
   if (!message.guild) return;
   if (message.author.bot) return;
+  if (message.embeds.length > 0) return;
   if (dbStatus) return;
   const userAfk: HydratedDocument<afkInterface> | null = await afk.findOne({
     userID: message.author.id,
-    guildID: message.guild.id,
+    $or: [{ guildID: message.guild.id }, { guildID: { $exists: false } }],
   });
   if (userAfk) {
     const config = configs.get(message.guild.id)!;
@@ -61,13 +62,13 @@ export default async (client: Client, message: Message) => {
   for (const user of mentioned) {
     const Afk: HydratedDocument<afkInterface> | null = await afk.findOne({
       userID: user[0],
-      guildID: message.guild.id,
       $or: [
         { expiresAt: { $exists: false } },
         { expiresAt: { $gt: new Date().getTime() } },
       ],
     });
-    if (!Afk) return;
+    if (Afk?.guildID && Afk.guildID !== message.guild.id) continue;
+    if (!Afk) continue;
     afks.push(Afk);
   }
   if (afks.length === 0) return;

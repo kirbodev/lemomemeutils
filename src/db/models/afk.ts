@@ -8,7 +8,7 @@ const afkSchema = new mongoose.Schema<afkInterface>({
   },
   guildID: {
     type: String,
-    required: true,
+    required: false,
   },
   message: {
     type: String,

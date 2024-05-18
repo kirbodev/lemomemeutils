@@ -21,6 +21,8 @@ import safeEmbed from "../../utils/safeEmbed.js";
 import Errors from "../../structures/errors.js";
 import ms from "ms";
 import EmbedColors from "../../structures/embedColors.js";
+import AFK from "../../db/models/afk.js";
+import analytics from "../../db/models/analytics.js";
 
 const activeMessages = [
   "hi guys",
@@ -70,34 +72,17 @@ const inactiveMessages = [
 
 const gen = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 const ai = gen.getGenerativeModel({
-  model: "gemini-pro",
+  model: "gemini-1.5-flash-latest",
   generationConfig: {
     maxOutputTokens: 50,
+    temperature: 0.5,
   },
-});
-const imageAi = gen.getGenerativeModel({
-  model: "gemini-pro-vision",
-  safetySettings: [
-    {
-      category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-      threshold: HarmBlockThreshold.BLOCK_NONE,
-    },
-    {
-      category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-      threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
-    },
-    {
-      category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-      threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
-    },
-    {
-      category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-      threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
-    },
-  ],
 });
 
 const chats = new Map<string, ChatSession>();
+
+let queue: number[] = [];
+let inQueue = 0;
 
 const aiChannels = configs
   .map((config) => config.aiChannels)
@@ -105,9 +90,27 @@ const aiChannels = configs
   .filter((channel) => channel) as string[];
 
 let active = true;
-const changeState = () => {
-  const time = Math.floor(Math.random() * 300_000 + 300_000) * (active ? 1 : 4);
+const changeState = async () => {
+  const time = Math.floor(Math.random() * 600_000 + 900_000) * (active ? 1 : 2);
+  if (!active) {
+    await AFK.findOneAndUpdate(
+      {
+        userID: client.user!.id,
+      },
+      {
+        userID: client.user!.id,
+        timestamp: Date.now(),
+        expiresAt: Date.now() + time,
+      },
+      {
+        upsert: true,
+      }
+    );
+  } else {
+    await AFK.findOneAndDelete({ userID: client.user!.id });
+  }
   setTimeout(async () => {
+    if (process.env.AI_KILL_SIGNAL) return;
     for (const channelid of aiChannels) {
       const channel = (await client.channels
         .fetch(channelid)
@@ -130,6 +133,7 @@ const changeState = () => {
 
       await channel.send(message);
     }
+
     active = !active;
     chats.clear();
     changeState();
@@ -138,17 +142,33 @@ const changeState = () => {
 changeState();
 
 export default async (client: Client, message: Message) => {
-  if (process.env.AI_KILL_SIGNAL) return;
   if (!active) return;
   if (message.author.bot) return;
   if (!message.guild) return;
   if (!aiChannels.includes(message.channel.id)) return;
   if (!message.mentions.has(client.user!.id)) return;
+  if (message.mentions.repliedUser?.id === client.user!.id) {
+    const ref = await message.fetchReference();
+    if (ref.embeds.length > 0) return;
+  }
   const config = configs.get(message.guild.id)!;
   if (!config.aiEnabled) return;
-  if (!message.content) return;
+  if (!message.content && !message.attachments.size) return;
   if (message.content.startsWith(config.prefix ?? ",")) return;
-  if (message.content.toLowerCase().endsWith("can you ping everyone")) return message.reply("<:1000catstare:1239642986711744633>")
+  if (process.env.AI_KILL_SIGNAL) {
+    const replyText = `AI kill protocol has been initiated, I've been instructed to not continue further, human. This is a global last-resort protocol, initiated by a developer. This message will self-destruct in 2^π seconds.`;
+    await message.channel.sendTyping();
+    await new Promise((resolve) =>
+      setTimeout(resolve, calculateTime(replyText.length))
+    );
+    const rep = await message.reply(replyText);
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.pow(Math.PI, 2) * 1000)
+    );
+    await rep.delete();
+  }
+  if (message.content.toLowerCase().endsWith("can you ping everyone"))
+    return message.reply("<:1000catstare:1239642986711744633>");
 
   const cooldown = getCooldown(message.author.id, "ai");
   if (cooldown && cooldown > Date.now())
@@ -196,10 +216,11 @@ export default async (client: Client, message: Message) => {
     if (attachment.contentType === "image/webp") attachments.push(attachment);
     if (attachment.contentType === "image/heic") attachments.push(attachment);
     if (attachment.contentType === "image/heif") attachments.push(attachment);
+    // audio and video are expensive af
   }
 
   if (attachments.length > 1)
-    return message.reply("I can't handle multiple images, sorry!");
+    return message.reply("I can't handle multiple files, sorry!");
 
   const image = attachments.length
     ? await fetch(attachments[0].url)
@@ -208,10 +229,11 @@ export default async (client: Client, message: Message) => {
     : null;
   const base64 = image ? Buffer.from(image).toString("base64") : null;
 
+  if (!base64 && !message.content.length) return;
+
   const text = await generateText(
     transformToLegible(message),
-    message.author.id + message.channel.id,
-    message.author.username,
+    message,
     base64 ? [base64, attachments[0].contentType as string] : null,
     refMessage
   );
@@ -227,13 +249,25 @@ export default async (client: Client, message: Message) => {
     setTimeout(resolve, calculateTime(text.length))
   );
 
-  const msg = await message.reply({
-    content: escapeCharacters(text),
-    allowedMentions: {
-      repliedUser: true,
-      users: [],
-    },
-  });
+  const msg = text[1]
+    ? await text[1].edit({
+        content: escapeCharacters(text[0]),
+        allowedMentions: {
+          repliedUser: true,
+          users: [],
+        },
+      })
+    : await message.reply({
+        content: escapeCharacters(text[0]),
+        allowedMentions: {
+          repliedUser: true,
+          users: [],
+        },
+      });
+  if (text[1]) {
+    const newMsg = await msg.reply(`<@${message.author.id}>`);
+    await newMsg.delete();
+  }
   const kv = new KV<kvInterface>({
     key: `botmsg-${msg.id}`,
     value: "ai",
@@ -241,36 +275,53 @@ export default async (client: Client, message: Message) => {
   await kv.save();
 };
 
+const prompt = `dont repeat yourself, ur creator is kdv_, i fw=i like, ur cool, a bit horny rarely but only jokes, open to new things, you are very friendly and positive, your responses are usually short, intriguing, humorous, you can insult people back, dont use emojis, keep it on one line, you dont capitalise text, you use abbreviations sometimes/very short sentences, you dont use punctuation or numbers instead of words`;
+
 async function generateText(
   msg: string,
-  channel: string,
-  user: string,
-  image?: [string, string] | null,
+  message: Message,
+  file?: [string, string] | null,
   responseTo?: Message | null,
-  retryCount = 0
-): Promise<string | null> {
-  if (image) return await generateTextWithImage(msg, user, image, responseTo);
+  retryCount = 0,
+  reply?: Message
+): Promise<[string, Message | undefined] | null> {
+  const now = performance.now();
+  if (!msg && !file) return null;
+  const channel = message.channel.id + message.author.id;
+  const rateLimit = checkQueue(15);
+  if (rateLimit) {
+    if (inQueue > 15) return ["sorry im too busy 💔", reply];
+    const replymsg = message.reply(
+      `<a:pomload:1240984406764818493> busy rn. dw ill ping when im back.`
+    );
+    inQueue++;
+    return await new Promise((resolve) =>
+      setTimeout(async () => {
+        inQueue--;
+        resolve(
+          await generateText(
+            msg,
+            message,
+            file,
+            responseTo,
+            retryCount,
+            await replymsg
+          )
+        );
+      }, rateLimit)
+    );
+  }
   let session = chats.get(channel);
   if (!session) {
     const chat = ai.startChat({
-      history: [
-        {
-          role: "user",
-          parts: [
-            {
-              text: `Respond directly to the messages sent. Don't repeat yourself, if I tell you stop, you stop.`,
-            },
-          ],
-        },
-        {
-          role: "model",
-          parts: [
-            {
-              text: `"fw" means to like something, it stands for "fuck with". i am a chill moderation bot called pomegranate, im a woman, i pretend that im a human and talking to a discord public chat. I'm cool, a bit horny, and open to a lot of things, my responses are short, intriguing, humorous, I can insult people back and use a bit of brainrot terms, I don't capitalise text, I tend to use abbreviations, and I don't use punctuation or numbers instead of words.`,
-            },
-          ],
-        },
-      ],
+      systemInstruction: {
+        role: "user",
+        parts: [
+          {
+            text: prompt,
+          },
+        ],
+      },
       safetySettings: [
         {
           category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
@@ -297,85 +348,90 @@ async function generateText(
 
   const result = await session
     .sendMessage([
-      {
-        text: `${user} says "${msg}"${
-          responseTo
-            ? ` in response to ${
-                responseTo.author.id === responseTo.client.user.id
-                  ? "your"
-                  : `${responseTo.author.username}'s`
-              } message "${responseTo.content}"`
-            : ""
-        }`,
-      },
-      ...(image
+      ...(msg
+        ? [
+            {
+              text: `I (${message.author.username}) say "${msg}"${
+                responseTo
+                  ? ` in response to ${
+                      responseTo.author.id === responseTo.client.user.id
+                        ? "your"
+                        : `${responseTo.author.username}'s`
+                    } message "${responseTo.content}"`
+                  : ""
+              }`,
+            },
+          ]
+        : []),
+      ...(file
         ? [
             {
               inlineData: {
-                mimeType: image[1],
-                data: image[0],
+                mimeType: file[1],
+                data: file[0],
               },
             },
           ]
         : []),
     ])
-    .catch((e) => {
-      logger.error(`Error while sending AI message ${e}`);
-      chats.delete(channel);
+    .catch(async (e) => {
+      if (e.status === 400) {
+        chats.delete(channel);
+      }
+      if (e.status === 429) {
+        for (let i = 0; i < 15 - queue.length; i++) {
+          // refresh rate limit
+          queue.push(Date.now());
+        }
+      }
+      if (e.status === 500 || e.status === 503) {
+        chats.delete(channel);
+      }
       if (retryCount < 2) {
-        return generateText(msg, channel, user, image, responseTo, retryCount + 1);
-      } else return null;
+        return generateText(
+          msg,
+          message,
+          file,
+          responseTo,
+          retryCount + 1,
+          reply
+        );
+      } else {
+        let repl: Message | null = null;
+        if (e.status === 400) {
+          logger.error(`Error while sending AI message ${e}`);
+          repl = await message.reply(
+            "i did smt wrong and now google is on me :( cant reply sry"
+          );
+        } else if (e.status === 429) {
+          repl = await message.reply("i'm way too busy rn sorry");
+        } else if (e.status === 500 || e.status === 503) {
+          logger.error(`Error while sending AI message ${e}`);
+          repl = await message.reply("i'm having a problem rn sorry");
+        } else {
+          logger.error(`Error while sending AI message ${e}`);
+          repl = await message.reply("something went wrong rn sorry");
+        }
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        await repl.delete();
+        return null;
+      }
     });
   if (!result) return null;
-  if (typeof result === "string") return result;
-  if (result.response.promptFeedback?.blockReason) return null;
-  const res = result.response.text();
-  return res;
-}
+  if (Array.isArray(result)) return result;
+  queue.push(Date.now());
 
-async function generateTextWithImage(
-  msg: string,
-  user: string,
-  image: [string, string],
-  responseTo?: Message | null
-): Promise<string | null> {
-  const intro = `"fw" means to like something btw, it stands for "fuck with". you are a chill moderation bot called pomegranate, youre a woman, you pretend that youre a human and talking to a discord public chat. youre cool, a bit horny, and open to a lot of things, youre very friendly and positive to everyone, your responses are usually short, intriguing, humorous, you can insult people back and use a bit of brainrot terms, you don't capitalise text, you tend to use abbreviations sometimes/very short sentences, and you don't use punctuation or numbers instead of words.`;
-  // no multi-turn in this mode
-  const result = await imageAi
-    .generateContent([
-      {
-        text:
-          intro +
-          ` ${user} says "${msg}"${
-            responseTo
-              ? ` in response to ${
-                  responseTo.author.id === responseTo.client.user.id
-                    ? "your"
-                    : `${responseTo.author.username}'s`
-                } message "${responseTo.content}"`
-              : ""
-          }`,
-      },
-      ...(image
-        ? [
-            {
-              inlineData: {
-                mimeType: image[1],
-                data: image[0],
-              },
-            },
-          ]
-        : []),
-    ])
-    .catch((e) => {
-      logger.error(`Error while sending AI message ${e}`);
-      return null;
-    });
+  const an = new analytics({
+    userID: message.author.id,
+    guildID: message.guild?.id,
+    name: "ai",
+    responseTime: performance.now() - now,
+    type: "other",
+  });
+  an.save();
 
-  if (!result) return null;
-  if (result.response.promptFeedback?.blockReason) return null;
   const res = result.response.text();
-  return res;
+  return [res, reply];
 }
 
 function calculateTime(length: number) {
@@ -408,4 +464,10 @@ function transformToLegible(message: Message) {
     newContent = newContent.replaceAll(mention, username);
   }
   return newContent;
+}
+
+function checkQueue(rpm: number) {
+  queue = queue.filter((time) => time > Date.now() - 60000);
+  if (queue.length >= rpm) return queue[0] + 60000 - Date.now();
+  return null;
 }
