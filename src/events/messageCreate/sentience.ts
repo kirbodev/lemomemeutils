@@ -166,6 +166,7 @@ export default async (client: Client, message: Message) => {
       setTimeout(resolve, Math.pow(Math.PI, 2) * 1000)
     );
     await rep.delete();
+    return;
   }
   if (message.content.toLowerCase().endsWith("can you ping everyone"))
     return message.reply("<:1000catstare:1239642986711744633>");
@@ -290,6 +291,11 @@ async function generateText(
   const channel = message.channel.id + message.author.id;
   const rateLimit = checkQueue(15);
   if (rateLimit) {
+    if (reply) return await new Promise((resolve) => {
+      setTimeout(async () => {
+        resolve(await generateText(msg, message, file, responseTo, retryCount, reply))
+      }, 60000)
+    })
     if (inQueue > 15) return ["sorry im too busy 💔", reply];
     const replymsg = message.reply(
       `<a:pomload:1240984406764818493> busy rn. dw ill ping when im back.`
@@ -305,7 +311,7 @@ async function generateText(
             file,
             responseTo,
             retryCount,
-            await replymsg
+            await replymsg,
           )
         );
       }, rateLimit)
