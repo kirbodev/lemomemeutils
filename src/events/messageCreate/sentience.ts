@@ -135,7 +135,7 @@ const changeState = async () => {
   }
   setTimeout(async () => {
     if (process.env.AI_KILL_SIGNAL) return;
-    if (!active) currentEvent = getEvent();
+    if (!active) {currentEvent = getEvent();} else {currentEvent = null}
     for (const channelid of aiChannels) {
       const channel = (await client.channels
         .fetch(channelid)
