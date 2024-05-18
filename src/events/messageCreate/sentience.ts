@@ -165,6 +165,7 @@ export default async (client: Client, message: Message) => {
       setTimeout(resolve, Math.pow(Math.PI, 2) * 1000)
     );
     await rep.delete();
+    return;
   }
   if (message.content.toLowerCase().endsWith("can you ping everyone"))
     return message.reply("<:1000catstare:1239642986711744633>");
