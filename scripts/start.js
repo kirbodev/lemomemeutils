@@ -202,7 +202,7 @@ async function cleanUp() {
 async function fullRestart() {
   await cleanUp();
   console.info("Proceeding with npm run start, expect some downtime...");
-  const start = spawn("npm", ["run", "start"], {
+  const start = spawn("node", [".", "|", "npx", "pino-pretty"], {
     shell: true,
     detached: true,
   });

@@ -122,7 +122,8 @@ config.set(
     highStaffRole: "1210588048014843946",
     appealServer: "https://discord.gg/EUsVK5E",
     aiEnabled: true,
-    aiChannels: ["750868690915950715"]
+    aiChannels: ["750868690915950715"],
+    aiDisabledModes: ["freaky"]
   })
 );
 // Cozy lodge

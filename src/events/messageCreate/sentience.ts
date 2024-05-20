@@ -3,10 +3,12 @@ import {
   Client,
   EmbedBuilder,
   Message,
+  PermissionFlagsBits,
   TextChannel,
 } from "discord.js";
 import {
   ChatSession,
+  GenerativeModel,
   GoogleGenerativeAI,
   HarmBlockThreshold,
   HarmCategory,
@@ -70,18 +72,28 @@ const inactiveMessages = [
   "gotta bounce",
 ];
 
-const gen = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-const ai = gen.getGenerativeModel({
-  model: "gemini-1.5-flash-latest",
-  generationConfig: {
-    maxOutputTokens: 50,
-  },
-});
+const ais = new Map<GenerativeModel, number>();
+for (const key of process.env.GEMINI_API_KEYS?.split(",") ?? []) {
+  const gga = new GoogleGenerativeAI(key);
+  ais.set(
+    gga.getGenerativeModel({
+      model: "gemini-1.5-flash-latest",
+      generationConfig: {
+        maxOutputTokens: 50,
+        temperature: 0.5,
+      },
+    }),
+    0
+  );
+}
 
-const chats = new Map<string, ChatSession>();
+const chats = new Map<string, {
+  chat: ChatSession;
+  model: GenerativeModel;
+}>();
 
-let queue: number[] = [];
-let inQueue = 0;
+const queues = new Map<string, number[]>();
+const inQueue = new Map<string, number>();
 
 const eventExts = new Map<string, string>([
   ["catgirl", "use catgirl language, like uwu, :3, ovo, nya, etc"],
@@ -91,7 +103,10 @@ const eventExts = new Map<string, string>([
     "high",
     "act high, like you injested a lot of drugs, being very chill, confident, giving blatantly wrong answers, stuttering, saying things like 'uh', 'um', etc",
   ],
-  ["insane", "act insane, seeing things that are impossible, screaming, hallucianting, etc. always respond with something."],
+  [
+    "insane",
+    "act insane, seeing things that are impossible, screaming, hallucianting, etc. always respond with something.",
+  ],
   [
     "streamer",
     "act like a streamer, using language like lol, lmao, kek, chat, xqc, ludwig, etc",
@@ -102,11 +117,15 @@ const eventExts = new Map<string, string>([
   ],
   [
     "brainrot",
-    "talk using terminology like sigma, skibidi, gyatt, kai cenat, fanum tax, rizz, etc"
+    "talk using terminology like sigma, skibidi, gyatt, kai cenat, fanum tax, rizz, etc",
+  ],
+  [
+    "rizz",
+    "act very charismatic, using pickup lines on everyone all the time, even out of context, and acting romantical. do not make people uncomfortable."
   ]
 ]);
 
-let currentEvent: string | null = getEvent();
+const currentEvent = new Map<string, string | null>();
 
 const aiChannels = configs
   .map((config) => config.aiChannels)
@@ -135,7 +154,13 @@ const changeState = async () => {
   }
   setTimeout(async () => {
     if (process.env.AI_KILL_SIGNAL) return;
-    if (!active) {currentEvent = getEvent();} else {currentEvent = null}
+    if (!active) {
+      for (const guild of configs
+        .filter((c) => c.aiEnabled)
+        .map((c) => c.guildID)) {
+        currentEvent.set(guild, getEvent());
+      }
+    }
     for (const channelid of aiChannels) {
       const channel = (await client.channels
         .fetch(channelid)
@@ -148,17 +173,24 @@ const changeState = async () => {
         (m) => m.author.id === client.user!.id
       );
       const lastMessage = botMessages.last();
+      const lastMessageContent =
+        lastMessage?.content.split("✨")[0].trim() || "";
       if (
         lastMessage &&
         lastMessage.author.id === client.user!.id &&
-        (activeMessages.includes(lastMessage.content) ||
-          inactiveMessages.includes(lastMessage.content))
+        (activeMessages.includes(lastMessageContent) ||
+          inactiveMessages.includes(lastMessageContent))
       )
         continue;
 
+      const guildEvent = currentEvent.get(channel.guild!.id);
       await channel.send(
         `${message}${
-          currentEvent ? ` ✨ Special event: ${currentEvent} mode` : ""
+          guildEvent
+            ? ` ✨ Special event: ${
+                [...eventExts].find((e) => e[1] === guildEvent)![0]
+              } mode`
+            : ""
         }`
       );
     }
@@ -170,9 +202,9 @@ const changeState = async () => {
 };
 changeState();
 
-export function setEvent(event: string) {
+export function setEvent(event: string, guildID: string) {
   if (!eventExts.has(event)) return false;
-  currentEvent = eventExts.get(event)!;
+  currentEvent.set(guildID, eventExts.get(event)!);
   chats.clear();
   return true;
 }
@@ -208,16 +240,31 @@ export default async (client: Client, message: Message) => {
     return message.reply("<:1000catstare:1239642986711744633>");
   const args = message.content.split(" ");
   if (args[1] === "setEvent") {
-    if (!devs.includes(message.author.id)) return message.reply("you're not that guy pal'");
+    const highStaff = configs.get(message.guild.id)!.highStaffRole;
+    if (
+      ((highStaff && !message.member?.roles.cache.has(highStaff)) ||
+        !message.member?.permissions.has(PermissionFlagsBits.Administrator)) &&
+      !devs.includes(message.author.id)
+    )
+      return message.reply("you're not that guy pal");
     const event = args[2];
+    if (event === "none") {
+      currentEvent.set(message.guild!.id, null);
+      chats.clear();
+      await message.reply("✨ Event set to none");
+      return;
+    }
     if (event && eventExts.has(event)) {
       await message.reply(`✨ Event set to ${event}`);
-      return setEvent(event);
+      return setEvent(event, message.guild!.id);
     } else {
-      await message.reply("that event doesn't exist, the only ones are: " + Array.from(eventExts.keys()).join(", "));
+      await message.reply(
+        "that event doesn't exist, the only ones are: " +
+          [...eventExts.keys(), "none"].join(", ")
+      );
     }
     return;
-  } 
+  }
 
   const cooldown = getCooldown(message.author.id, "ai");
   if (cooldown && cooldown > Date.now())
@@ -337,7 +384,64 @@ async function generateText(
   const now = performance.now();
   if (!msg && !file) return null;
   const channel = message.channel.id + message.author.id;
-  const rateLimit = checkQueue(15);
+  let session = chats.get(channel);
+  const guildEvent = currentEvent.get(message.guild!.id);
+  if (!session) {
+    const models = [...ais.keys()].map((m) => {
+      return {
+        model: m,
+        usage: ais.get(m)!,
+      };
+    });
+    const lowestUsage = models.sort((a, b) => a.usage - b.usage)[0];
+    ais.set(lowestUsage.model, lowestUsage.usage + 1);
+    const ai = lowestUsage.model;
+    const chat = ai.startChat({
+      systemInstruction: {
+        role: "user",
+        parts: [
+          {
+            text: `${prompt}${
+              guildEvent
+                ? ` \n${guildEvent}\nyour current event is ${
+                    [...eventExts].find((e) => e[1] === guildEvent)![0]
+                  }`
+                : ""
+            }`,
+          },
+        ],
+      },
+      safetySettings: [
+        {
+          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+          threshold: HarmBlockThreshold.BLOCK_NONE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+          threshold: HarmBlockThreshold.BLOCK_NONE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+          threshold: HarmBlockThreshold.BLOCK_NONE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+          threshold: HarmBlockThreshold.BLOCK_NONE,
+        },
+      ],
+    });
+    if (!chat) return null;
+    chats.set(channel, {
+      chat,
+      model: ai,
+    });
+    session = {
+      chat,
+      model: ai,
+    }
+  }
+
+  const rateLimit = checkQueue(14, session.model.apiKey);
   if (rateLimit) {
     if (reply)
       return await new Promise((resolve) => {
@@ -354,14 +458,14 @@ async function generateText(
           );
         }, 60000);
       });
-    if (inQueue > 15) return ["sorry im too busy 💔", reply];
+    if ((inQueue.get(session.model.apiKey) ?? 0) > 15) return ["sorry im too busy 💔", reply];
     const replymsg = message.reply(
       `<a:pomload:1240984406764818493> busy rn. dw ill ping when im back.`
     );
-    inQueue++;
+    inQueue.set(session!.model.apiKey, (inQueue.get(session!.model.apiKey) ?? 0) + 1);
     return await new Promise((resolve) =>
       setTimeout(async () => {
-        inQueue--;
+        inQueue.set(session!.model.apiKey, (inQueue.get(session!.model.apiKey) ?? 0) - 1);
         resolve(
           await generateText(
             msg,
@@ -375,48 +479,9 @@ async function generateText(
       }, rateLimit + 5000)
     );
   }
-  let session = chats.get(channel);
-  if (!session) {
-    const chat = ai.startChat({
-      systemInstruction: {
-        role: "user",
-        parts: [
-          {
-            text: `${prompt}${
-              currentEvent
-                ? ` \n${currentEvent}\nyour current event is ${
-                    [...eventExts].find((e) => e[1] === currentEvent)![0]
-                  }`
-                : ""
-            }`,
-          },
-        ],
-      },
-      safetySettings: [
-        {
-          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-          threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-          threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-          threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-          threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
-        },
-      ],
-    });
-    if (!chat) return null;
-    chats.set(channel, chat);
-    session = chat;
-  }
 
-  const result = await session
+  const queue = queues.get(session.model.apiKey) ?? [];
+  const result = await session.chat
     .sendMessage([
       ...(msg
         ? [
@@ -451,7 +516,7 @@ async function generateText(
       if (e.status === 429) {
         for (let i = 0; i < 15 - queue.length; i++) {
           // refresh rate limit
-          queue.push(Date.now());
+          queues.set(session!.model.apiKey, [...queue, Date.now()]);
         }
       }
       if (e.status === 500 || e.status === 503) {
@@ -489,7 +554,7 @@ async function generateText(
     });
   if (!result) return null;
   if (Array.isArray(result)) return result;
-  queue.push(Date.now());
+  queues.set(session.model.apiKey, [...queue, Date.now()]);
 
   const an = new analytics({
     userID: message.author.id,
@@ -500,7 +565,12 @@ async function generateText(
   });
   an.save();
 
-  const res = result.response.text();
+  let res: string | null = null;
+  try {
+    res = result.response.text();
+  } catch {
+    return null;
+  }
   if (!res) return null;
   return [res, reply];
 }
@@ -537,22 +607,27 @@ function transformToLegible(message: Message) {
   return newContent;
 }
 
-function checkQueue(rpm: number) {
+function checkQueue(rpm: number, key: string) {
+  let queue = queues.get(key);
+  if (!queue) return null;
   queue = queue.filter((time) => time > Date.now() - 60000);
   if (queue.length >= rpm) return queue[0] + 60000 - Date.now();
   return null;
 }
 
-function getEvent() {
+function getEvent(config?: { disabledModes?: string[] }) {
   if (process.env.SET_EVENT && eventExts.has(process.env.SET_EVENT)) {
     const event = eventExts.get(process.env.SET_EVENT)!;
     process.env.SET_EVENT = "";
     return event;
   }
+  const newEvents = [...eventExts.values()].filter(
+    (e) => !config?.disabledModes?.includes(e[0])
+  );
   const chance = process.env.SET_EVENT_CHANCE
     ? parseFloat(process.env.SET_EVENT_CHANCE)
     : 0.33;
   return Math.random() < chance
-    ? Array.from(eventExts.values())[Math.floor(Math.random() * eventExts.size)]
+    ? Array.from(newEvents)[Math.floor(Math.random() * newEvents.length)]
     : null;
 }

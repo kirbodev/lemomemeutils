@@ -22,6 +22,7 @@ interface ConfigParams {
   appealServer?: string;
   aiEnabled?: boolean;
   aiChannels?: string[];
+  aiDisabledModes?: string[];
 }
 export default class Config {
   guildID: string;
@@ -43,6 +44,7 @@ export default class Config {
   appealServer?: string;
   aiEnabled?: boolean;
   aiChannels?: string[];
+  aiDisabledModes?: string[];
 
   constructor(params: ConfigParams) {
     this.guildID = params.guildID;
@@ -63,6 +65,7 @@ export default class Config {
     this.appealServer = params.appealServer;
     this.aiEnabled = params.aiEnabled;
     this.aiChannels = params.aiChannels;
+    this.aiDisabledModes = params.aiDisabledModes;
 
     if (!this.prefix) this.prefix = ",";
     client.channels
