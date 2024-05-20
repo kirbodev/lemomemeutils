@@ -11,6 +11,8 @@ export default {
     "An experimental multi API key system has been added, which should reduce the chance of rate limiting",
     "The bot will now use the lowest usage count API key for each user",
     "Rizz mode has been added",
+    "Logging from Fruit Harvester will be pretty now",
+    "Small bug fixes",
     "⚠️ All updates have been halted for about a month, so I can study for finals 🫡",
   ],
 } satisfies {
