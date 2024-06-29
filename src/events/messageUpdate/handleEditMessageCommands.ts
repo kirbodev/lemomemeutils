@@ -13,6 +13,7 @@ export default async (
   const config = configs.get(message.guild.id);
   if (!config) return;
   const prefix = config?.prefix || ",";
+  if (!message.content.startsWith(prefix) || message.author.bot) return;
   const localCommands = await getLocalCommands();
   let command = localCommands.find(
     (command) =>
