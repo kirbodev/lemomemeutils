@@ -4,7 +4,7 @@ import { GuildMember, ApplicationCommandOptionType, PermissionsBitField, EmbedBu
 import EmbedColors from "../../structures/embedColors.js";
 import Errors from "../../structures/errors.js";
 import safeEmbed from "../../utils/safeEmbed.js";
-import { removeNameLock } from "../../db/schemas/namelocks";
+import { removeNameLock } from "../../db/models/namelocks";
 
 export default {
   name: "unnamelock",
