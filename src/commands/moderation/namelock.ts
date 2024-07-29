@@ -14,7 +14,7 @@ import {
 import EmbedColors from "../../structures/embedColors.js";
 import Errors from "../../structures/errors.js";
 import safeEmbed from "../../utils/safeEmbed.js";
-import { setNameLock, getNameLock } from "../../db/models/namelocks";
+import { setNameLock, getNameLock } from "../../db/models/namelock.ts";
 
 const monitorUsernameChange = async (guildId: string, userId: string, interaction: ChatInputCommandInteraction) => {
   const nameLock = await getNameLock(guildId, userId);
