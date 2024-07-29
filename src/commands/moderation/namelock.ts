@@ -138,14 +138,14 @@ export default {
     setInterval(() => monitorUsernameChange(guildId, userId, interaction), 60000);
   },
   message: async (message: Message, { alias, args }) => {
-    const config = configs.get(message.guildId!)!;
+    const config = config.get(message.guildId!)!;
     args = args ?? [];
     if (args.length < 2) {
       return message.reply({
         embeds: [
           safeEmbed(
             new EmbedBuilder()
-              .setTitle(Errors.ErrorSyntax)
+              .setTitle(Errors.ErrorUser)
               .setDescription(
                 `The correct syntax for this command is:\n \`\`\`${config.prefix}${alias} <user> <name>\`\`\``
               )
@@ -261,6 +261,6 @@ export default {
       content: `Locked ${user.username}'s name to ${name}`,
     });
 
-    setInterval(() => monitorUsernameChange(guildId, userId), 60000);
+    setInterval(() => monitorUsernameChange(guildId, userId, name), 60000);
   },
 } as Command;
