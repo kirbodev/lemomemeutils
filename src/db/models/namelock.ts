@@ -14,7 +14,11 @@ const NameLockSchema = new Schema<NameLock>({
 
 const NameLockModel = model<NameLock>("NameLock", NameLockSchema);
 
-export const setNameLock = async (guildId: string, userId: string, lockedName: string) => {
+export const setNameLock = async (
+  guildId: string,
+  userId: string,
+  lockedName: string
+) => {
   await NameLockModel.updateOne(
     { guildId, userId },
     { $set: { lockedName } },
@@ -24,6 +28,10 @@ export const setNameLock = async (guildId: string, userId: string, lockedName: s
 
 export const getNameLock = async (guildId: string, userId: string) => {
   return NameLockModel.findOne({ guildId, userId }).exec();
+};
+
+export const removeNameLock = async (guildId: string, userId: string) => {
+  await NameLockModel.deleteOne({ guildId, userId }).exec();
 };
 
 export default NameLockModel;
