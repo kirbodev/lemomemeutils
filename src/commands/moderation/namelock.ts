@@ -145,7 +145,7 @@ export default {
             new EmbedBuilder()
               .setTitle(Errors.ErrorSyntax)
               .setDescription(
-                `The correct syntax for this command is:\n \`\`\`${message.client.config.prefix}${alias} <user> <name>\`\`\``
+                `The correct syntax for this command is:\n \`\`\`${message.client.prefix}${alias} <user> <name>\`\`\``
               )
               .setColor(EmbedColors.error)
               .setFooter({
