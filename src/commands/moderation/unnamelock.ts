@@ -1,15 +1,6 @@
-kimport type {
-  ChatInputCommandInteraction,
-  GuildMemberRoleManager,
-  Message,
-} from "discord.js";
+import { ChatInputCommandInteraction, GuildMemberRoleManager, Message, User } from "discord.js";
 import type Command from "../../structures/commandInterface.js";
-import {
-  GuildMember,
-  ApplicationCommandOptionType,
-  PermissionsBitField,
-  EmbedBuilder,
-} from "discord.js";
+import { GuildMember, ApplicationCommandOptionType, PermissionsBitField, EmbedBuilder } from "discord.js";
 import EmbedColors from "../../structures/embedColors.js";
 import Errors from "../../structures/errors.js";
 import safeEmbed from "../../utils/safeEmbed.js";
