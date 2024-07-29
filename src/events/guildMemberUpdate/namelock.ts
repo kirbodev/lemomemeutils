@@ -1,5 +1,5 @@
 import type { Client, GuildMember } from "discord.js";
-import { getNameLock } from "../../db/schemas/namelocks";
+import { getNameLock } from "../../db/models/namelocks";
 import logger from "../../helpers/logger.js";
 
 export default async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
@@ -14,7 +14,6 @@ export default async (client: Client, oldMember: GuildMember, newMember: GuildMe
   if (newMember.nickname !== nameLock.lockedName) {
     try {
       await newMember.setNickname(nameLock.lockedName);
-      logger.info(`Reverted nickname change for ${newMember.user.tag} to ${nameLock.lockedName}`);
     } catch (error) {
       logger.error(`Failed to revert nickname change for ${newMember.user.tag}: ${error}`);
     }
