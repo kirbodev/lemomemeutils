@@ -5,6 +5,7 @@ import EmbedColors from "../../structures/embedColors.js";
 import Errors from "../../structures/errors.js";
 import safeEmbed from "../../utils/safeEmbed.js";
 import { removeNameLock } from "../../db/models/namelock";
+import config from "../../config.js";  // Correct reference to config
 
 export default {
   name: "unnamelock",
