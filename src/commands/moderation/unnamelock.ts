@@ -1,4 +1,4 @@
-import type {
+kimport type {
   ChatInputCommandInteraction,
   GuildMemberRoleManager,
   Message,
@@ -16,7 +16,7 @@ import safeEmbed from "../../utils/safeEmbed.js";
 import { removeNameLock } from "../../db/schemas/namelocks";
 
 export default {
-  name: "unlocknamelock",
+  name: "unnamelock",
   description: "Unlock a user's locked username in the server.",
   options: [
     {
