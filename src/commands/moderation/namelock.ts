@@ -16,7 +16,7 @@ import Errors from "../../structures/errors.js";
 import safeEmbed from "../../utils/safeEmbed.js";
 import { setNameLock, getNameLock } from "../../db/models/namelock";
 
-const monitorUsernameChange = async (guildId: string, userId: string, interaction: ChatInputCommandInteraction) => {
+const monitorUsernameChange = async (guildId: string, userId: string) => {
   const nameLock = await getNameLock(guildId, userId);
   if (!nameLock) return;
 
@@ -134,9 +134,10 @@ export default {
       ephemeral: true,
     });
 
-    setInterval(() => monitorUsernameChange(guildId, userId, interaction), 60000);
+    setInterval(() => monitorUsernameChange(guildId, userId), 60000);
   },
   message: async (message: Message, { alias, args }) => {
+    const config = configs.get(message.guildId!)!;
     args = args ?? [];
     if (args.length < 2) {
       return message.reply({
@@ -145,7 +146,7 @@ export default {
             new EmbedBuilder()
               .setTitle(Errors.ErrorSyntax)
               .setDescription(
-                `The correct syntax for this command is:\n \`\`\`${message.client.prefix}${alias} <user> <name>\`\`\``
+                `The correct syntax for this command is:\n \`\`\`${config.prefix}${alias} <user> <name>\`\`\``
               )
               .setColor(EmbedColors.error)
               .setFooter({
@@ -259,6 +260,6 @@ export default {
       content: `Locked ${user.username}'s name to ${name}`,
     });
 
-    setInterval(() => monitorUsernameChange(guildId, userId, message), 60000);
+    setInterval(() => monitorUsernameChange(guildId, userId), 60000);
   },
 } as Command;
