@@ -1,7 +1,8 @@
-import type {
+import {
   ChatInputCommandInteraction,
   GuildMemberRoleManager,
   Message,
+  User,
 } from "discord.js";
 import type Command from "../../structures/commandInterface.js";
 import {
@@ -15,13 +16,13 @@ import Errors from "../../structures/errors.js";
 import safeEmbed from "../../utils/safeEmbed.js";
 import { setNameLock, getNameLock } from "../../db/schemas/namelocks";
 
-const monitorUsernameChange = async (guildId: string, userId: string) => {
-  const lockedData = await getNameLock(guildId, userId);
-  if (!lockedData) return;
+const monitorUsernameChange = async (guildId: string, userId: string, interaction: ChatInputCommandInteraction) => {
+  const nameLock = await getNameLock(guildId, userId);
+  if (!nameLock) return;
 
   const member = await interaction.guild?.members.fetch(userId);
-  if (member && member.nickname !== lockedData.lockedName) {
-    await member.setNickname(lockedData.lockedName);
+  if (member && member.nickname !== nameLock.lockedName) {
+    await member.setNickname(nameLock.lockedName);
   }
 };
 
@@ -133,23 +134,23 @@ export default {
       ephemeral: true,
     });
 
-    setInterval(() => monitorUsernameChange(guildId, userId), 60000);
+    setInterval(() => monitorUsernameChange(guildId, userId, interaction), 60000);
   },
-  message: async (interaction: Message, { alias, args }) => {
+  message: async (message: Message, { alias, args }) => {
     args = args ?? [];
     if (args.length < 2) {
-      return interaction.reply({
+      return message.reply({
         embeds: [
           safeEmbed(
             new EmbedBuilder()
               .setTitle(Errors.ErrorSyntax)
               .setDescription(
-                `The correct syntax for this command is:\n \`\`\`${interaction.client.config.prefix}${alias} <user> <name>\`\`\``
+                `The correct syntax for this command is:\n \`\`\`${message.client.config.prefix}${alias} <user> <name>\`\`\``
               )
               .setColor(EmbedColors.error)
               .setFooter({
-                text: `Requested by ${interaction.author.tag}`,
-                iconURL: interaction.author.displayAvatarURL(),
+                text: `Requested by ${message.author.tag}`,
+                iconURL: message.author.displayAvatarURL(),
               })
               .setTimestamp(Date.now())
           ),
@@ -160,11 +161,9 @@ export default {
     const rawUser = args[0];
     let user: User;
     try {
-      user = await interaction.client.users.fetch(
-        rawUser.replace(/[<@!>]/g, "")
-      );
+      user = await message.client.users.fetch(rawUser.replace(/[<@!>]/g, ""));
     } catch (e) {
-      return interaction.reply({
+      return message.reply({
         embeds: [
           safeEmbed(
             new EmbedBuilder()
@@ -172,8 +171,8 @@ export default {
               .setDescription("Please provide a valid user.")
               .setColor(EmbedColors.error)
               .setFooter({
-                text: `Requested by ${interaction.author.tag}`,
-                iconURL: interaction.author.displayAvatarURL(),
+                text: `Requested by ${message.author.tag}`,
+                iconURL: message.author.displayAvatarURL(),
               })
               .setTimestamp(Date.now())
           ),
@@ -182,13 +181,13 @@ export default {
     }
 
     const name = args.slice(1).join(" ");
-    const guildId = interaction.guildId!;
+    const guildId = message.guildId!;
     const userId = user.id;
 
-    const member = interaction.guild!.members.cache.get(user.id) as GuildMember;
+    const member = message.guild!.members.cache.get(user.id) as GuildMember;
 
     if (!member) {
-      return interaction.reply({
+      return message.reply({
         embeds: [
           safeEmbed(
             new EmbedBuilder()
@@ -196,16 +195,16 @@ export default {
               .setDescription(`<@${user.id}> is not a member of this server.`)
               .setColor(EmbedColors.error)
               .setFooter({
-                text: `Requested by ${interaction.author.tag}`,
-                iconURL: interaction.author.displayAvatarURL(),
+                text: `Requested by ${message.author.tag}`,
+                iconURL: message.author.displayAvatarURL(),
               })
               .setTimestamp(Date.now())
           ),
         ],
       });
     }
-    if (member.id === interaction.client.user.id) {
-      return interaction.reply({
+    if (member.id === message.client.user.id) {
+      return message.reply({
         embeds: [
           safeEmbed(
             new EmbedBuilder()
@@ -213,8 +212,8 @@ export default {
               .setDescription("What have I done wrong? :(")
               .setColor(EmbedColors.error)
               .setFooter({
-                text: `Requested by ${interaction.author.tag}`,
-                iconURL: interaction.author.displayAvatarURL(),
+                text: `Requested by ${message.author.tag}`,
+                iconURL: message.author.displayAvatarURL(),
               })
               .setTimestamp(Date.now())
           ),
@@ -223,11 +222,11 @@ export default {
     }
     if (
       member.roles.highest.position >=
-        (interaction.member?.roles as GuildMemberRoleManager).highest
+        (message.member?.roles as GuildMemberRoleManager).highest
           .position &&
-      !interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)
+      !message.member?.permissions.has(PermissionsBitField.Flags.Administrator)
     ) {
-      return interaction.reply({
+      return message.reply({
         embeds: [
           safeEmbed(
             new EmbedBuilder()
@@ -238,14 +237,14 @@ export default {
                 }> (Position: ${
                   member.roles.highest.position
                 }), which is higher or equal to your highest role. (Position: ${
-                  (interaction.member?.roles as GuildMemberRoleManager).highest
+                  (message.member?.roles as GuildMemberRoleManager).highest
                     .position
                 })`
               )
               .setColor(EmbedColors.error)
               .setFooter({
-                text: `Requested by ${interaction.author.tag}`,
-                iconURL: interaction.author.displayAvatarURL(),
+                text: `Requested by ${message.author.tag}`,
+                iconURL: message.author.displayAvatarURL(),
               })
               .setTimestamp(Date.now())
           ),
@@ -256,10 +255,10 @@ export default {
     await setNameLock(guildId, userId, name);
 
     await member.setNickname(name);
-    interaction.reply({
+    message.reply({
       content: `Locked ${user.username}'s name to ${name}`,
     });
 
-    setInterval(() => monitorUsernameChange(guildId, userId), 60000);
+    setInterval(() => monitorUsernameChange(guildId, userId, message), 60000);
   },
 } as Command;
