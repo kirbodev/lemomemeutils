@@ -1,5 +1,5 @@
 import type { Client, GuildMember } from "discord.js";
-import { getNameLock } from "../../db/models/namelock.ts";
+import { getNameLock } from "../../db/models/namelock";
 import logger from "../../helpers/logger.js";
 
 export default async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
