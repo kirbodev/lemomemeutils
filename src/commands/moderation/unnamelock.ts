@@ -108,14 +108,14 @@ export default {
     });
   },
   message: async (message: Message, { alias, args }) => {
-    const config = configs.get(message.guildId!)!;
+    const config = config.get(message.guildId!)!;
     args = args ?? [];
     if (args.length < 1) {
       return message.reply({
         embeds: [
           safeEmbed(
             new EmbedBuilder()
-              .setTitle(Errors.ErrorSyntax)
+              .setTitle(Errors.ErrorUser)
               .setDescription(
                 `The correct syntax for this command is:\n \`\`\`${config.prefix}${alias} <user>\`\`\``
               )
