@@ -15,8 +15,9 @@ import EmbedColors from "../../structures/embedColors.js";
 import Errors from "../../structures/errors.js";
 import safeEmbed from "../../utils/safeEmbed.js";
 import { setNameLock, getNameLock } from "../../db/models/namelock";
+import config from "../../config.js";  // Correct reference to config
 
-const monitorUsernameChange = async (guildId: string, userId: string) => {
+const monitorUsernameChange = async (guildId: string, userId: string, interaction: ChatInputCommandInteraction) => {
   const nameLock = await getNameLock(guildId, userId);
   if (!nameLock) return;
 
@@ -134,7 +135,7 @@ export default {
       ephemeral: true,
     });
 
-    setInterval(() => monitorUsernameChange(guildId, userId), 60000);
+    setInterval(() => monitorUsernameChange(guildId, userId, interaction), 60000);
   },
   message: async (message: Message, { alias, args }) => {
     const config = configs.get(message.guildId!)!;
