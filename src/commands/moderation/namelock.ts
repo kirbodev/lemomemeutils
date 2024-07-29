@@ -1,100 +1,265 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import {
+import type {
   ChatInputCommandInteraction,
+  GuildMemberRoleManager,
   Message,
-  PermissionFlagsBits,
 } from "discord.js";
-import type { APIApplicationCommandOption } from "discord.js";
-import Command from "./Command";
+import type Command from "../../structures/commandInterface.js";
+import {
+  GuildMember,
+  ApplicationCommandOptionType,
+  PermissionsBitField,
+  EmbedBuilder,
+} from "discord.js";
+import EmbedColors from "../../structures/embedColors.js";
+import Errors from "../../structures/errors.js";
+import safeEmbed from "../../utils/safeEmbed.js";
 import { setNameLock, getNameLock } from "../../db/schemas/namelocks";
 
-const monitorUsernameChange = async (
-  guildId: string,
-  userId: string,
-  lockedName: string
-) => {
+const monitorUsernameChange = async (guildId: string, userId: string) => {
+  const lockedData = await getNameLock(guildId, userId);
+  if (!lockedData) return;
+
   const member = await interaction.guild?.members.fetch(userId);
-  if (member && member.nickname !== lockedName) {
-    await member.setNickname(lockedName);
+  if (member && member.nickname !== lockedData.lockedName) {
+    await member.setNickname(lockedData.lockedName);
   }
 };
 
-const namelock: Command = {
+export default {
   name: "namelock",
   description: "Lock a user's username in the server to a specified name.",
   options: [
     {
       name: "user",
       description: "The user to lock the name for",
-      type: 6, // USER type
+      type: ApplicationCommandOptionType.User,
       required: true,
     },
     {
       name: "name",
       description: "The name to lock",
-      type: 3, // STRING type
+      type: ApplicationCommandOptionType.String,
       required: true,
     },
-  ] as APIApplicationCommandOption[],
-  permissionsRequired: [PermissionFlagsBits.ManageNicknames],
+  ],
+  aliases: ["nl"],
+  syntax: "prefixnl <user> <name>",
+  cooldown: 10000,
+  permissionsRequired: [PermissionsBitField.Flags.ManageNicknames],
+  contextName: "Lock username",
   slash: async (interaction: ChatInputCommandInteraction) => {
-    const user = interaction.options.getUser("user", true);
-    const name = interaction.options.getString("name", true);
+    await interaction.deferReply();
+    const user = interaction.options.getUser("user")!;
+    const name = interaction.options.getString("name")!;
     const guildId = interaction.guildId!;
     const userId = user.id;
 
-    // Store the locked name in the database
-    await setNameLock(guildId, userId, name);
+    const member = interaction.guild!.members.cache.get(user.id) as GuildMember;
 
-    // Change the user's nickname
-    const member = await interaction.guild?.members.fetch(userId);
-    if (member) {
-      await member.setNickname(name);
-      interaction.reply({
-        content: `Locked ${user.username}'s name to ${name}`,
+    if (!member) {
+      return interaction.followUp({
+        embeds: [
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorMemberNotFound)
+              .setDescription(`<@${user.id}> is not a member of this server.`)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
+        ],
         ephemeral: true,
       });
-    } else {
-      interaction.reply({ content: "User not found in the server.", ephemeral: true });
+    }
+    if (member.id === interaction.client.user.id) {
+      return interaction.followUp({
+        embeds: [
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorBot)
+              .setDescription("What have I done wrong? :(")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
+        ],
+        ephemeral: true,
+      });
+    }
+    if (
+      member.roles.highest.position >=
+        (interaction.member?.roles as GuildMemberRoleManager).highest
+          .position &&
+      !interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)
+    ) {
+      return interaction.followUp({
+        embeds: [
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorAuthority)
+              .setDescription(
+                `<@${member.id}>'s highest role is <@&${
+                  member.roles.highest.id
+                }> (Position: ${
+                  member.roles.highest.position
+                }), which is higher or equal to your highest role. (Position: ${
+                  (interaction.member?.roles as GuildMemberRoleManager).highest
+                    .position
+                })`
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
+        ],
+        ephemeral: true,
+      });
     }
 
-    // Set up a periodic check to ensure the name stays locked
-    setInterval(() => monitorUsernameChange(guildId, userId, name), 60000); // Check every 60 seconds
+    await setNameLock(guildId, userId, name);
+
+    await member.setNickname(name);
+    interaction.followUp({
+      content: `Locked ${user.username}'s name to ${name}`,
+      ephemeral: true,
+    });
+
+    setInterval(() => monitorUsernameChange(guildId, userId), 60000);
   },
-  message: async (
-    message: Message,
-    { alias, args }: { alias: string; args?: string[] }
-  ) => {
-    if (!message.guild || !args || args.length < 2) {
-      message.reply("You must specify a user and a name.");
-      return;
+  message: async (interaction: Message, { alias, args }) => {
+    args = args ?? [];
+    if (args.length < 2) {
+      return interaction.reply({
+        embeds: [
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorSyntax)
+              .setDescription(
+                `The correct syntax for this command is:\n \`\`\`${interaction.client.config.prefix}${alias} <user> <name>\`\`\``
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
+        ],
+      });
     }
 
-    const user = message.mentions.users.first() || (await message.client.users.fetch(args[0]));
-    if (!user) {
-      message.reply("User not found.");
-      return;
+    const rawUser = args[0];
+    let user: User;
+    try {
+      user = await interaction.client.users.fetch(
+        rawUser.replace(/[<@!>]/g, "")
+      );
+    } catch (e) {
+      return interaction.reply({
+        embeds: [
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUserNotFound)
+              .setDescription("Please provide a valid user.")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
+        ],
+      });
     }
 
     const name = args.slice(1).join(" ");
-    const guildId = message.guild.id;
+    const guildId = interaction.guildId!;
     const userId = user.id;
 
-    // Store the locked name in the database
-    await setNameLock(guildId, userId, name);
+    const member = interaction.guild!.members.cache.get(user.id) as GuildMember;
 
-    // Change the user's nickname
-    const member = await message.guild.members.fetch(userId);
-    if (member) {
-      await member.setNickname(name);
-      message.reply(`Locked ${user.username}'s name to ${name}`);
-    } else {
-      message.reply("User not found in the server.");
+    if (!member) {
+      return interaction.reply({
+        embeds: [
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorMemberNotFound)
+              .setDescription(`<@${user.id}> is not a member of this server.`)
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
+        ],
+      });
+    }
+    if (member.id === interaction.client.user.id) {
+      return interaction.reply({
+        embeds: [
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorBot)
+              .setDescription("What have I done wrong? :(")
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
+        ],
+      });
+    }
+    if (
+      member.roles.highest.position >=
+        (interaction.member?.roles as GuildMemberRoleManager).highest
+          .position &&
+      !interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)
+    ) {
+      return interaction.reply({
+        embeds: [
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorAuthority)
+              .setDescription(
+                `<@${member.id}>'s highest role is <@&${
+                  member.roles.highest.id
+                }> (Position: ${
+                  member.roles.highest.position
+                }), which is higher or equal to your highest role. (Position: ${
+                  (interaction.member?.roles as GuildMemberRoleManager).highest
+                    .position
+                })`
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.author.tag}`,
+                iconURL: interaction.author.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
+        ],
+      });
     }
 
-    // Set up a periodic check to ensure the name stays locked
-    setInterval(() => monitorUsernameChange(guildId, userId, name), 60000); // Check every 60 seconds
-  },
-};
+    await setNameLock(guildId, userId, name);
 
-export default namelock;
+    await member.setNickname(name);
+    interaction.reply({
+      content: `Locked ${user.username}'s name to ${name}`,
+    });
+
+    setInterval(() => monitorUsernameChange(guildId, userId), 60000);
+  },
+} as Command;
