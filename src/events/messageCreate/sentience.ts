@@ -13,9 +13,6 @@ import {
   HarmBlockThreshold,
   HarmCategory,
 } from "@google/generative-ai";
-import {
-  /* FileState,*/ GoogleAIFileManager,
-} from "@google/generative-ai/server";
 import configs, { devs } from "../../config.js";
 import KV from "../../db/models/kv.js";
 import kvInterface from "../../structures/kvInterface.js";
@@ -90,12 +87,6 @@ for (const key of process.env.GEMINI_API_KEYS?.split(",") ?? []) {
     }),
     0
   );
-}
-
-const fileManagers = new Map<string, GoogleAIFileManager>();
-for (const key of process.env.GEMINI_API_KEYS?.split(",") ?? []) {
-  const manager = new GoogleAIFileManager(key);
-  fileManagers.set(key, manager);
 }
 
 const chats = new Map<
