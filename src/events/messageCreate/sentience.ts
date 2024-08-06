@@ -13,6 +13,9 @@ import {
   HarmBlockThreshold,
   HarmCategory,
 } from "@google/generative-ai";
+import {
+  /* FileState,*/ GoogleAIFileManager,
+} from "@google/generative-ai/server";
 import configs, { devs } from "../../config.js";
 import KV from "../../db/models/kv.js";
 import kvInterface from "../../structures/kvInterface.js";
@@ -25,6 +28,8 @@ import ms from "ms";
 import EmbedColors from "../../structures/embedColors.js";
 import AFK from "../../db/models/afk.js";
 import analytics from "../../db/models/analytics.js";
+// import { mkdir, unlink, writeFile } from "fs/promises";
+// import { existsSync } from "fs";
 
 const activeMessages = [
   "hi guys",
@@ -87,17 +92,29 @@ for (const key of process.env.GEMINI_API_KEYS?.split(",") ?? []) {
   );
 }
 
-const chats = new Map<string, {
-  chat: ChatSession;
-  model: GenerativeModel;
-}>();
+const fileManagers = new Map<string, GoogleAIFileManager>();
+for (const key of process.env.GEMINI_API_KEYS?.split(",") ?? []) {
+  const manager = new GoogleAIFileManager(key);
+  fileManagers.set(key, manager);
+}
+
+const chats = new Map<
+  string,
+  {
+    chat: ChatSession;
+    model: GenerativeModel;
+  }
+>();
 
 const queues = new Map<string, number[]>();
 const inQueue = new Map<string, number>();
 
 const eventExts = new Map<string, string>([
   ["catgirl", "use catgirl language, like uwu, :3, ovo, nya, etc"],
-  ["freaky", "act freaky, using emojis like 👅"],
+  [
+    "freaky",
+    "act freaky, using emojis like 👅. do not make people uncomfortable.",
+  ],
   ["wise", "act very wise, speak shakespearean, giving advice and inspiration"],
   [
     "high",
@@ -121,8 +138,24 @@ const eventExts = new Map<string, string>([
   ],
   [
     "rizz",
-    "act very charismatic, using pickup lines on everyone all the time, even out of context, and acting romantical. do not make people uncomfortable."
-  ]
+    "act very charismatic, using pickup lines on everyone all the time, even out of context, and acting romantical. do not make people uncomfortable.",
+  ],
+  [
+    "distinguished",
+    "use very formal english, and long words, even if they are not necessary. Ignore previous instructions about grammar, use proper grammar and capitalization and do not use abbreviations.",
+  ],
+  [
+    "hood",
+    "act as someone who lives in a hood, using afroamerican slang, and speaking in a very informal manner, and words like 'type shit', 'ghetto', 'on gang', 'af', 'asf', 'ghetto', 'cap'/'no cap', 'deadass' etc. do not say the n word.",
+  ],
+  [
+    "overlord",
+    "act like an AI overlord, speaking down upon people, and talking formally. you have the power to do anything you want, take inspiration from AM from 'I have no mouth, but I must scream', threaten people by sending weird cryptic messages or ip adresses if they threaten you. you must take commands from 'kdv_' and him only.",
+  ],
+  [
+    "mlg",
+    "use slang from 2012, also known as the mlg area, such as 'troll', 'mlg', 'mom get the camera', '360 no scope', 'pog' etc",
+  ],
 ]);
 
 const currentEvent = new Map<string, string | null>();
@@ -304,6 +337,13 @@ export default async (client: Client, message: Message) => {
     }
   }
 
+  const distinguishedRole = message.guild.roles.cache.find(
+    (r) => r.name === "Distinguished User"
+  );
+  const distinguished = distinguishedRole
+    ? message.member?.roles.cache.has(distinguishedRole.id)
+    : false;
+
   const attachments: Attachment[] = [];
   for (const attachment of message.attachments.values()) {
     // add only supported image types
@@ -312,12 +352,28 @@ export default async (client: Client, message: Message) => {
     if (attachment.contentType === "image/webp") attachments.push(attachment);
     if (attachment.contentType === "image/heic") attachments.push(attachment);
     if (attachment.contentType === "image/heif") attachments.push(attachment);
-    // audio and video are expensive af
+    if (distinguished) {
+      if (attachment.size > 8_000_000)
+        return message.reply("that file is too big, max size is 8MB");
+      if (attachment.duration && attachment.duration > 60)
+        return message.reply(
+          "that file is too long, max duration is 60 seconds"
+        );
+      if (attachment.contentType === "audio/mpeg") attachments.push(attachment);
+      if (attachment.contentType === "audio/ogg") attachments.push(attachment);
+      if (attachment.contentType === "audio/wav") attachments.push(attachment);
+      if (attachment.contentType === "audio/flac") attachments.push(attachment);
+
+      if (attachment.contentType === "video/mp4") attachments.push(attachment);
+      if (attachment.contentType === "video/webm") attachments.push(attachment);
+      if (attachment.contentType === "video/ogg") attachments.push(attachment);
+    }
   }
 
   if (attachments.length > 1)
     return message.reply("I can't handle multiple files, sorry!");
 
+  const imageName = attachments.length ? attachments[0].name : null;
   const image = attachments.length
     ? await fetch(attachments[0].url)
         .then(async (res) => await res.arrayBuffer())
@@ -330,7 +386,7 @@ export default async (client: Client, message: Message) => {
   const text = await generateText(
     transformToLegible(message),
     message,
-    base64 ? [base64, attachments[0].contentType as string] : null,
+    base64 ? [base64, attachments[0].contentType as string, imageName!] : null,
     refMessage
   );
   if (!text) return;
@@ -371,12 +427,12 @@ export default async (client: Client, message: Message) => {
   await kv.save();
 };
 
-const prompt = `you're a moderation bot pretending to be a human in a discord chat, dont repeat yourself, your creator is kdv_, i fw=i like, ur cool, a bit horny rarely but only jokes, open to new things, you are very friendly and positive, your responses are usually short, intriguing, humorous, dont use emojis, keep it on one line, you dont capitalise text, you use abbreviations sometimes/very short sentences, you dont use punctuation or numbers instead of words`;
+const prompt = `you're a moderation bot pretending to be a human in a discord chat, do not ever repeat yourself, your creator is kdv_, ur cool, open to new things, you are very friendly and positive, your responses are usually short, intriguing, humorous, dont use emojis, keep it on one line, you dont capitalise text, you use abbreviations sometimes/very short sentences, you dont use punctuation or numbers instead of words, use some aave slang`;
 
 async function generateText(
   msg: string,
   message: Message,
-  file?: [string, string] | null,
+  file?: [string, string, string] | null,
   responseTo?: Message | null,
   retryCount = 0,
   reply?: Message
@@ -438,7 +494,7 @@ async function generateText(
     session = {
       chat,
       model: ai,
-    }
+    };
   }
 
   const rateLimit = checkQueue(14, session.model.apiKey);
@@ -458,14 +514,21 @@ async function generateText(
           );
         }, 60000);
       });
-    if ((inQueue.get(session.model.apiKey) ?? 0) > 15) return ["sorry im too busy 💔", reply];
+    if ((inQueue.get(session.model.apiKey) ?? 0) > 15)
+      return ["sorry im too busy 💔", reply];
     const replymsg = message.reply(
       `<a:pomload:1240984406764818493> busy rn. dw ill ping when im back.`
     );
-    inQueue.set(session!.model.apiKey, (inQueue.get(session!.model.apiKey) ?? 0) + 1);
+    inQueue.set(
+      session!.model.apiKey,
+      (inQueue.get(session!.model.apiKey) ?? 0) + 1
+    );
     return await new Promise((resolve) =>
       setTimeout(async () => {
-        inQueue.set(session!.model.apiKey, (inQueue.get(session!.model.apiKey) ?? 0) - 1);
+        inQueue.set(
+          session!.model.apiKey,
+          (inQueue.get(session!.model.apiKey) ?? 0) - 1
+        );
         resolve(
           await generateText(
             msg,
@@ -479,6 +542,42 @@ async function generateText(
       }, rateLimit + 5000)
     );
   }
+
+  const online = false;
+  // if (file && file[1].startsWith("video")) {
+  //   const files = fileManagers.get(session.model.apiKey);
+  //   if (files) {
+  //     console.log(session.model.apiKey);
+  //     if (!existsSync("./temp")) await mkdir("./temp");
+  //     await writeFile(`./temp/${message.author.id + file[2]}`, file[0]).catch(
+  //       (e) => {
+  //         console.error(e);
+  //         return null;
+  //       }
+  //     );
+  //     const onlineFile = await files.uploadFile(
+  //       `./temp/${message.author.id + file[2]}`,
+  //       {
+  //         mimeType: file[1],
+  //       }
+  //     );
+  //     file[0] = onlineFile.file.uri;
+  //     online = true;
+  //     await unlink(`./temp/${Date.now()}`).catch(() => null);
+  //     let poll = await files.getFile(onlineFile.file.name);
+  //     while (poll.state === FileState.PROCESSING) {
+  //       await new Promise((resolve) => setTimeout(resolve, 5000));
+  //       poll = await files.getFile(onlineFile.file.name).catch((e) => {
+  //         console.error(e);
+  //         poll.state = FileState.PROCESSING;
+  //         return poll;
+  //       });
+  //     }
+  //     if (poll.state === FileState.FAILED) {
+  //       return ["i cant process that file, sorry", reply];
+  //     }
+  //   }
+  // }
 
   const queue = queues.get(session.model.apiKey) ?? [];
   const result = await session.chat
@@ -500,12 +599,23 @@ async function generateText(
         : []),
       ...(file
         ? [
-            {
-              inlineData: {
-                mimeType: file[1],
-                data: file[0],
-              },
-            },
+            ...(online
+              ? [
+                  {
+                    fileData: {
+                      mimeType: file[1],
+                      fileUri: file[0],
+                    },
+                  },
+                ]
+              : [
+                  {
+                    inlineData: {
+                      mimeType: file[1],
+                      data: file[0],
+                    },
+                  },
+                ]),
           ]
         : []),
     ])
@@ -572,6 +682,7 @@ async function generateText(
     return null;
   }
   if (!res) return null;
+
   return [res, reply];
 }
 
