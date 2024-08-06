@@ -109,16 +109,16 @@ export let dbStatus: ErrorStatus | null = db.connection.readyState === 1 ? null 
   messages: ["Database connection lost. Most commands will not function."],
   updatedAt: new Date(),
 };
-db.connection.on("connected", () => {
-  dbStatus = null;
-});
-db.connection.on("disconnected", () => {
-  dbStatus = {
-    status: 4,
-    messages: ["Database connection lost. Most commands will not function."],
-    updatedAt: new Date(),
-  };
-});
+//db.connection.on("connected", () => {
+//  dbStatus = null;
+//});
+//db.connection.on("disconnected", () => {
+//  dbStatus = {
+//    status: 4,
+//messages: ["Database connection lost. Most commands will not function."],
+//    updatedAt: new Date(),
+//  };
+//});
 
 //STUB - More testing needed, seems to be too sensitive and impossible to exit the error state
 // const prevErrorAmount: number[] = [];
