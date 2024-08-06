@@ -9,11 +9,11 @@ mongoose.connect(process.env.MONGO_CONNECTION_DEV || process.env.MONGO_CONNECTIO
 
 const db = mongoose.connection;
 
-db.connection.once("connected", () => logger.info("Connected to database"));
-db.connection.on("error", (e) => logger.error(e, "Error while connecting to database"));
-db.connection.on("disconnected", () => logger.warn("Disconnected from database"));
-db.connection.on("reconnected", () => logger.info("Reconnected to database"));
-db.connection.on("reconnectFailed", () => logger.error("Failed to reconnect to database"));
+//db.connection.once("connected", () => logger.info("Connected to database"));
+//db.connection.on("error", (e) => logger.error(e, "Error while connecting to database"));
+//db.connection.on("disconnected", () => logger.warn("Disconnected from database"));
+//db.connection.on("reconnected", () => logger.info("Reconnected to database"));
+//db.connection.on("reconnectFailed", () => logger.error("Failed to reconnect to database"));
 
 export const Warn = warn;
 export const Action = action;
