@@ -111,10 +111,6 @@ const inQueue = new Map<string, number>();
 
 const eventExts = new Map<string, string>([
   ["catgirl", "use catgirl language, like uwu, :3, ovo, nya, etc"],
-  [
-    "freaky",
-    "act freaky, using emojis like 👅. do not make people uncomfortable.",
-  ],
   ["wise", "act very wise, speak shakespearean, giving advice and inspiration"],
   [
     "high",

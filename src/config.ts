@@ -131,19 +131,19 @@ config.set(
   "1220886191600308254",
   new Config({
     guildID: "1220886191600308254",
-    firstWarnRoleID: "1222932763959890030",
-    secondWarnRoleID: "1222932900421439641",
-    paroleRoleID: "1222942964301697044",
+    firstWarnRoleID: "1245118492470935602",
+    secondWarnRoleID: "1245118569105195038",
+    paroleRoleID: "1245118939369836747",
     prefix: ",",
-    thinIceRoleID: "1222945595551907850",
-    thinnerIceRoleID: "1222945704348225688",
+    thinIceRoleID: "1245119128994582548",
+    thinnerIceRoleID: "1245119056210821120",
     logChannelID: "1222946063716192329",
     appealServer: "https://discord.gg/Q7Ee9SkeDb",
     highStaffRole: "1222893532545814598",
     linkedStaffRoles: new Map([
       [StaffLevel.Farmer, "1222892729646972948"], // Staff role
     ]),
-    staffApplicationsChannelID: "1222947761453011066",
+    staffApplicationsChannelID: "1220886193085087757",
     staffRoles: [
       null,
       null,
@@ -156,7 +156,7 @@ config.set(
     staffAppRoleID: "1220886191600308260",
     staffVoteRoles: ["1222893532545814598", "1220886191616954487"],
     aiEnabled: true,
-    aiChannels: ["1222968152946901036"]
+    aiChannels: ["1244343365475110994"]
   })
 );
 
