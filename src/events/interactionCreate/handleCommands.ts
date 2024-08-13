@@ -160,7 +160,7 @@ export default async (client: Client, interaction: Interaction) => {
     }
   }
   const cooldown = getCooldown(interaction.user.id, command.name);
-  if (cooldown && cooldown > Date.now())
+  if (!devs.includes(interaction.user.id) && cooldown && cooldown > Date.now())
     return interaction.reply({
       embeds: [
         safeEmbed(

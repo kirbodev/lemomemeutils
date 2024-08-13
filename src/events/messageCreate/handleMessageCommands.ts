@@ -205,7 +205,7 @@ export default async (client: Client, message: Message) => {
       });
   }
   const cooldown = getCooldown(message.author.id, command.name);
-  if (cooldown && cooldown > Date.now())
+  if (!devs.includes(message.author.id) && cooldown && cooldown > Date.now())
     return message.reply({
       embeds: [
         safeEmbed(
@@ -283,16 +283,16 @@ export default async (client: Client, message: Message) => {
       embeds: [
         safeEmbed(
           new EmbedBuilder()
-        .setTitle(Errors.ErrorServer)
-        .setDescription("An error occurred while executing this command.")
-        .setColor(EmbedColors.error)
-        .setFooter({
-          text: `Requested by ${message.author.tag}`,
-          iconURL: message.author.displayAvatarURL(),
-        })
-        .setTimestamp(Date.now())
+            .setTitle(Errors.ErrorServer)
+            .setDescription("An error occurred while executing this command.")
+            .setColor(EmbedColors.error)
+            .setFooter({
+              text: `Requested by ${message.author.tag}`,
+              iconURL: message.author.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
         ),
-      ]
+      ],
     });
     logger.error(e, `Error while executing command ${command.name}`);
   }

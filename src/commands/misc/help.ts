@@ -35,7 +35,8 @@ export default {
         .map((command) => ({
           name: command.name,
           value: command.name,
-        })),
+        }))
+        .splice(0, 25),
     },
   ],
   permissionsRequired: [PermissionsBitField.Flags.SendMessages],
@@ -176,10 +177,12 @@ export default {
               .setCustomId(selectMenuId)
               .setPlaceholder("Select a command")
               .addOptions(
-                localCommands.map((command) => ({
-                  label: command.name,
-                  value: command.name,
-                }))
+                localCommands
+                  .map((command) => ({
+                    label: command.name,
+                    value: command.name,
+                  }))
+                  .splice(0, 25)
               ),
           ]) as ActionRowBuilder<StringSelectMenuBuilder>,
         ],
