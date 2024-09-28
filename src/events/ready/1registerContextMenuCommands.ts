@@ -18,7 +18,7 @@ export default async (client: Client) => {
       if (!localCommand) continue;
       const { name, contextName } = localCommand;
       const existingCommand = commands.find(
-        (command) => command.name === contextName ?? name,
+        (command) => command.name === contextName,
       );
 
       if (existingCommand) {
