@@ -48,7 +48,11 @@ let prevStatus: ActivitiesOptions | null = null;
 
 setInterval(() => {
   const status = getErrorStatus();
-  if (!status) return (override = null && client.user?.setStatus("online"));
+  if (!status) {
+    override = null
+    client.user?.setStatus("online");
+    return;
+  };
   if (status.status === prevLevel) return;
   override = {
     type: ActivityType.Competing,

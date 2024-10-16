@@ -5,7 +5,8 @@ import action from "./models/action.js";
 import staff from "./models/staff.js";
 import kv from "./models/kv.js";
 
-mongoose.connect(process.env.MONGO_CONNECTION_DEV || process.env.MONGO_CONNECTION as string);
+const connURL = (process.env.DEV || process.env.DB_BYPASS_DEV) ? process.env.MONGO_CONNECTION_DEV : process.env.MONGO_CONNECTION;
+mongoose.connect(connURL as string);
 
 const db = mongoose.connection;
 
