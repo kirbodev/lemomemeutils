@@ -1,4 +1,4 @@
-import { Client, EmbedBuilder, Message } from "discord.js";
+import { Client, EmbedBuilder, Message, PermissionFlagsBits } from "discord.js";
 import sharp from "sharp";
 import { qrCodeAllowlist } from "../../config.js";
 import EmbedColors from "../../structures/embedColors.js";
@@ -15,6 +15,8 @@ export default async (client: Client, message: Message) => {
     if (!attachment.contentType?.startsWith("image")) return;
     if (!attachment.height || !attachment.width) return;
     if (attachment.ephemeral) return;
+    if (message.member?.permissions.has(PermissionFlagsBits.ManageMessages))
+      return;
     const mainImage = await sharp(
       await (await fetch(attachment.url)).arrayBuffer()
     )
