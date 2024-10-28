@@ -2,7 +2,7 @@ import {
   GuildTextBasedChannel,
   type ChatInputCommandInteraction,
   type ModalSubmitInteraction,
-  ApplicationCommandOptionType
+  ApplicationCommandOptionType,
 } from "discord.js";
 import type Command from "../../structures/commandInterface.js";
 import configs from "../../config.js";
@@ -14,18 +14,30 @@ export default {
     "!!! DANGER !!! Restores DB entries from logs. Only available to developers.",
   devOnly: true,
   otpRequired: true,
-  options: [{
-     type: ApplicationCommandOptionType.String,
-name: "message_id",
-description: "The message ID to start from",
-required: true
-}],
+  options: [
+    {
+      type: ApplicationCommandOptionType.String,
+      name: "message_id",
+      description: "The message ID to start from",
+      required: true,
+    },
+    {
+      type: ApplicationCommandOptionType.String,
+      name: "bot_ids",
+      description: "The bot IDs to restore from",
+      required: false,
+    },
+  ],
   async slash(
     ogInteraction: ChatInputCommandInteraction,
     interaction: ModalSubmitInteraction | ChatInputCommandInteraction
   ) {
     if (!interaction) interaction = ogInteraction;
-const messageId = ogInteraction.options.getString("message_id", true)
+
+    const messageId = ogInteraction.options.getString("message_id", true);
+    const botIds = ogInteraction.options.getString("bot_ids", false);
+    const bots = botIds ? botIds.split(",") : [interaction.client.user!.id];
+
     await interaction.reply(
       "You have just requested to fetch every log message and restore the entries to the database. This is dangerous, may lead to data loss and very high database usage. Do not perform this if you do not what you are doing. You have 10 seconds to cancel this action by restarting the bot, please run /restart to do this."
     );
@@ -57,7 +69,7 @@ const messageId = ogInteraction.options.getString("message_id", true)
     while (messages) {
       for (const message of messages.values()) {
         // Do something with the message
-        if (message.author.id !== interaction.client.user!.id) continue;
+        if (!bots.includes(message.author.id)) continue;
         if (!message.embeds.length) continue;
         const embed = message.embeds[0];
         const type = embed.title;
