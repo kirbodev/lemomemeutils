@@ -2,6 +2,7 @@ import {
   GuildTextBasedChannel,
   type ChatInputCommandInteraction,
   type ModalSubmitInteraction,
+  ApplicationCommandOptionType
 } from "discord.js";
 import type Command from "../../structures/commandInterface.js";
 import configs from "../../config.js";
@@ -13,11 +14,18 @@ export default {
     "!!! DANGER !!! Restores DB entries from logs. Only available to developers.",
   devOnly: true,
   otpRequired: true,
+  options: [{
+     type: ApplicationCommandOptionType.String,
+name: "message_id",
+description: "The message ID to start from",
+required: true
+}],
   async slash(
     ogInteraction: ChatInputCommandInteraction,
     interaction: ModalSubmitInteraction | ChatInputCommandInteraction
   ) {
     if (!interaction) interaction = ogInteraction;
+const messageId = interaction.options.getString("message_id", true)
     await interaction.reply(
       "You have just requested to fetch every log message and restore the entries to the database. This is dangerous, may lead to data loss and very high database usage. Do not perform this if you do not what you are doing. You have 10 seconds to cancel this action by restarting the bot, please run /restart to do this."
     );
@@ -35,7 +43,7 @@ export default {
     if (!logChannel)
       return interaction.followUp("Log channel not found, aborting.");
     let messages = await logChannel.messages
-      .fetch({ limit: 100, after: "0" })
+      .fetch({ limit: 100, after: messageId })
       .then((messages) => (messages.size ? messages : null));
     if (!messages)
       return interaction.followUp(
