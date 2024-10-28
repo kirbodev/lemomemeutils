@@ -25,7 +25,7 @@ required: true
     interaction: ModalSubmitInteraction | ChatInputCommandInteraction
   ) {
     if (!interaction) interaction = ogInteraction;
-const messageId = interaction.options.getString("message_id", true)
+const messageId = ogInteraction.options.getString("message_id", true)
     await interaction.reply(
       "You have just requested to fetch every log message and restore the entries to the database. This is dangerous, may lead to data loss and very high database usage. Do not perform this if you do not what you are doing. You have 10 seconds to cancel this action by restarting the bot, please run /restart to do this."
     );
