@@ -25,6 +25,7 @@ import ms from "ms";
 import EmbedColors from "../../structures/embedColors.js";
 import AFK from "../../db/models/afk.js";
 import analytics from "../../db/models/analytics.js";
+import { Action } from "../../db/index.js";
 // import { mkdir, unlink, writeFile } from "fs/promises";
 // import { existsSync } from "fs";
 
@@ -254,6 +255,48 @@ export default async (client: Client, message: Message) => {
       setTimeout(resolve, Math.pow(Math.PI, 2) * 1000)
     );
     await rep.delete();
+    return;
+  }
+  const aimute = await Action.findOne({
+    actionType: "aimute",
+    guildID: message.guildId!,
+    userID: message.author.id,
+    forceExpired: {
+      $ne: true,
+    },
+    $or: [
+      { expiresAt: { $exists: false } },
+      { expiresAt: { $gt: new Date().getTime() } },
+    ],
+  });
+  if (aimute) {
+    const hasBeenAlerted = await KV.findOne({
+      key: `aimute-alert-${message.author.id}-${aimute.timestamp?.getTime()}`,
+    });
+    if (hasBeenAlerted) return;
+    const alertEmbed = new EmbedBuilder()
+      .setTitle("AI Muted")
+      .setDescription(
+        "You are currently AI muted and cannot interact with the AI. This message will only be shown once."
+      )
+      .setFields([
+        {
+          name: "Expires at",
+          value: aimute.expiresAt
+            ? `<t:${Math.floor(aimute.expiresAt.getTime() / 1000)}:f>`
+            : "Never",
+        },
+      ])
+      .setColor(EmbedColors.warning);
+
+    await message.reply({
+      embeds: [alertEmbed],
+    });
+    const kv = new KV<kvInterface>({
+      key: `aimute-alert-${message.author.id}-${aimute.timestamp?.getTime()}`,
+      value: "true",
+    });
+    await kv.save();
     return;
   }
   if (message.content.toLowerCase().endsWith("can you ping everyone"))

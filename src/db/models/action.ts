@@ -34,7 +34,7 @@ const actionSchema = new mongoose.Schema<actionInterface>({
   actionType: {
     type: String,
     required: true,
-    enum: ["kick", "ban", "unban", "mute", "unmute"],
+    enum: ["kick", "ban", "unban", "mute", "unmute", "aimute", "aiunmute"],
   },
   withParole: {
     type: mongoose.Schema.Types.Mixed,
