@@ -24,9 +24,12 @@ export default async (
     channelId: message.channel.id,
     methodType: "edit",
     content:
+      `${oldMessage.content} -> ` +
       message.content +
-      (message.attachments.size ? "\n" + message.attachments.map((a) => `[${a.name}](${a.url})`).join("\n") :
-        ""),
+      (message.attachments.size
+        ? "\n" +
+          message.attachments.map((a) => `[${a.name}](${a.url})`).join("\n")
+        : ""),
   });
 
   try {
