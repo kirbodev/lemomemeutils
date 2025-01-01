@@ -5,16 +5,25 @@ import action from "./models/action.js";
 import staff from "./models/staff.js";
 import kv from "./models/kv.js";
 
-const connURL = (process.env.DEV || process.env.DB_BYPASS_DEV) ? process.env.MONGO_CONNECTION_DEV : process.env.MONGO_CONNECTION;
-mongoose.connect(connURL as string);
+// dev mode will always bypass prod mode
+const connURL =
+  (process.env.NODE_ENV && !process.env.DB_BYPASS_PROD) ||
+  process.env.DB_BYPASS_DEV
+    ? process.env.MONGO_CONNECTION_DEV
+    : process.env.MONGO_CONNECTION;
 
-const db = mongoose.connection;
-
-//db.connection.once("connected", () => logger.info("Connected to database"));
-//db.connection.on("error", (e) => logger.error(e, "Error while connecting to database"));
-//db.connection.on("disconnected", () => logger.warn("Disconnected from database"));
-//db.connection.on("reconnected", () => logger.info("Reconnected to database"));
-//db.connection.on("reconnectFailed", () => logger.error("Failed to reconnect to database"));
+mongoose
+  .connect(connURL as string)
+  .then(() => {
+    logger.info("[DB] Connected to DB");
+    if (process.env.NODE_ENV && process.env.DB_BYPASS_PROD)
+      logger.warn(
+        "[DB] CAUTION! You are connected to the PRODUCTION database in DEVELOPMENT mode. Be careful!"
+      );
+  })
+  .catch((err) => {
+    logger.error(`[DB] Error connecting to DB: ${err}`);
+  });
 
 export const Warn = warn;
 export const Action = action;
