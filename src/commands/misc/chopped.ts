@@ -6,7 +6,7 @@ import {
 } from "discord.js";
 import Errors from "../../structures/errors.js";
 import EmbedColors from "../../structures/embedColors.js";
-import { Action, Warn } from "../../db";
+import { Action, Warn } from "../../db/index.js";
 import Analytics from "../../db/models/analytics.js";
 import { PaginatedMessage } from "@sapphire/discord.js-utilities";
 import ms from "ms";
