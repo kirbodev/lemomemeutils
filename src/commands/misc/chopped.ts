@@ -4,10 +4,10 @@ import {
   Message,
   PermissionsBitField,
 } from "discord.js";
-import Errors from "../../structures/errors";
-import EmbedColors from "../../structures/embedColors";
+import Errors from "../../structures/errors.js";
+import EmbedColors from "../../structures/embedColors.js";
 import { Action, Warn } from "../../db";
-import Analytics from "../../db/models/analytics";
+import Analytics from "../../db/models/analytics.js";
 import { PaginatedMessage } from "@sapphire/discord.js-utilities";
 import ms from "ms";
 
@@ -18,16 +18,27 @@ interface ChoppedData {
     favoriteCommand: string | null;
     commandUsage: Record<string, number>;
     favoriteType: "slash" | "message";
+    favoriteTypePercent: number;
     dailyUsageCount: number; // max 365
     highestDailyStreak: number;
     moderation: {
       warns: number;
       warnPercentile: number;
+      unwarns: number;
+      heavies: number;
       mutes: number;
       muteTime: number;
+      longestMute: number;
       kicks: number;
       bans: number;
     };
+    enemy?: {
+      username?: string;
+      id: string;
+      warns: number;
+      actions: number;
+    };
+    badges?: string[];
   };
 }
 
@@ -106,13 +117,17 @@ export default {
         favoriteCommand: "",
         commandUsage: {},
         favoriteType: "slash",
+        favoriteTypePercent: 0,
         dailyUsageCount: 0,
         highestDailyStreak: 0,
         moderation: {
           warns: 0,
           warnPercentile: 0,
+          unwarns: 0,
+          heavies: 0,
           mutes: 0,
           muteTime: 0,
+          longestMute: 0,
           kicks: 0,
           bans: 0,
         },
@@ -153,14 +168,15 @@ export default {
     let dayCounted = 0;
 
     for (const analytic of analytics) {
-      if (analytic.type === "command" || analytic.type === "message")
+      if (analytic.type === "command" || analytic.type === "message") {
         data.statistics.usageCount++;
-      data.statistics.commandUsage[analytic.name] = data.statistics
-        .commandUsage[analytic.name]
-        ? data.statistics.commandUsage[analytic.name] + 1
-        : 1;
-      if (analytic.type === "command") usedSlash++;
-      if (analytic.type === "message") usedMsg++;
+        data.statistics.commandUsage[analytic.name] = data.statistics
+          .commandUsage[analytic.name]
+          ? data.statistics.commandUsage[analytic.name] + 1
+          : 1;
+        if (analytic.type === "command") usedSlash++;
+        if (analytic.type === "message") usedMsg++;
+      }
 
       // daily streak
       if (analytic.timestamp) {
@@ -209,6 +225,8 @@ export default {
         )
       : null;
 
+    data.statistics.favoriteTypePercent = typePercent || 0;
+
     // process actions
     const mutes = actions.filter((action) => action.actionType === "mute");
     const bans = actions.filter((action) => action.actionType === "ban");
@@ -237,12 +255,17 @@ export default {
         ? longestMute.expiresAt?.getTime() - longestMute.timestamp?.getTime()
         : null;
 
+    data.statistics.moderation.longestMute = longestMuteTime || 0;
+
     // process warns
     data.statistics.moderation.warns = warns.length;
     data.statistics.moderation.warnPercentile = getWarnPercentile(user.id);
 
     const unwarns = warns.filter((warn) => warn.unwarn);
     const heavies = warns.filter((warn) => warn.severity > 1);
+
+    data.statistics.moderation.unwarns = unwarns.length;
+    data.statistics.moderation.heavies = heavies.length;
 
     // other stats
     const all: ((typeof warns)[0] | (typeof actions)[0])[] = [
@@ -266,6 +289,14 @@ export default {
     const enemyActions = enemy
       ? actions.filter((action) => action.moderatorID === enemy)
       : [];
+
+    if (enemyResolved && enemy)
+      data.statistics.enemy = {
+        id: enemy,
+        username: enemyResolved.username,
+        warns: enemyWarns.length,
+        actions: enemyActions.length,
+      };
 
     const badges = [];
 
@@ -330,20 +361,7 @@ export default {
         : "Fall Harvest";
     badges.push(`${seasonBadge} - Most active in ${favoriteSeason}`);
 
-    // match each ban with an unban by checking their location in the array (do this reverse chronologically), if a ban has no unban, it's a ban that's still in effect, if an unban has no ban, assume its a ban from 31st dec 2023
-    let timeSpentBanned = 0;
-    for (const ban of bans) {
-      const unban = unbans.shift();
-      if (!unban) {
-        timeSpentBanned +=
-          new Date(2024, 11, 31).getTime() - ban.timestamp!.getTime();
-      } else {
-        timeSpentBanned +=
-          unban.timestamp!.getTime() - ban.timestamp!.getTime();
-      }
-    }
-
-    // Create pages
+    data.statistics.badges = badges;
 
     const pages: EmbedBuilder[] = [];
 
@@ -430,12 +448,7 @@ export default {
 
     if (unbans.length) {
       redemptionPage.setDescription(
-        `You were unbanned \`${
-          unbans.length
-        }\` time(s) in 2024. Looks like you got a second chance. Keep it clean!
-        Although that means you spent \`${ms(timeSpentBanned, {
-          long: true,
-        })}\` banned.`
+        `You were unbanned \`${unbans.length}\` time(s) in 2024. Looks like you got a second chance. Keep it clean!`
       );
       pages.push(redemptionPage);
     }
@@ -527,11 +540,7 @@ export default {
           data.statistics.moderation.bans
         }\` time(s)\n- You received \`${
           heavies.length
-        }\` heavy warnings\n- You were unbanned \`${
-          unbans.length
-        }\` time(s)\n- You were muted for a total of \`${ms(timeSpentBanned, {
-          long: true,
-        })}\``,
+        }\` heavy warnings\n- You were unbanned \`${unbans.length}\` time(s)`,
       },
       {
         name: "Notable Mentions",
