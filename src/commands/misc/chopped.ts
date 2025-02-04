@@ -276,9 +276,11 @@ export default {
     for (const action of all) {
       mods[action.moderatorID] = (mods[action.moderatorID] || 0) + 1;
     }
-    const enemy = mods.length
-      ? Object.keys(mods).reduce((a, b) => (mods[a] > mods[b] ? a : b))
-      : null;
+    // find the highest number (in values)
+    const enemy =
+      mods.length > 1
+        ? Object.entries(mods).reduce((a, b) => (a[1] > b[1] ? a : b))[0]
+        : null;
     const enemyResolved = enemy
       ? await i.client.users.fetch(enemy).catch(() => null)
       : null;
@@ -297,6 +299,8 @@ export default {
         warns: enemyWarns.length,
         actions: enemyActions.length,
       };
+
+    console.log(enemy, Object.entries(mods));
 
     const badges = [];
 

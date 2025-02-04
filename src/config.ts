@@ -82,7 +82,7 @@ config.set(
     ]),
     highStaffRole: "1162007763426234459",
     aiEnabled: true,
-    aiChannels: ["1096129798109143052", "1135348779877404869"]
+    aiChannels: ["1135348779877404869"]
   })
 );
 //House of VOX
