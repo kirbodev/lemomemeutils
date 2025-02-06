@@ -77,7 +77,9 @@ export default async (
     if (refreshedYesVotes < majority) return;
     staffApp.decision.decisionAt = new Date();
     staffApp.decision.approved = true;
-    await setStaffLevel(staffApp, StaffLevel.Farmer);
+    staffApp.type === "staff"
+      ? await setStaffLevel(staffApp, StaffLevel.Farmer)
+      : await setStaffLevel(staffApp, StaffLevel.Event);
     await staffApp.save();
 
     // Update the message
@@ -102,35 +104,36 @@ export default async (
     // Notify the user
     const userDM = await client.users.fetch(staffApp.userID).catch(() => null);
     if (userDM) {
-      await userDM.send({
-        embeds: [
-          safeEmbed(
-            new EmbedBuilder()
-              .setTitle("Staff Application Approved")
-              .setDescription(
-                `Your staff application for ${
-                  reaction.message.guild!.name
-                } has been approved!`
-              )
-              .setFields([
-                {
-                  name: "Decision",
-                  value: "Approved by majority vote",
-                },
-                {
-                  name: "Reason",
-                  value: staffApp.decision.reason || "No reason provided",
-                },
-              ])
-              .setColor(EmbedColors.success)
-              .setTimestamp(),
+      await userDM
+        .send({
+          embeds: [
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle("Staff Application Approved")
+                .setDescription(
+                  `Your staff application for ${
+                    reaction.message.guild!.name
+                  } has been approved!`
+                )
+                .setFields([
+                  {
+                    name: "Decision",
+                    value: "Approved by majority vote",
+                  },
+                  {
+                    name: "Reason",
+                    value: staffApp.decision.reason || "No reason provided",
+                  },
+                ])
+                .setColor(EmbedColors.success)
+                .setTimestamp(),
               {
                 withSystemMessages: false,
               }
-          ),
-        ],
-      })
-      .catch(() => null);
+            ),
+          ],
+        })
+        .catch(() => null);
     }
 
     // Notify the staff app channel
@@ -158,9 +161,9 @@ export default async (
             ])
             .setColor(EmbedColors.success)
             .setTimestamp(Date.now()),
-            {
-              withSystemMessages: false,
-            }
+          {
+            withSystemMessages: false,
+          }
         ),
       ],
     });
@@ -204,35 +207,36 @@ export default async (
     // Notify the user
     const userDM = await client.users.fetch(staffApp.userID).catch(() => null);
     if (userDM) {
-      await userDM.send({
-        embeds: [
-          safeEmbed(
-            new EmbedBuilder()
-              .setTitle("Staff Application Denied")
-              .setDescription(
-                `Your staff application for ${
-                  reaction.message.guild!.name
-                } has been denied.`
-              )
-              .setFields([
-                {
-                  name: "Decision",
-                  value: "Denied by majority vote",
-                },
-                {
-                  name: "Reason",
-                  value: staffApp.decision.reason || "No reason provided",
-                },
-              ])
-              .setColor(EmbedColors.error)
-              .setTimestamp(),
+      await userDM
+        .send({
+          embeds: [
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle("Staff Application Denied")
+                .setDescription(
+                  `Your staff application for ${
+                    reaction.message.guild!.name
+                  } has been denied.`
+                )
+                .setFields([
+                  {
+                    name: "Decision",
+                    value: "Denied by majority vote",
+                  },
+                  {
+                    name: "Reason",
+                    value: staffApp.decision.reason || "No reason provided",
+                  },
+                ])
+                .setColor(EmbedColors.error)
+                .setTimestamp(),
               {
                 withSystemMessages: false,
               }
-          ),
-        ],
-      })
-      .catch(() => null);
+            ),
+          ],
+        })
+        .catch(() => null);
     }
 
     // Notify the staff app channel
@@ -260,9 +264,9 @@ export default async (
             ])
             .setColor(EmbedColors.error)
             .setTimestamp(Date.now()),
-            {
-              withSystemMessages: false,
-            }
+          {
+            withSystemMessages: false,
+          }
         ),
       ],
     });

@@ -7,6 +7,7 @@ export enum StaffLevel {
   Orange,
   Grapefruit,
   Lime,
+  Event,
 }
 
 export default interface staffInterface {
@@ -21,4 +22,5 @@ export default interface staffInterface {
     votes: Map<string, boolean>;
   };
   staffLevel: StaffLevel;
+  type: "staff" | "event";
 }

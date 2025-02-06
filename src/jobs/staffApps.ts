@@ -38,7 +38,9 @@ export default {
           vote.decision.decisionAt = new Date();
           vote.decision.approved = true;
           await vote.save();
-          await setStaffLevel(vote, StaffLevel.Farmer);
+          vote.type === "staff"
+            ? await setStaffLevel(vote, StaffLevel.Farmer)
+            : await setStaffLevel(vote, StaffLevel.Event);
           const embed = safeEmbed(
             new EmbedBuilder()
               .setTitle("Staff Application Approved")
@@ -57,9 +59,9 @@ export default {
               ])
               .setColor(EmbedColors.success)
               .setTimestamp(),
-              {
-                withSystemMessages: false,
-              }
+            {
+              withSystemMessages: false,
+            }
           );
           const userDM = await client.users
             .fetch(vote.userID)
@@ -116,9 +118,9 @@ export default {
                     ])
                     .setColor(EmbedColors.success)
                     .setTimestamp(),
-                    {
-                      withSystemMessages: false,
-                    }
+                  {
+                    withSystemMessages: false,
+                  }
                 ),
               ],
             });
@@ -147,9 +149,9 @@ export default {
               ])
               .setColor(EmbedColors.error)
               .setTimestamp(),
-              {
-                withSystemMessages: false,
-              }
+            {
+              withSystemMessages: false,
+            }
           );
 
           const userDM = await client.users
@@ -206,9 +208,9 @@ export default {
                     ])
                     .setColor(EmbedColors.error)
                     .setTimestamp(),
-                    {
-                      withSystemMessages: false,
-                    }
+                  {
+                    withSystemMessages: false,
+                  }
                 ),
               ],
             });

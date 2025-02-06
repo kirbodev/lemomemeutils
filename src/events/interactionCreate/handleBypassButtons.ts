@@ -9,7 +9,7 @@ import configs, { devs } from "../../config.js";
 import Staff from "../../db/models/staff.js";
 import setStaffLevel from "../../helpers/setStaffLevel.js";
 import { HydratedDocument } from "mongoose";
-import staffInterface from "../../structures/staffInterface.js";
+import staffInterface, { StaffLevel } from "../../structures/staffInterface.js";
 import EmbedColors from "../../structures/embedColors.js";
 import safeEmbed from "../../utils/safeEmbed.js";
 import Errors from "../../structures/errors.js";
@@ -57,7 +57,9 @@ export default async (client: Client, interaction: Interaction) => {
     staff.decision.decisionAt = new Date();
     staff.decision.approved = true;
     await staff.save();
-    await setStaffLevel(staff, 2);
+    staff.type === "staff"
+      ? await setStaffLevel(staff, StaffLevel.Farmer)
+      : await setStaffLevel(staff, StaffLevel.Event);
     await interaction.followUp({
       content: "✅ Approved!",
       ephemeral: true,

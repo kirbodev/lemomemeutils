@@ -23,6 +23,7 @@ interface ConfigParams {
   aiEnabled?: boolean;
   aiChannels?: string[];
   aiDisabledModes?: string[];
+  eventStaffRole?: string;
 }
 export default class Config {
   guildID: string;
@@ -45,6 +46,7 @@ export default class Config {
   aiEnabled?: boolean;
   aiChannels?: string[];
   aiDisabledModes?: string[];
+  eventStaffRole?: string;
 
   constructor(params: ConfigParams) {
     this.guildID = params.guildID;
@@ -66,6 +68,7 @@ export default class Config {
     this.aiEnabled = params.aiEnabled;
     this.aiChannels = params.aiChannels;
     this.aiDisabledModes = params.aiDisabledModes;
+    this.eventStaffRole = params.eventStaffRole;
 
     if (!this.prefix) this.prefix = ",";
     client.channels

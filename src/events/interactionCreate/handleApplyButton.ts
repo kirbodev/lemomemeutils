@@ -25,7 +25,11 @@ import safeEmbed from "../../utils/safeEmbed.js";
 
 export default async (client: Client, interaction: Interaction) => {
   if (!interaction.isButton()) return;
-  if (!interaction.customId.startsWith("apply-")) return;
+  if (
+    !interaction.customId.startsWith("apply-") &&
+    !interaction.customId.startsWith("eventapply-")
+  )
+    return;
   const config = configs.get(interaction.guildId!)!;
   if (!config.staffApplicationsChannelID)
     return interaction.reply({
@@ -46,8 +50,14 @@ export default async (client: Client, interaction: Interaction) => {
       ],
       ephemeral: true,
     });
+
+  const type = interaction.customId.startsWith("apply-") ? "staff" : "event";
+
   if (
-    interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)
+    interaction.memberPermissions?.has(
+      PermissionsBitField.Flags.ManageMessages
+    ) &&
+    type === "staff"
   )
     return interaction.reply({
       embeds: [
@@ -65,6 +75,30 @@ export default async (client: Client, interaction: Interaction) => {
       ],
       ephemeral: true,
     });
+
+  if (
+    type === "event" &&
+    (interaction.member?.roles as GuildMemberRoleManager).cache.has(
+      config.eventStaffRole!
+    )
+  )
+    return interaction.reply({
+      embeds: [
+        safeEmbed(
+          new EmbedBuilder()
+            .setTitle(Errors.ErrorUser)
+            .setDescription("Event staff cannot apply for event staff.")
+            .setColor(EmbedColors.error)
+            .setFooter({
+              text: `Requested by ${interaction.user.tag}`,
+              iconURL: interaction.user.displayAvatarURL(),
+            })
+            .setTimestamp(Date.now())
+        ),
+      ],
+      ephemeral: true,
+    });
+
   if (
     config.staffAppRoleID &&
     !(interaction.member?.roles as GuildMemberRoleManager).cache.has(
@@ -185,7 +219,7 @@ export default async (client: Client, interaction: Interaction) => {
     const why = response.fields.getTextInputValue(`${id}-why`);
     const mfa = response.fields.getTextInputValue(`${id}-2fa`);
 
-    if (!age || !timezone || !level || !why || !mfa)
+    if (!type || !age || !timezone || !level || !why || !mfa)
       return response.reply({
         embeds: [
           safeEmbed(
@@ -223,6 +257,48 @@ export default async (client: Client, interaction: Interaction) => {
         components: [],
         ephemeral: true,
       });
+    if (type.toLowerCase() !== "staff" && type.toLowerCase() !== "event")
+      return response.reply({
+        embeds: [
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUser)
+              .setDescription(
+                "You did not fill out the form correctly. Type must be `staff` or `event`."
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
+        ],
+        components: [],
+        ephemeral: true,
+      });
+
+    if (type.toLowerCase() === "event" && !config.eventStaffRole)
+      return response.reply({
+        embeds: [
+          safeEmbed(
+            new EmbedBuilder()
+              .setTitle(Errors.ErrorUser)
+              .setDescription(
+                "This server does not support event staff applications. The only type of staff you can apply for is `staff`."
+              )
+              .setColor(EmbedColors.error)
+              .setFooter({
+                text: `Requested by ${interaction.user.tag}`,
+                iconURL: interaction.user.displayAvatarURL(),
+              })
+              .setTimestamp(Date.now())
+          ),
+        ],
+        components: [],
+        ephemeral: true,
+      });
+
     if (mfa.toLowerCase() !== "y" && mfa.toLowerCase() !== "n")
       return response.reply({
         embeds: [
@@ -299,6 +375,10 @@ export default async (client: Client, interaction: Interaction) => {
             .setDescription(`<@${interaction.user.id}> has applied for staff.`)
             .setFields([
               {
+                name: "Type",
+                value: type,
+              },
+              {
                 name: "Age",
                 value: age,
               },
@@ -339,6 +419,10 @@ export default async (client: Client, interaction: Interaction) => {
           `<@${interaction.user.id}> has applied for staff. **Reply** with \`r${config.prefix}<reason>\` to add a reason.`
         )
         .setFields([
+          {
+            name: "Type",
+            value: type,
+          },
           {
             name: "Age",
             value: age,
@@ -406,6 +490,7 @@ export default async (client: Client, interaction: Interaction) => {
           approved: undefined,
           votes: new Map<string, boolean>(),
         },
+        type,
       });
       await newStaff.save();
     }

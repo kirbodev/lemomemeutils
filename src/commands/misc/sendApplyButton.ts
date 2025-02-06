@@ -10,18 +10,32 @@ import type Command from "../../structures/commandInterface.js";
 import EmbedColors from "../../structures/embedColors.js";
 import kv from "../../db/models/kv.js";
 import safeEmbed from "../../utils/safeEmbed.js";
+import configs from "../../config.js";
 
 export default {
   name: "sendapplybutton",
   description: "Send the embed with the apply button.",
   permissionsRequired: [PermissionsBitField.Flags.Administrator],
   async slash(interaction: ChatInputCommandInteraction) {
-    const button = new ActionRowBuilder<ButtonBuilder>().setComponents([
+    const config = configs.get(interaction.guildId!);
+
+    const buttons = new ActionRowBuilder<ButtonBuilder>();
+
+    buttons.addComponents([
       new ButtonBuilder()
         .setCustomId(`apply-${interaction.guildId!}`)
         .setLabel("Apply")
         .setStyle(ButtonStyle.Primary),
     ]);
+    config?.eventStaffRole
+      ? buttons.addComponents([
+          new ButtonBuilder()
+            .setCustomId(`eventapply-${interaction.guildId!}`)
+            .setLabel("Apply (Event Staff)")
+            .setStyle(ButtonStyle.Success),
+        ])
+      : null;
+
     const embed = safeEmbed(
       new EmbedBuilder()
         .setTitle("Staff Application")
@@ -36,7 +50,7 @@ export default {
     });
     const msg = await interaction.channel!.send({
       embeds: [embed],
-      components: [button],
+      components: [buttons],
     });
     const existing = await kv.findOne({
       key: `staffAppsMessage-${interaction.guildId}`,

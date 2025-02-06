@@ -39,6 +39,11 @@ const staffSchema = new mongoose.Schema<staffInterface>({
     default: 0,
     enum: [0, 1, 2, 3, 4, 5, 6, 7],
   },
+  type: {
+    type: String,
+    default: "staff",
+    enum: ["staff", "event"],
+  },
 });
 
 export default (mongoose.models.staff as Model<staffInterface>) ||

@@ -6,19 +6,33 @@ import logger from "./logger.js";
 
 export default async function setStaffLevel(
   staff: HydratedDocument<staffInterface>,
-  level: StaffLevel,
+  level: StaffLevel
 ) {
   const config = configs.get(staff.guildID)!;
   if (!config.staffRoles) return;
   if (!Object.values(StaffLevel).includes(level)) return;
-  const oldRoleId = config.staffRoles[staff.staffLevel]
-    ? config.staffRoles[staff.staffLevel]
-    : undefined;
-  staff.staffLevel = level;
+
   const guild = client.guilds.cache.get(staff.guildID);
   if (!guild) return;
   const member = await guild.members.fetch(staff.userID).catch(() => undefined);
   if (!member) return;
+
+  if (level === StaffLevel.Event && config.eventStaffRole) {
+    const role = guild.roles.cache.get(config.eventStaffRole);
+    try {
+      if (role) await member.roles.add(role);
+    } catch (e) {
+      return logger.error(
+        `Failed to change staff level for ${staff.userID} in ${staff.guildID}`
+      );
+    }
+    return await staff.save();
+  }
+
+  const oldRoleId = config.staffRoles[staff.staffLevel]
+    ? config.staffRoles[staff.staffLevel]
+    : undefined;
+  staff.staffLevel = level;
   const role =
     config.staffRoles[staff.staffLevel] !== null
       ? guild.roles.cache.get(config.staffRoles[staff.staffLevel]!)
@@ -34,7 +48,7 @@ export default async function setStaffLevel(
           await member.roles.add(role);
         } catch (e) {
           logger.error(
-            `Failed to add linked staff role ${roleID} to ${staff.userID} in ${staff.guildID}`,
+            `Failed to add linked staff role ${roleID} to ${staff.userID} in ${staff.guildID}`
           );
         }
       }
@@ -45,7 +59,7 @@ export default async function setStaffLevel(
     if (role) await member.roles.add(role);
   } catch (e) {
     return logger.error(
-      `Failed to change staff level for ${staff.userID} in ${staff.guildID}`,
+      `Failed to change staff level for ${staff.userID} in ${staff.guildID}`
     );
   }
   return await staff.save();

@@ -37,7 +37,8 @@ config.set(
     staffRoles: [null, null, "907341095145472010"],
     highStaffRole: "1036654749891706961",
     aiEnabled: true,
-    aiChannels: ["1011953546062745620"]
+    aiChannels: ["1011953546062745620"],
+    eventStaffRole: "1191713864274939914",
   })
 );
 // Lemomeme
@@ -82,7 +83,8 @@ config.set(
     ]),
     highStaffRole: "1162007763426234459",
     aiEnabled: true,
-    aiChannels: ["1135348779877404869"]
+    aiChannels: ["1135348779877404869"],
+    eventStaffRole: "1210377951015735296",
   })
 );
 //House of VOX
@@ -123,7 +125,7 @@ config.set(
     appealServer: "https://discord.gg/EUsVK5E",
     aiEnabled: true,
     aiChannels: ["750868690915950715"],
-    aiDisabledModes: ["freaky"]
+    aiDisabledModes: ["freaky"],
   })
 );
 // Cozy lodge
@@ -156,7 +158,7 @@ config.set(
     staffAppRoleID: "1220886191600308260",
     staffVoteRoles: ["1222893532545814598", "1220886191616954487"],
     aiEnabled: true,
-    aiChannels: ["1244343365475110994"]
+    aiChannels: ["1244343365475110994"],
   })
 );
 
