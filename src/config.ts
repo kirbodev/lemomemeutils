@@ -125,7 +125,7 @@ config.set(
     appealServer: "https://discord.gg/EUsVK5E",
     aiEnabled: true,
     aiChannels: ["750868690915950715"],
-    aiDisabledModes: ["freaky"],
+    aiDisabledModes: ["freaky", "rizz"],
   })
 );
 // Cozy lodge
