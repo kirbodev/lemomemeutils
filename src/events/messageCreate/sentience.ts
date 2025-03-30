@@ -125,10 +125,6 @@ const eventExts = new Map<string, string>([
     "talk using terminology like sigma, skibidi, gyatt, kai cenat, fanum tax, rizz, etc",
   ],
   [
-    "rizz",
-    "act very charismatic, using pickup lines on everyone all the time, even out of context, and acting romantical. do not make people uncomfortable.",
-  ],
-  [
     "distinguished",
     "use very formal english, and long words, even if they are not necessary. Ignore previous instructions about grammar, use proper grammar and capitalization and do not use abbreviations.",
   ],
@@ -500,7 +496,7 @@ async function generateText(
       safetySettings: [
         {
           category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-          threshold: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
         },
         {
           category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,

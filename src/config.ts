@@ -158,7 +158,7 @@ config.set(
     staffAppRoleID: "1220886191600308260",
     staffVoteRoles: ["1222893532545814598", "1220886191616954487"],
     aiEnabled: true,
-    aiChannels: ["1244343365475110994"],
+    aiChannels: ["1355338714238161016"],
   })
 );
 
