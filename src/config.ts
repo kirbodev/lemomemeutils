@@ -130,35 +130,35 @@ config.set(
 );
 // Cozy lodge
 config.set(
-  "1220886191600308254",
+  "1357197500456374342",
   new Config({
-    guildID: "1220886191600308254",
-    firstWarnRoleID: "1245118492470935602",
-    secondWarnRoleID: "1245118569105195038",
-    paroleRoleID: "1245118939369836747",
+    guildID: "1357197500456374342",
+    firstWarnRoleID: "1357197500481671294",
+    secondWarnRoleID: "1357197500481671293",
+    paroleRoleID: "1357197500481671292",
     prefix: ",",
-    thinIceRoleID: "1245119128994582548",
-    thinnerIceRoleID: "1245119056210821120",
-    logChannelID: "1222946063716192329",
+    thinIceRoleID: "1357197500481671298",
+    thinnerIceRoleID: "1357197500481671297",
+    logChannelID: "1357197501463269418",
     appealServer: "https://discord.gg/Q7Ee9SkeDb",
-    highStaffRole: "1222893532545814598",
+    highStaffRole: "1357197500536328425",
     linkedStaffRoles: new Map([
-      [StaffLevel.Farmer, "1222892729646972948"], // Staff role
+      [StaffLevel.Farmer, "1357197500515225739"], // Staff role
     ]),
-    staffApplicationsChannelID: "1220886193085087757",
+    staffApplicationsChannelID: "1357197501463269416",
     staffRoles: [
       null,
       null,
-      "1220886191616954481",
-      "1220886191616954482",
-      "1220886191616954484",
-      "1220886191616954485", // crypt keeper
+      "1357197500523483277",
+      "1357197500523483279",
+      "1357197500536328424",
+      "1357197500536328428", // crypt keeper
     ],
-    staffVoteChannelID: "1220886193085087754",
-    staffAppRoleID: "1220886191600308260",
-    staffVoteRoles: ["1222893532545814598", "1220886191616954487"],
+    staffVoteChannelID: "1357197501463269424",
+    staffAppRoleID: "1357197500489928810",
+    staffVoteRoles: ["1357197500536328428", "1357197500548780068"],
     aiEnabled: true,
-    aiChannels: ["1355338714238161016"],
+    aiChannels: ["1357197500775141496"],
   })
 );
 
