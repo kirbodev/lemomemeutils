@@ -147,7 +147,7 @@ export default {
       member.roles.highest.position >=
         (interaction.member?.roles as GuildMemberRoleManager).highest
           .position &&
-      !force
+      !force && member.id !== interaction.user.id
     ) {
       return interaction.followUp({
         embeds: [
