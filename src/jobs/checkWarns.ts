@@ -16,7 +16,8 @@ export default {
     for (const user of users) {
       const userWarns = warns.filter((w) => w.userID === user);
       for (const guild of [...new Set(userWarns.map((warn) => warn.guildID))]) {
-        const config = configs.get(guild)!;
+        const config = configs.get(guild);
+        if (!config) continue;
         // Get member from guild
         let member;
         try {
@@ -32,8 +33,8 @@ export default {
             0,
           ) || 0;
         // Check if user has warn roles
-        const firstWarnRole = member.roles.cache.get(config.firstWarnRoleID!);
-        const secondWarnRole = member.roles.cache.get(config.secondWarnRoleID!);
+        const firstWarnRole = member.roles.cache.get(config.firstWarnRoleID);
+        const secondWarnRole = member.roles.cache.get(config.secondWarnRoleID);
         // Remove warn roles if they have expired
         let counted = false;
         if (firstWarnRole && warnPoints < 1) {
