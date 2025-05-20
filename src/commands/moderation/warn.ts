@@ -460,7 +460,7 @@ export default {
       member.roles.highest.position >=
         (interaction.member?.roles as GuildMemberRoleManager).highest
           .position &&
-      !force
+      !force && member.id !== interaction.author.id
     ) {
       return interaction.reply({
         embeds: [
