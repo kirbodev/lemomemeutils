@@ -1,4 +1,4 @@
-Iimport type { ChatInputCommandInteraction, Message, User } from "discord.js";
+import type { ChatInputCommandInteraction, Message, User } from "discord.js";
 import type Command from "../../structures/commandInterface.js";
 import {
   GuildMember,
