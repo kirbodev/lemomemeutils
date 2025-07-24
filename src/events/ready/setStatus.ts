@@ -34,7 +34,7 @@ const statuses: ActivitiesOptions[] = [
   },
   {
     type: ActivityType.Custom,
-    name: "🧠 Suicide is not the end, it's the start of a feedback loop."
+    name: "🧠 Suicide is not the end, it's the start of a feedback loop.",
   },
   {
     type: ActivityType.Watching,
@@ -49,10 +49,10 @@ let prevStatus: ActivitiesOptions | null = null;
 setInterval(() => {
   const status = getErrorStatus();
   if (!status) {
-    override = null
+    override = null;
     client.user?.setStatus("online");
     return;
-  };
+  }
   if (status.status === prevLevel) return;
   override = {
     type: ActivityType.Competing,

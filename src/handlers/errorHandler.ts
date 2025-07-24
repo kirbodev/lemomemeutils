@@ -1,5 +1,3 @@
-import db from "../db/index.js";
-
 interface DiscordStatusIncidentUpdate {
   body: string;
   created_at: Date;
@@ -104,11 +102,11 @@ export async function getDiscordStatus(): Promise<DiscordStatusResponse | null> 
   return res;
 }
 
-export let dbStatus: ErrorStatus | null = null
-  //db.connection.readyState === 1 ? null : {
- // status: 4,
-  //messages: ["Database connection lost. Most commands will not function."],
- // updatedAt: new Date(),
+export const dbStatus: ErrorStatus | null = null;
+//db.connection.readyState === 1 ? null : {
+// status: 4,
+//messages: ["Database connection lost. Most commands will not function."],
+// updatedAt: new Date(),
 //};
 //db.connection.on("connected", () => {
 //  dbStatus = null;
