@@ -66,7 +66,10 @@ export default {
         ephemeral: true,
       });
     }
-    if (member.id === interaction.user.id) {
+    if (
+  member.id === interaction.user.id &&
+  !interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)
+) {
       return interaction.followUp({
         embeds: [
           safeEmbed(
@@ -333,7 +336,10 @@ export default {
         ],
       });
     }
-    if (member.id === interaction.author.id) {
+    if (
+  member.id === interaction.author.id &&
+  !interaction.member?.permissions.has(PermissionsBitField.Flags.Administrator)
+) {
       return interaction.reply({
         embeds: [
           safeEmbed(
