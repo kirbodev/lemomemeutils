@@ -173,6 +173,7 @@ export default {
             msgid = botmsg.id;
           }
         } else {
+          if (!interaction.inGuild()) return;
           const botmsg = await interaction.channel!.send(message);
           msgid = botmsg.id;
         }
@@ -307,6 +308,7 @@ export default {
               });
             }
           } else {
+            if (!interaction.inGuild()) return;
             interaction.channel!.send({
               embeds: [safeEmbed(message)],
             });

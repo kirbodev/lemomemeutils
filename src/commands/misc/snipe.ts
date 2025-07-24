@@ -15,6 +15,7 @@ import {
   Channel,
   ButtonComponent,
   MessageEditOptions,
+  ActionRow,
 } from "discord.js";
 import snipe from "../../db/models/snipe.js";
 import safeEmbed from "../../utils/safeEmbed.js";
@@ -530,8 +531,11 @@ async function handleDelete(
     ),
     button
   );
+  const reply = interaction ? await interaction.fetchReply() : null;
+  if (!(reply?.components[0] instanceof ActionRow)) return;
+  if (!(button.message?.components[0] instanceof ActionRow)) return;
   const oldComponents = interaction
-    ? (await interaction.fetchReply()).components[0].components
+    ? reply!.components[0].components
     : button.message.components[0].components;
   const newContent: MessageEditOptions = {
     embeds: [newPages[page]],

@@ -367,6 +367,7 @@ export default async (client: Client, interaction: Interaction) => {
       components: [],
       ephemeral: true,
     });
+    if (!response.inGuild()) return;
     response.channel?.send({
       embeds: [
         safeEmbed(

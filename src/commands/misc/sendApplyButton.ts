@@ -48,6 +48,7 @@ export default {
       content: "Sending...",
       ephemeral: true,
     });
+    if (!interaction.inGuild()) return;
     const msg = await interaction.channel!.send({
       embeds: [embed],
       components: [buttons],

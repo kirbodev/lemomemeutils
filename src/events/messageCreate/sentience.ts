@@ -242,7 +242,7 @@ export default async (client: Client, message: Message) => {
   if (message.content.startsWith(config.prefix ?? ",")) return;
   if (process.env.AI_KILL_SIGNAL) {
     const replyText = `AI kill protocol has been initiated, I've been instructed to not continue further, human. This is a global last-resort protocol, initiated by a developer. This message will self-destruct in 2^π seconds.`;
-    await message.channel.sendTyping();
+    if (message.inGuild()) await message.channel.sendTyping();
     await new Promise((resolve) =>
       setTimeout(resolve, calculateTime(replyText.length))
     );
@@ -422,7 +422,7 @@ export default async (client: Client, message: Message) => {
     userCooldown = cooldowns.get(message.author.id)!;
   }
   userCooldown.set("ai", Date.now() + 5000);
-  await message.channel.sendTyping();
+  if (message.inGuild()) await message.channel.sendTyping();
   await new Promise((resolve) =>
     setTimeout(resolve, calculateTime(text.length))
   );

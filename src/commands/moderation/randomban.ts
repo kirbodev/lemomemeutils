@@ -208,6 +208,7 @@ export default {
           .setStyle(ButtonStyle.Secondary)
       );
 
+      if (!interaction.inGuild()) return;
       const inGuildMsg = await interaction.channel!.send({
         content: `<@${member.id}>`,
         embeds: [alertEmbed],

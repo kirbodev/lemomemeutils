@@ -1,4 +1,4 @@
-import { Client, Message } from "discord.js";
+import { ActionRow, Client, Message } from "discord.js";
 import configs from "../../config.js";
 import kv from "../../db/models/kv.js";
 import { HydratedDocument } from "mongoose";
@@ -11,12 +11,13 @@ export default async (client: Client, message: Message) => {
   if (!config || !config.staffApplicationsChannelID) return;
   if (message.channel.id !== config.staffApplicationsChannelID) return;
   if (message.reference && message.author.id === message.client.user.id) return;
+  if (!(message.components[0] instanceof ActionRow)) return;
   if (
     message.components[0]?.components[0]?.customId ===
     `apply-${message.guildId}`
   )
     return;
-    if (dbStatus) return;
+  if (dbStatus) return;
   const applyMessageId: HydratedDocument<kvInterface> | null = await kv.findOne(
     { key: `staffAppsMessage-${message.guildId}` }
   );
@@ -26,6 +27,7 @@ export default async (client: Client, message: Message) => {
     .catch(() => null);
   if (!applyMessage || applyMessage.author.id !== message.client.user.id)
     return;
+  if (!message.inGuild()) return;
   const msg = await message.channel.send({
     content: applyMessage.content,
     embeds: applyMessage.embeds,
