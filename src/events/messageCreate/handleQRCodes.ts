@@ -162,6 +162,7 @@ export default async (client: Client, message: Message) => {
 };
 
 const getQRCode = async (image: Buffer) => {
+  //@ts-ignore
   const blob = new Blob([image], { type: "image/png" });
   const result = await readBarcodesFromImageFile(blob, {
     maxNumberOfSymbols: 1,
