@@ -162,6 +162,7 @@ export default async (client: Client, message: Message) => {
 };
 
 const getQRCode = async (image: Buffer) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
   const blob = new Blob([image], { type: "image/png" });
   const result = await readBarcodesFromImageFile(blob, {
