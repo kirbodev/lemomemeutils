@@ -80,7 +80,7 @@ for (const key of process.env.GEMINI_API_KEYS?.split(",") ?? []) {
   const gga = new GoogleGenerativeAI(key);
   ais.set(
     gga.getGenerativeModel({
-      model: "gemini-1.5-flash-latest",
+      model: "gemini-2.0-flash",
       generationConfig: {
         maxOutputTokens: 50,
         temperature: 0.5,
@@ -202,12 +202,10 @@ const changeState = async () => {
 
       const guildEvent = currentEvent.get(channel.guild!.id);
       await channel.send(
-        `${message}${
-          guildEvent
-            ? ` ✨ Special event: ${
-                [...eventExts].find((e) => e[1] === guildEvent)![0]
-              } mode`
-            : ""
+        `${message}${guildEvent
+          ? ` ✨ Special event: ${[...eventExts].find((e) => e[1] === guildEvent)![0]
+          } mode`
+          : ""
         }`
       );
     }
@@ -319,7 +317,7 @@ export default async (client: Client, message: Message) => {
     } else {
       await message.reply(
         "that event doesn't exist, the only ones are: " +
-          [...eventExts.keys(), "none"].join(", ")
+        [...eventExts.keys(), "none"].join(", ")
       );
     }
     return;
@@ -402,8 +400,8 @@ export default async (client: Client, message: Message) => {
   const imageName = attachments.length ? attachments[0].name : null;
   const image = attachments.length
     ? await fetch(attachments[0].url)
-        .then(async (res) => await res.arrayBuffer())
-        .catch(() => null)
+      .then(async (res) => await res.arrayBuffer())
+      .catch(() => null)
     : null;
   const base64 = image ? Buffer.from(image).toString("base64") : null;
 
@@ -429,19 +427,19 @@ export default async (client: Client, message: Message) => {
 
   const msg = text[1]
     ? await text[1].edit({
-        content: escapeCharacters(text[0]),
-        allowedMentions: {
-          repliedUser: true,
-          users: [],
-        },
-      })
+      content: escapeCharacters(text[0]),
+      allowedMentions: {
+        repliedUser: true,
+        users: [],
+      },
+    })
     : await message.reply({
-        content: escapeCharacters(text[0]),
-        allowedMentions: {
-          repliedUser: true,
-          users: [],
-        },
-      });
+      content: escapeCharacters(text[0]),
+      allowedMentions: {
+        repliedUser: true,
+        users: [],
+      },
+    });
   if (text[1]) {
     const newMsg = await msg.reply(`<@${message.author.id}>`);
     await newMsg.delete();
@@ -483,13 +481,11 @@ async function generateText(
         role: "user",
         parts: [
           {
-            text: `${prompt}${
-              guildEvent
-                ? ` \n${guildEvent}\nyour current event is ${
-                    [...eventExts].find((e) => e[1] === guildEvent)![0]
-                  }`
+            text: `${prompt}${guildEvent
+                ? ` \n${guildEvent}\nyour current event is ${[...eventExts].find((e) => e[1] === guildEvent)![0]
+                }`
                 : ""
-            }`,
+              }`,
           },
         ],
       },
@@ -610,39 +606,37 @@ async function generateText(
     .sendMessage([
       ...(msg
         ? [
-            {
-              text: `I (${message.author.username}) say "${msg}"${
-                responseTo
-                  ? ` in response to ${
-                      responseTo.author.id === responseTo.client.user.id
-                        ? "your"
-                        : `${responseTo.author.username}'s`
-                    } message "${responseTo.content}"`
-                  : ""
+          {
+            text: `I (${message.author.username}) say "${msg}"${responseTo
+                ? ` in response to ${responseTo.author.id === responseTo.client.user.id
+                  ? "your"
+                  : `${responseTo.author.username}'s`
+                } message "${responseTo.content}"`
+                : ""
               }`,
-            },
-          ]
+          },
+        ]
         : []),
       ...(file
         ? [
-            ...(online
-              ? [
-                  {
-                    fileData: {
-                      mimeType: file[1],
-                      fileUri: file[0],
-                    },
-                  },
-                ]
-              : [
-                  {
-                    inlineData: {
-                      mimeType: file[1],
-                      data: file[0],
-                    },
-                  },
-                ]),
-          ]
+          ...(online
+            ? [
+              {
+                fileData: {
+                  mimeType: file[1],
+                  fileUri: file[0],
+                },
+              },
+            ]
+            : [
+              {
+                inlineData: {
+                  mimeType: file[1],
+                  data: file[0],
+                },
+              },
+            ]),
+        ]
         : []),
     ])
     .catch(async (e) => {

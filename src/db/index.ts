@@ -8,9 +8,11 @@ import kv from "./models/kv.js";
 // dev mode will always bypass prod mode
 const connURL =
   (process.env.NODE_ENV && !process.env.DB_BYPASS_PROD) ||
-  process.env.DB_BYPASS_DEV
+    process.env.DB_BYPASS_DEV
     ? process.env.MONGO_CONNECTION_DEV
     : process.env.MONGO_CONNECTION;
+
+console.log(connURL)
 
 mongoose
   .connect(connURL as string)
