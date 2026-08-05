@@ -40,7 +40,7 @@ export default async (client: Client, interaction: Interaction) => {
     });
   if (type === "approve") {
     if (!devs.includes(interaction.user.id))
-      return interaction.reply({
+      return interaction.followUp({
         embeds: [
           safeEmbed(
             new EmbedBuilder()

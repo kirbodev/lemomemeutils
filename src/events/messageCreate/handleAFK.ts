@@ -1,4 +1,12 @@
-import { Client, EmbedBuilder, Message } from "discord.js";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  Client,
+  ComponentType,
+  EmbedBuilder,
+  Message,
+} from "discord.js";
 import afk from "../../db/models/afk.js";
 import { HydratedDocument } from "mongoose";
 import afkInterface from "../../structures/afkInterface.js";
@@ -7,6 +15,16 @@ import ms from "ms";
 import configs from "../../config.js";
 import safeEmbed from "../../utils/safeEmbed.js";
 import { dbStatus } from "../../handlers/errorHandler.js";
+import { nanoid } from "nanoid";
+
+const NO_REMOVE_SUFFIXES = [
+  "--afk",
+  "-afk",
+  "——afk",
+  "—afk",
+  "––afk",
+  "–afk",
+];
 
 export default async (client: Client, message: Message) => {
   if (!message.guild) return;
@@ -19,24 +37,41 @@ export default async (client: Client, message: Message) => {
   });
   if (userAfk) {
     const config = configs.get(message.guild.id)!;
+    const messageLower = message.content.toLowerCase().trim();
     if (userAfk.expiresAt && userAfk.expiresAt.getTime() < Date.now()) {
       await userAfk.deleteOne();
     } else if (
-      !message.content.endsWith("--afk") &&
-      !message.content.endsWith("—afk") &&
+      !NO_REMOVE_SUFFIXES.some((suffix) => messageLower.endsWith(suffix)) &&
       !message.content.startsWith(`${config.prefix}afk`)
     ) {
+      const afkSnapshot = {
+        userID: userAfk.userID,
+        guildID: userAfk.guildID,
+        message: userAfk.message,
+        timestamp: userAfk.timestamp,
+        expiresAt: userAfk.expiresAt,
+      };
       await userAfk.deleteOne();
+
+      const buttonId = nanoid();
+      const undoRow = new ActionRowBuilder<ButtonBuilder>().setComponents(
+        new ButtonBuilder()
+          .setCustomId(buttonId)
+          .setLabel("Undo")
+          .setEmoji("↩️")
+          .setStyle(ButtonStyle.Secondary)
+      );
+
+      const duration = ms(Date.now() - afkSnapshot.timestamp!.getTime(), {
+        long: true,
+      });
       const msg = await message.reply({
         embeds: [
           safeEmbed(
             new EmbedBuilder()
               .setTitle("AFK")
               .setDescription(
-                `You are no longer AFK, welcome back! You were AFK for ${ms(
-                  Date.now() - userAfk.timestamp!.getTime(),
-                  { long: true }
-                )}.`
+                `You are no longer AFK, welcome back! You were AFK for ${duration}.`
               )
               .setColor(EmbedColors.info)
               .setFooter({
@@ -44,7 +79,49 @@ export default async (client: Client, message: Message) => {
               })
           ),
         ],
+        components: [undoRow],
       });
+
+      const collector = msg.createMessageComponentCollector({
+        componentType: ComponentType.Button,
+        filter: (i) =>
+          i.customId === buttonId && i.user.id === message.author.id,
+        time: 10000,
+      });
+
+      collector.once("collect", async (interaction) => {
+        await interaction.deferReply({ ephemeral: true });
+        const newAfk = new afk<afkInterface>(afkSnapshot);
+        await newAfk.save();
+        await interaction.editReply({
+          embeds: [
+            safeEmbed(
+              new EmbedBuilder()
+                .setTitle("AFK Set")
+                .setDescription(
+                  `You are AFK again${
+                    afkSnapshot.message
+                      ? ` with the message: "${afkSnapshot.message}"`
+                      : ""
+                  }${
+                    afkSnapshot.expiresAt
+                      ? ` until <t:${Math.floor(
+                          afkSnapshot.expiresAt.getTime() / 1000
+                        )}:f>`
+                      : ""
+                  }.`
+                )
+                .setColor(EmbedColors.success)
+            ),
+          ],
+        });
+        await msg.edit({ components: [] }).catch(() => null);
+      });
+
+      collector.once("end", () => {
+        msg.edit({ components: [] }).catch(() => null);
+      });
+
       deleteAfterRead(msg);
     }
   }
