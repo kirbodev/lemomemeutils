@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "set NODE_ENV=dev && tsx watch src/index.ts | npx pino-pretty",
+    "dev": "tsx watch src/index.ts | npx pino-pretty",
     "build": "tsc",
     "start": "npm run build && node .",
     "test": "tsc && node dist/test.js",

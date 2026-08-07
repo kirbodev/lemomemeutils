@@ -7,8 +7,6 @@ const client = new Client({
   intents: [
     "Guilds",
     "GuildMessages",
-    "GuildMembers",
-    "MessageContent",
     "DirectMessages",
     "GuildBans",
     "GuildEmojisAndStickers",
