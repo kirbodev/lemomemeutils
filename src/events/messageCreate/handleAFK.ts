@@ -41,6 +41,7 @@ export default async (client: Client, message: Message) => {
     if (userAfk.expiresAt && userAfk.expiresAt.getTime() < Date.now()) {
       await userAfk.deleteOne();
     } else if (
+      message.content &&
       !NO_REMOVE_SUFFIXES.some((suffix) => messageLower.endsWith(suffix)) &&
       !message.content.startsWith(`${config.prefix}afk`)
     ) {

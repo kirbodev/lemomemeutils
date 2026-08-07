@@ -17,6 +17,8 @@ import ms from "ms";
 import banMember from "../../helpers/banMember.js";
 import configs from "../../config.js";
 import safeEmbed from "../../utils/safeEmbed.js";
+import { hasGuildMembers } from "../../utils/capabilities.js";
+import { guildMembersRequiredEmbed } from "../../helpers/intentNotice.js";
 
 export default {
   name: "randomban",
@@ -35,6 +37,15 @@ export default {
   requiresHighStaff: true,
   slash: async (interaction: ChatInputCommandInteraction) => {
     await interaction.deferReply();
+    if (!hasGuildMembers()) {
+      return interaction.followUp({
+        embeds: [
+          guildMembersRequiredEmbed(
+            "Randomly selecting and banning a member"
+          ),
+        ],
+      });
+    }
     const graceTime = interaction.options.getString("grace_time") ?? "2m";
     const config = configs.get(interaction.guildId!)!;
     await interaction.guild!.members.fetch();

@@ -15,6 +15,7 @@ import Errors from "../../structures/errors.js";
 import logger from "../../helpers/logger.js";
 import configs from "../../config.js";
 import muteMember from "../../helpers/muteMember.js";
+import getGuildMember from "../../helpers/getGuildMember.js";
 import ms from "ms";
 import Action from "../../db/models/action.js";
 import safeEmbed from "../../utils/safeEmbed.js";
@@ -56,7 +57,7 @@ export default {
 
     const timeMs = time ? ms(time) : undefined;
 
-    const member = interaction.guild!.members.cache.get(user.id);
+    const member = await getGuildMember(interaction.guild!, user.id);
 
     const force = interaction.memberPermissions?.has(
       PermissionsBitField.Flags.Administrator
@@ -398,7 +399,7 @@ export default {
     let reason: string | undefined = args.slice(2).join(" ");
     if (!reason) reason = undefined;
 
-    const member = interaction.guild!.members.cache.get(user.id);
+    const member = await getGuildMember(interaction.guild!, user.id);
 
     const force = interaction.member?.permissions.has(
       PermissionsBitField.Flags.Administrator

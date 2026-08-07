@@ -27,6 +27,7 @@ import moment from "moment";
 import { HydratedDocument } from "mongoose";
 import snipeInterface from "../../structures/snipeInterface.js";
 import analytics from "../../db/models/analytics.js";
+import { missingMessageContentReason } from "../../helpers/intentNotice.js";
 
 export default {
   name: "snipe",
@@ -109,7 +110,11 @@ export default {
           safeEmbed(
             new EmbedBuilder()
               .setTitle("Snipe | No data")
-              .setDescription("No sniped messages found with those parameters.")
+              .setDescription(
+                missingMessageContentReason()
+                  ? "No sniped messages found with those parameters. Snipe capture is also currently disabled because the bot is missing the **Message Content** intent."
+                  : "No sniped messages found with those parameters."
+              )
               .setColor(EmbedColors.info)
               .setFooter({
                 text: `Requested by ${interaction.user.tag}`,
@@ -276,7 +281,11 @@ export default {
           safeEmbed(
             new EmbedBuilder()
               .setTitle("Snipe | No data")
-              .setDescription("No sniped messages found with those parameters.")
+              .setDescription(
+                missingMessageContentReason()
+                  ? "No sniped messages found with those parameters. Snipe capture is also currently disabled because the bot is missing the **Message Content** intent."
+                  : "No sniped messages found with those parameters."
+              )
               .setColor(EmbedColors.info)
               .setFooter({
                 text: `Requested by ${interaction.author.tag}`,

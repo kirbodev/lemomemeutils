@@ -8,6 +8,7 @@ export default async (client: Client, message: Message) => {
   const config = configs.get(message.guild.id);
   if (!config || !config.staffVoteChannelID) return;
   if (message.channelId !== config.staffVoteChannelID) return;
+  if (!message.content) return;
   if (!message.content.startsWith(`r${config.prefix}`)) return;
   if (!message.reference) return;
   const reply = await message.fetchReference();

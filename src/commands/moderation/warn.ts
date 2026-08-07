@@ -17,6 +17,7 @@ import EmbedColors from "../../structures/embedColors.js";
 import Errors from "../../structures/errors.js";
 import warnMember, { WarnResponse } from "../../helpers/warnMember.js";
 import getBanButton from "../../helpers/handleBanButton.js";
+import getGuildMember from "../../helpers/getGuildMember.js";
 import ms from "ms";
 import configs from "../../config.js";
 import safeEmbed from "../../utils/safeEmbed.js";
@@ -55,7 +56,7 @@ export default {
     const reason = interaction.options.getString("reason");
     const time = interaction.options.getString("mute");
     const timeMs = time ? ms(time) : undefined;
-    const member = interaction.guild!.members.cache.get(user.id) as GuildMember;
+    const member = await getGuildMember(interaction.guild!, user.id);
 
     const force = interaction.memberPermissions?.has(
       PermissionsBitField.Flags.Administrator
@@ -400,7 +401,7 @@ export default {
       });
     }
     const timeMs = time ? ms(time) : undefined;
-    const member = interaction.guild!.members.cache.get(user.id) as GuildMember;
+    const member = await getGuildMember(interaction.guild!, user.id);
 
     const force = interaction.member?.permissions.has(
       PermissionsBitField.Flags.Administrator

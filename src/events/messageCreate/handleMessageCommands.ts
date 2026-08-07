@@ -26,6 +26,9 @@ export default async (client: Client, message: Message) => {
   if (!message.guild) return;
   const config = configs.get(message.guild.id);
   if (!config) return;
+  // Without the Message Content intent, messages that don't mention or reply
+  // to the bot have no readable content - there is nothing to parse.
+  if (!message.content) return;
   let res;
   for (const resp in hardResponses) {
     if (resp.startsWith("regex:")) {

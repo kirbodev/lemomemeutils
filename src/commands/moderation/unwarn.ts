@@ -12,6 +12,7 @@ import {
 import EmbedColors from "../../structures/embedColors.js";
 import Errors from "../../structures/errors.js";
 import unwarnMember from "../../helpers/unwarnMember.js";
+import getGuildMember from "../../helpers/getGuildMember.js";
 import { HydratedDocument } from "mongoose";
 import warnInterface from "../../structures/warnInterface.js";
 import Warn from "../../db/models/warn.js";
@@ -44,7 +45,7 @@ export default {
     await interaction.deferReply();
     const user = interaction.options.getUser("user")!;
     const reason = interaction.options.getString("reason");
-    const member = interaction.guild!.members.cache.get(user.id) as GuildMember;
+    const member = await getGuildMember(interaction.guild!, user.id);
 
     const config = configs.get(interaction.guildId!)!;
 
@@ -317,7 +318,7 @@ export default {
     }
     let reason: string | undefined = args.slice(1).join(" ");
     if (!reason) reason = undefined;
-    const member = interaction.guild!.members.cache.get(user.id) as GuildMember;
+    const member = await getGuildMember(interaction.guild!, user.id);
 
     if (!member) {
       return interaction.reply({

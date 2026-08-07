@@ -10,6 +10,8 @@ import type Command from "../../structures/commandInterface.js";
 import EmbedColors from "../../structures/embedColors.js";
 import safeEmbed from "../../utils/safeEmbed.js";
 import lazyMemberSearch from "../../utils/lazyMemberSearch.js";
+import { hasGuildMembers } from "../../utils/capabilities.js";
+import { guildMembersRequiredEmbed } from "../../helpers/intentNotice.js";
 
 export default {
   name: "avatar",
@@ -63,6 +65,13 @@ export default {
       : null;
     let embedDescription;
     if (!user && rawUser) {
+      if (!hasGuildMembers()) {
+        return interaction.reply({
+          embeds: [
+            guildMembersRequiredEmbed("Name-based member search"),
+          ],
+        });
+      }
       user = (await lazyMemberSearch(rawUser, interaction.guild!))?.user;
       if (user && interaction.author.id === "433826072002297856") {
         //angery

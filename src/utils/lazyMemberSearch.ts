@@ -1,9 +1,14 @@
 import { Guild } from "discord.js";
 import Fuse from "fuse.js";
 import { client } from "../index.js";
+import { hasGuildMembers } from "./capabilities.js";
 
-for (const guild of client.guilds.cache.values()) {
-  guild.members.fetch();
+// Fetching the full member list requires the Guild Members privileged intent.
+// Without it, name search simply runs against the (small) cache.
+if (hasGuildMembers()) {
+  for (const guild of client.guilds.cache.values()) {
+    guild.members.fetch();
+  }
 }
 export default async function lazyMemberSearch(name: string, guild: Guild) {
   // find the member with the closest username to the name

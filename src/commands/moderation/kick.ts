@@ -15,6 +15,7 @@ import EmbedColors from "../../structures/embedColors.js";
 import Errors from "../../structures/errors.js";
 import logger from "../../helpers/logger.js";
 import kickMember from "../../helpers/kickMember.js";
+import getGuildMember from "../../helpers/getGuildMember.js";
 import configs from "../../config.js";
 import safeEmbed from "../../utils/safeEmbed.js";
 
@@ -45,7 +46,7 @@ export default {
     const reason = interaction.options.getString("reason");
     const config = configs.get(interaction.guildId!)!;
 
-    const member = interaction.guild!.members.cache.get(user.id);
+    const member = await getGuildMember(interaction.guild!, user.id);
 
     if (!user) {
       return interaction.followUp({
@@ -280,7 +281,7 @@ export default {
     let reason: string | undefined = args.slice(1).join(" ");
     if (!reason) reason = undefined;
 
-    const member = interaction.guild!.members.cache.get(user.id);
+    const member = await getGuildMember(interaction.guild!, user.id);
     if (!member) {
       return interaction.reply({
         embeds: [

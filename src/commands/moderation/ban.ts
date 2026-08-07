@@ -17,6 +17,7 @@ import { Action } from "../../db/index.js";
 import logger from "../../helpers/logger.js";
 import ms from "ms";
 import banMember from "../../helpers/banMember.js";
+import getGuildMember from "../../helpers/getGuildMember.js";
 import configs from "../../config.js";
 import safeEmbed from "../../utils/safeEmbed.js";
 
@@ -71,7 +72,7 @@ export default {
     const reason = interaction.options.getString("reason");
     const config = configs.get(interaction.guildId!)!;
 
-    const member = interaction.guild!.members.cache.get(user.id);
+    const member = await getGuildMember(interaction.guild!, user.id);
 
     const timeMs = time ? ms(time) : undefined;
 
@@ -396,7 +397,7 @@ export default {
     }
     if (!reason) reason = undefined;
 
-    const member = interaction.guild!.members.cache.get(user.id);
+    const member = await getGuildMember(interaction.guild!, user.id);
 
     const timeMs = time ? ms(time) : undefined;
 
