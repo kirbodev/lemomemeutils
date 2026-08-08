@@ -12,24 +12,32 @@ const CHANNEL_NOTICE_DELETE_MS = 7000;
 export function missingMessageContentReason(): string | null {
   if (hasMessageContent()) return null;
   return (
-    "This bot is **missing the Message Content privilege**, so it can no longer read the text or " +
-    "images of most messages in your server. Messages that mention it, reply to it, or come from " +
-    "DMs are still readable.\n\n" +
+    "This notice is intended and set by the bot's developers: Discord changed the requirements for " +
+    "some intents, and the **Message Content** ability is now a **privileged intent** that needs " +
+    "Discord's approval before it can be enabled.\n\n" +
+    "Our application is currently waiting for Discord to approve it. Once approved, this ability will " +
+    "be re-enabled and everything will work again. Until then, the bot can't read the text or images " +
+    "of most messages in your server; messages that mention it, reply to it, or come from DMs are " +
+    "still readable.\n\n" +
     "Because of that, these features are limited or unavailable:\n" +
     "- **Prefix commands & hard replies** (e.g. `,help`, `,ban`)\n" +
     "- **AFK auto-removal** when you come back\n" +
     "- **Staff application reasons** (`r<reason>`)\n" +
     "- **QR-code scanning** of images\n" +
     "- **Snipe snapshots** of deleted/edited messages\n\n" +
-    "This is a developer configuration issue; server staff can re-enable it in the Developer Portal."
+    "This message is only a notice from the developers: no action is needed from you."
   );
 }
 
 export function missingGuildMembersReason(): string | null {
   if (hasGuildMembers()) return null;
   return (
-    "This bot is **missing the Guild Members privilege**, so it cannot request a full member list " +
-    "and therefore can't look at *every* member of a server.\n\n" +
+    "This notice is intended and set by the bot's developers: Discord changed the requirements for " +
+    "some intents, and the **Guild Members** ability is now a **privileged intent** that needs " +
+    "Discord's approval before it can be enabled.\n\n" +
+    "Our application is currently waiting for Discord to approve it. Once approved, this ability will " +
+    "be re-enabled and everything will work again. Until then, the bot cannot request a full member " +
+    "list and therefore can't look at *every* member of a server.\n\n" +
     "Because of that, these features are unavailable:\n" +
     "- **Randomban** (needs the full member list)\n" +
     "- **Member join events** (auto-persisted warnings / pardons / thin-ice)\n" +
@@ -60,7 +68,7 @@ export async function notifyMessageContentDowngrade(
                 `I couldn't read your message in **${guildName}**. ${reason}`
               )
               .setColor(EmbedColors.warning)
-              .setFooter({ text: "Only shown once per session." })
+.setFooter({ text: "Only shown once per session - set by the bot's developers." })
               .setTimestamp(Date.now())
           ),
         ],
@@ -87,7 +95,7 @@ export async function notifyMessageContentDowngrade(
               `I'm missing the **Message Content** feature, so I couldn't read your message in **${guildName}**. I've sent you the details in your DMs.`
             )
             .setColor(EmbedColors.warning)
-            .setFooter({ text: "This notice will disappear shortly." })
+            .setFooter({ text: "Notice set by the bot's developers - will disappear shortly." })
         ),
       ],
     });
@@ -143,11 +151,11 @@ export function guildMembersRequiredEmbed(feature: string): EmbedBuilder {
       .setDescription(
         `**${feature}** needs the bot to see every member in the server, but it doesn't have the **Guild Members** privilege enabled.\n\n${
           missingGuildMembersReason() ??
-          "This feature needs the Guild Members privileged intent."
+          "This feature needs the Guild Members privileged intent, which requires Discord's approval before the bot can enable it."
         }`
       )
       .setColor(EmbedColors.error)
-      .setFooter({ text: "This is a configuration issue." })
+      .setFooter({ text: "Notice set by the bot's developers while Discord approves the application." })
       .setTimestamp(Date.now())
   );
 }

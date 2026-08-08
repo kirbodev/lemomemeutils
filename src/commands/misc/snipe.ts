@@ -112,7 +112,7 @@ export default {
               .setTitle("Snipe | No data")
               .setDescription(
                 missingMessageContentReason()
-                  ? "No sniped messages found with those parameters. Snipe capture is also currently disabled because the bot is missing the **Message Content** intent."
+                  ? "No sniped messages found with those parameters. Snipe capture is also disabled for now: the bot's developers are waiting for Discord to approve the **Message Content** privileged intent."
                   : "No sniped messages found with those parameters."
               )
               .setColor(EmbedColors.info)
@@ -283,7 +283,7 @@ export default {
               .setTitle("Snipe | No data")
               .setDescription(
                 missingMessageContentReason()
-                  ? "No sniped messages found with those parameters. Snipe capture is also currently disabled because the bot is missing the **Message Content** intent."
+                  ? "No sniped messages found with those parameters. Snipe capture is also disabled for now: the bot's developers are waiting for Discord to approve the **Message Content** privileged intent."
                   : "No sniped messages found with those parameters."
               )
               .setColor(EmbedColors.info)
